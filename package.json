@@ -1,0 +1,33 @@
+{
+  "name": "ascii-frog",
+  "version": "1.0.0",
+  "description": "ASCII Frog Generator - A fun web service to generate colorful ASCII art frogs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "browser-sync": "browser-sync start --config bs-config.js",
+    "dev": "concurrently \"npm run server\" \"npm run browser-sync\"",
+    "build": "echo \"Build completed - no build step required for this Node.js app\"",
+    "test": "node test/health-check.js",
+    "test:api": "node test/api-test.js",
+    "lint": "echo \"Linting completed - no linter configured\"",
+    "prod": "NODE_ENV=production node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
+    "helmet": "^8.1.0"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "concurrently": "^9.2.0",
+    "nodemon": "^3.1.10"
+  }
+}

@@ -1,0 +1,36 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Development files
+.git
+.github
+*.md
+PROJECT_PLAN.md
+
+# Development tools
+bs-config.js
+.vscode
+.cursor
+
+# Logs
+logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Temporary folders
+tmp/
+temp/
