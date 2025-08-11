@@ -1,5 +1,5 @@
 # Multi-stage build for ASCII Frog Generator
-FROM node:18-alpine AS base
+FROM p1-flylnp1.jfrogdev.org/docker/node:18-alpine AS base
 
 # Set working directory
 WORKDIR /app
