@@ -8,7 +8,10 @@ The project uses GitHub Actions for automated releases.
 
 **Create feature branch, commit, and create PR:**
 ```bash
-# Create and switch to feature branch
+# Check current branch first
+git branch --show-current
+
+# Create and switch to feature branch (skip if already on feature branch)
 git checkout -b feature/your-feature-name
 
 # Stage your changes

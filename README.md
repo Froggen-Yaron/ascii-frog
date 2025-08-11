@@ -157,14 +157,6 @@ The project includes a streamlined GitHub Actions workflow:
    - Creates GitHub releases
    - Publishes Docker images
 
-#### Triggering Releases
-```bash
-# Create a release tag
-git tag v1.0.0
-git push origin v1.0.0
-
-# This triggers: test → build → push → release
-```
 
 ### 🌐 Simple Production Deployment
 
