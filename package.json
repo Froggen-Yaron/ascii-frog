@@ -7,9 +7,9 @@
     "start": "node backend/server.js",
     "dev": "concurrently \"nodemon backend/server.js\" \"npm run frontend:dev\"",
     "test": "node backend/test/health-check.js",
-    "frontend:dev": "cd frontend && vite --port 3001",
-    "frontend:build": "cd frontend && vite build",
-    "frontend:preview": "cd frontend && vite preview",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "frontend:preview": "cd frontend && npm run preview",
     "build": "npm run frontend:build"
   },
   "keywords": [],
