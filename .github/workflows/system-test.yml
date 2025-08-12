@@ -15,7 +15,7 @@ permissions:
 jobs:
   system-tests:
     name: 🏗️ System Tests
-    runs-on: ubuntu-latest
+    runs-on: runners-scale-set-group-fly
     
     strategy:
       matrix:

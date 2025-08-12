@@ -2,7 +2,7 @@ name: 🔗 Integration Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -13,7 +13,7 @@ permissions:
 jobs:
   integration-tests:
     name: 🔗 Integration Tests
-    runs-on: fly-scale-set-runner-default-scvtl-runner-plc9f
+    runs-on: runners-scale-set-group-fly
     
     steps:
     - name: 📥 Checkout code
