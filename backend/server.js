@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (built frontend or fallback to public)
-const frontendPath = process.env.NODE_ENV === 'production' 
+const frontendPath = process.env.NODE_ENV === 'production'
     ? path.join(__dirname, '../frontend/dist')
     : path.join(__dirname, '../frontend/public');
 app.use(express.static(frontendPath));

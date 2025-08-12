@@ -1,3 +1,6 @@
+// Import CSS
+import './styles.css';
+
 export class AsciiFrogGenerator {
     constructor() {
         this.initializeElements();
