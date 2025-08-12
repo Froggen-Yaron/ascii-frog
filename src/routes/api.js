@@ -1,28 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const {
-    generateColoredFrog,
-    getAvailableTemplates,
-    getAvailableColorSchemes
+    generateFrog,
+    getAvailableTemplates
 } = require('../templates/frogTemplates');
-
 /**
  * POST /api/generate-frog
- * Generate a colored ASCII frog
+ * Generate ASCII frog (plain text)
  */
 router.post('/generate-frog', (req, res) => {
     try {
-        const { template = 'medium', colorScheme = 'classic' } = req.body;
+        const { template = 'classic' } = req.body;
 
-        console.log(`🐸 Generating frog - Template: ${template}, Color: ${colorScheme}`.cyan);
+        console.log(`🐸 Generating frog - Template: ${template}`.cyan);
 
-        const asciiArt = generateColoredFrog(template, colorScheme);
+        const asciiArt = generateFrog(template);
 
         res.json({
             success: true,
             ascii: asciiArt,
             template,
-            colorScheme,
             timestamp: new Date().toISOString()
         });
 
@@ -55,49 +52,25 @@ router.get('/templates', (req, res) => {
     }
 });
 
-/**
- * GET /api/color-schemes
- * Get all available color schemes
- */
-router.get('/color-schemes', (req, res) => {
-    try {
-        const colorSchemes = getAvailableColorSchemes();
-        res.json({
-            success: true,
-            colorSchemes
-        });
-    } catch (error) {
-        console.error('Error fetching color schemes:', error.message);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch color schemes'
-        });
-    }
-});
+
 
 /**
  * GET /api/random-frog
- * Generate a random frog with random template and color scheme
+ * Generate a random frog with random template
  */
 router.get('/random-frog', (req, res) => {
     try {
         const templates = getAvailableTemplates();
-        const colorSchemes = getAvailableColorSchemes();
-
         const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
-        const randomColorScheme = colorSchemes[Math.floor(Math.random() * colorSchemes.length)];
+        const asciiArt = generateFrog(randomTemplate.id);
 
-        const asciiArt = generateColoredFrog(randomTemplate.id, randomColorScheme.id);
-
-        console.log(`🎲 Random frog generated - Template: ${randomTemplate.id}, Color: ${randomColorScheme.id}`.magenta);
+        console.log(`🎲 Random frog generated - Template: ${randomTemplate.id}`.magenta);
 
         res.json({
             success: true,
             ascii: asciiArt,
             template: randomTemplate.id,
-            colorScheme: randomColorScheme.id,
-            templateName: randomTemplate.name,
-            colorSchemeName: randomColorScheme.name,
+            templateName: "Frog Name",
             timestamp: new Date().toISOString()
         });
 

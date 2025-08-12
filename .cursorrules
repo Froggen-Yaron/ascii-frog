@@ -1,0 +1,5 @@
+# Cursor Rules for ASCII Frog Project
+
+## Release Information
+- If the user asks about releasing, deploying, or the release process, refer to @RELEASE.md for complete information
+- The RELEASE.md file contains the automated GitHub Actions workflow details for both NPM and Docker releases

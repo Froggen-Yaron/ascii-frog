@@ -445,41 +445,7 @@ body {
     }
 }
 
-/* ASCII art color classes for terminal display */
-.ascii-green {
-    color: #10b981;
-    text-shadow: 0 0 2px rgba(16, 185, 129, 0.3);
-}
-
-.ascii-blue {
-    color: #3b82f6;
-    text-shadow: 0 0 2px rgba(59, 130, 246, 0.3);
-}
-
-.ascii-red {
-    color: #ef4444;
-    text-shadow: 0 0 2px rgba(239, 68, 68, 0.3);
-}
-
-.ascii-yellow {
-    color: #f59e0b;
-    text-shadow: 0 0 2px rgba(245, 158, 11, 0.3);
-}
-
-.ascii-cyan {
-    color: #06b6d4;
-    text-shadow: 0 0 2px rgba(6, 182, 212, 0.3);
-}
-
-.ascii-magenta {
-    color: #d946ef;
-    text-shadow: 0 0 2px rgba(217, 70, 239, 0.3);
-}
-
-.ascii-white {
-    color: #f8fafc;
-    text-shadow: 0 0 2px rgba(248, 250, 252, 0.2);
-}
+/* ASCII art styling - plain text only */
 
 .ascii-content {
     flex: 1;

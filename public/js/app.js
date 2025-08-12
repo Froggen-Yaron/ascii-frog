@@ -8,7 +8,6 @@ class AsciiFrogGenerator {
 
     initializeElements() {
         this.templateSelect = document.getElementById('template-select');
-        this.colorSelect = document.getElementById('color-select');
         this.generateBtn = document.getElementById('generate-btn');
         this.randomBtn = document.getElementById('random-btn');
         this.copyBtn = document.getElementById('copy-btn');
@@ -24,27 +23,20 @@ class AsciiFrogGenerator {
 
         // Auto-generate on selection change
         this.templateSelect.addEventListener('change', () => this.generateFrog());
-        this.colorSelect.addEventListener('change', () => this.generateFrog());
     }
 
     async loadInitialData() {
         try {
-            // Load templates and color schemes from API
-            const [templatesResponse, colorsResponse] = await Promise.all([
-                fetch('/api/templates'),
-                fetch('/api/color-schemes')
-            ]);
+            // Load templates from API
+            const templatesResponse = await fetch('/api/templates');
 
-            if (templatesResponse.ok && colorsResponse.ok) {
+            if (templatesResponse.ok) {
                 const templatesData = await templatesResponse.json();
-                const colorsData = await colorsResponse.json();
-
                 this.populateTemplateSelect(templatesData.templates);
-                this.populateColorSelect(colorsData.colorSchemes);
             }
         } catch (error) {
             console.error('Error loading initial data:', error);
-            this.showToast('Failed to load templates and colors', 'error');
+            this.showToast('Failed to load templates', 'error');
         }
     }
 
@@ -54,29 +46,15 @@ class AsciiFrogGenerator {
             const option = document.createElement('option');
             option.value = template.id;
             option.textContent = template.name;
-            if (template.id === 'medium') {
+            if (template.id === 'classic') {
                 option.selected = true;
             }
             this.templateSelect.appendChild(option);
         });
     }
 
-    populateColorSelect(colorSchemes) {
-        this.colorSelect.innerHTML = '';
-        colorSchemes.forEach(scheme => {
-            const option = document.createElement('option');
-            option.value = scheme.id;
-            option.textContent = scheme.name;
-            if (scheme.id === 'classic') {
-                option.selected = true;
-            }
-            this.colorSelect.appendChild(option);
-        });
-    }
-
     async generateFrog() {
         const template = this.templateSelect.value;
-        const colorScheme = this.colorSelect.value;
 
         this.setLoading(true);
 
@@ -87,17 +65,16 @@ class AsciiFrogGenerator {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    template,
-                    colorScheme
+                    template
                 })
             });
 
             const data = await response.json();
 
             if (data.success) {
-                this.displayAscii(data.ascii, data.template, data.colorScheme);
+                this.displayAscii(data.ascii, data.template);
                 this.copyBtn.disabled = false;
-                this.showToast(`🐸 Generated ${data.template} frog with ${data.colorScheme} colors!`);
+                this.showToast(`🐸 Generated ${data.template} frog!`);
             } else {
                 throw new Error(data.error || 'Failed to generate frog');
             }
@@ -118,13 +95,12 @@ class AsciiFrogGenerator {
             const data = await response.json();
 
             if (data.success) {
-                // Update the selects to match the random generation
+                // Update the template select to match the random generation
                 this.templateSelect.value = data.template;
-                this.colorSelect.value = data.colorScheme;
 
-                this.displayAscii(data.ascii, data.template, data.colorScheme);
+                this.displayAscii(data.ascii, data.template);
                 this.copyBtn.disabled = false;
-                this.showToast(`🎲 Random frog: ${data.templateName} with ${data.colorSchemeName}!`);
+                this.showToast(`🎲 Random frog: ${data.templateName}!`);
             } else {
                 throw new Error(data.error || 'Failed to generate random frog');
             }
@@ -137,7 +113,7 @@ class AsciiFrogGenerator {
         }
     }
 
-    displayAscii(ascii, template, colorScheme) {
+    displayAscii(ascii, template) {
         this.currentAscii = ascii;
 
         // Strip ANSI codes and keep ASCII art plain
@@ -156,14 +132,13 @@ class AsciiFrogGenerator {
         asciiContainer.style.whiteSpace = 'pre';
         asciiContainer.textContent = cleanAscii;
 
-        // Create colored frog name at bottom
+        // Create plain frog name at bottom
         const nameContainer = document.createElement('div');
         nameContainer.className = 'frog-name-bottom';
         nameContainer.style.fontSize = '16px';
         nameContainer.style.fontWeight = 'bold';
-
-        const coloredName = this.getColoredFrogName(templateName, colorScheme);
-        nameContainer.innerHTML = coloredName;
+        nameContainer.style.color = '#e6edf3';
+        nameContainer.textContent = `🐸 ${templateName}`;
 
         // Clear and append
         this.asciiOutput.innerHTML = '';
@@ -171,65 +146,7 @@ class AsciiFrogGenerator {
         this.asciiOutput.appendChild(nameContainer);
     }
 
-    convertAnsiToHtml(text) {
-        // First, strip all ANSI escape codes to get clean text
-        const cleanText = text.replace(/\x1b\[[0-9;]*m/g, '');
 
-        // Then apply our color scheme based on the selected scheme
-        const colorScheme = this.colorSelect.value;
-        const coloredHtml = this.applyColorScheme(cleanText, colorScheme);
-
-        return coloredHtml;
-    }
-
-    applyColorScheme(text, scheme) {
-        // Apply colors based on characters and scheme
-        const colorMaps = {
-            classic: { body: 'ascii-green', eyes: 'ascii-yellow', accent: 'ascii-white' },
-            tropical: { body: 'ascii-cyan', eyes: 'ascii-magenta', accent: 'ascii-yellow' },
-            fire: { body: 'ascii-red', eyes: 'ascii-yellow', accent: 'ascii-white' },
-            nature: { body: 'ascii-green', eyes: 'ascii-blue', accent: 'ascii-yellow' },
-            royal: { body: 'ascii-blue', eyes: 'ascii-yellow', accent: 'ascii-white' },
-            neon: { body: 'ascii-cyan', eyes: 'ascii-green', accent: 'ascii-magenta' },
-            galaxy: { body: 'ascii-magenta', eyes: 'ascii-cyan', accent: 'ascii-yellow' }
-        };
-
-        const colors = colorMaps[scheme] || colorMaps.classic;
-
-        // Process each line separately to avoid HTML corruption
-        const lines = text.split('\n');
-        const coloredLines = lines.map(line => {
-            // Process each character individually to build proper HTML
-            let coloredLine = '';
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                let colorClass = '';
-
-                // Determine color based on character
-                if (char === '@' || char === 'o' || char === '^' || char === '●' || char === '◉') {
-                    colorClass = colors.eyes;
-                } else if (char === '(' || char === ')' || char === '_' || char === '/' || char === '\\' || char === '|' ||
-                    char === '╭' || char === '╮' || char === '╱' || char === '╲' || char === '│' ||
-                    char === '╰' || char === '┬' || char === '┴' || char === '┤' || char === '├' ||
-                    char === '┐' || char === '┌' || char === '└' || char === '┘') {
-                    colorClass = colors.body;
-                } else if (char === '-' || char === '~' || char === '★' || char === '═' || char === '♔' ||
-                    char === '♦' || char === '∞') {
-                    colorClass = colors.accent;
-                }
-
-                // Apply color if needed, otherwise use plain character
-                if (colorClass) {
-                    coloredLine += `<span class="${colorClass}">${char}</span>`;
-                } else {
-                    coloredLine += char;
-                }
-            }
-            return coloredLine;
-        });
-
-        return coloredLines.join('\n');
-    }
 
     getTemplateData(templateId) {
         // This would ideally come from the API, but for now we'll use a local mapping
@@ -244,20 +161,7 @@ class AsciiFrogGenerator {
         return templateNames[templateId];
     }
 
-    getColoredFrogName(templateName, colorScheme) {
-        const colorMaps = {
-            classic: 'ascii-green',
-            tropical: 'ascii-cyan',
-            fire: 'ascii-red',
-            nature: 'ascii-blue',
-            royal: 'ascii-blue',
-            neon: 'ascii-cyan',
-            galaxy: 'ascii-magenta'
-        };
 
-        const colorClass = colorMaps[colorScheme] || 'ascii-green';
-        return `<span class="${colorClass}">🐸 ${templateName}</span>`;
-    }
 
     displayError(message) {
         this.asciiOutput.innerHTML = `

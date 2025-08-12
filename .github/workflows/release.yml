@@ -11,7 +11,7 @@ permissions:
 jobs:
   npm-release:
     name: 📦 NPM Release
-    runs-on: ubuntu-latest
+    runs-on: fly-scale-set-runner-default-scvtl-runner-plc9f
     
     steps:
     - name: 📥 Checkout code
@@ -39,7 +39,7 @@ jobs:
 
   docker-release:
     name: 🐳 Docker Release
-    runs-on: ubuntu-latest
+    runs-on: fly-scale-set-runner-default-scvtl-runner-plc9f
     
     steps:
     - name: 📥 Checkout code

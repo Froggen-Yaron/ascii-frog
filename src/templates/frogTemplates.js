@@ -1,43 +1,4 @@
-const colors = require('colors');
-
-// Define color schemes for frogs
-const colorSchemes = {
-    classic: {
-        body: 'green',
-        eyes: 'yellow',
-        accent: 'white'
-    },
-    tropical: {
-        body: 'cyan',
-        eyes: 'magenta',
-        accent: 'yellow'
-    },
-    fire: {
-        body: 'red',
-        eyes: 'yellow',
-        accent: 'white'
-    },
-    nature: {
-        body: 'green',
-        eyes: 'blue',
-        accent: 'yellow'
-    },
-    royal: {
-        body: 'blue',
-        eyes: 'yellow',
-        accent: 'white'
-    },
-    neon: {
-        body: 'cyan',
-        eyes: 'green',
-        accent: 'magenta'
-    },
-    galaxy: {
-        body: 'magenta',
-        eyes: 'cyan',
-        accent: 'yellow'
-    }
-};
+// ASCII Frog Templates - Plain text only, no colors
 
 // Professional ASCII frog templates from classic ASCII artists
 const templates = {
@@ -48,17 +9,7 @@ const templates = {
             '  (\\_--/)',
             '   // \\\\',
             '  ^^   ^^'
-        ],
-        colorMap: {
-            '0': 'eyes',
-            '(': 'body',
-            ')': 'body',
-            '\\': 'body',
-            '/': 'body',
-            '_': 'body',
-            '-': 'accent',
-            '^': 'accent'
-        }
+        ]
     },
 
     classic: {
@@ -68,18 +19,7 @@ const templates = {
             '      .-(___)-.',
             '       _<   >_',
             '       \\/   \\/'
-        ],
-        colorMap: {
-            '(': 'eyes',
-            ')': 'eyes',
-            '-': 'eyes',
-            '.': 'body',
-            '_': 'body',
-            '<': 'body',
-            '>': 'body',
-            '\\': 'body',
-            '/': 'body'
-        }
+        ]
     },
 
     happy: {
@@ -91,18 +31,7 @@ const templates = {
             '      /00\\',
             '  _/^(----)^\\_',
             ' ^^^^^^^^^^^^^^'
-        ],
-        colorMap: {
-            'l': 'eyes',
-            '(': 'eyes',
-            ')': 'eyes',
-            '/': 'body',
-            '\\': 'body',
-            '_': 'body',
-            '0': 'eyes',
-            '-': 'accent',
-            '^': 'accent'
-        }
+        ]
     },
 
     sitting: {
@@ -115,21 +44,7 @@ const templates = {
             '   __\\ _\\ \\___/ /_ /__',
             '     /|  /|\\ /|\\  |\\',
             '    ^^   ^^  ^^   ^^'
-        ],
-        colorMap: {
-            '(': 'eyes',
-            ')': 'eyes',
-            'o': 'eyes',
-            '.': 'body',
-            '-': 'body',
-            '/': 'body',
-            '\\': 'body',
-            '_': 'body',
-            '|': 'body',
-            '\'': 'accent',
-            '=': 'accent',
-            '^': 'accent'
-        }
+        ]
     },
 
     large: {
@@ -147,27 +62,7 @@ const templates = {
             ' >_       _} |  |  | {_       _<',
             '  /. - ~ ,_-\'  .^.  `-_, ~ - .\\',
             '          \'-\'|/   \\|`-`'
-        ],
-        colorMap: {
-            '.': 'body',
-            '-': 'body',
-            '(': 'body',
-            ')': 'body',
-            'O': 'eyes',
-            '/': 'body',
-            '\\': 'body',
-            '_': 'body',
-            '|': 'body',
-            '~': 'accent',
-            '^': 'accent',
-            'V': 'accent',
-            '`': 'body',
-            '\'': 'body',
-            '{': 'body',
-            '}': 'body',
-            '<': 'body',
-            '>': 'body'
-        }
+        ]
     },
 
     simple: {
@@ -176,53 +71,28 @@ const templates = {
             '        00         ',
             '      (\\__/)       ',
             ' __(  I I   I I  )__'
-        ],
-        colorMap: {
-            '0': 'eyes',
-            '(': 'body',
-            ')': 'body',
-            '\\': 'body',
-            '/': 'body',
-            '_': 'body',
-            'I': 'body'
-        }
+        ]
     }
 };
 
 /**
- * Generate a colored ASCII frog
+ * Generate ASCII frog (plain text, no colors)
  * @param {string} templateName - Name of the template to use
- * @param {string} colorScheme - Color scheme to apply
- * @returns {string} Colored ASCII art string
+ * @returns {string} Plain ASCII art string
  */
-function generateColoredFrog(templateName = 'medium', colorScheme = 'classic') {
+function generateFrog(templateName = 'classic') {
     const template = templates[templateName];
-    const scheme = colorSchemes[colorScheme];
 
     if (!template) {
         throw new Error(`Template "${templateName}" not found`);
     }
 
-    if (!scheme) {
-        throw new Error(`Color scheme "${colorScheme}" not found`);
-    }
-
-    let coloredAscii = '';
-
+    let ascii = '';
     template.ascii.forEach(line => {
-        let coloredLine = '';
-        for (let char of line) {
-            const colorType = template.colorMap[char];
-            if (colorType && scheme[colorType]) {
-                coloredLine += char[scheme[colorType]];
-            } else {
-                coloredLine += char;
-            }
-        }
-        coloredAscii += coloredLine + '\n';
+        ascii += line + '\n';
     });
 
-    return coloredAscii;
+    return ascii;
 }
 
 /**
@@ -237,22 +107,8 @@ function getAvailableTemplates() {
     }));
 }
 
-/**
- * Get all available color schemes
- * @returns {Array} Array of color scheme names
- */
-function getAvailableColorSchemes() {
-    return Object.keys(colorSchemes).map(key => ({
-        id: key,
-        name: key.charAt(0).toUpperCase() + key.slice(1),
-        colors: colorSchemes[key]
-    }));
-}
-
 module.exports = {
-    generateColoredFrog,
+    generateFrog,
     getAvailableTemplates,
-    getAvailableColorSchemes,
-    templates,
-    colorSchemes
+    templates
 };
