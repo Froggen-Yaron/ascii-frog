@@ -13,7 +13,7 @@ permissions:
 jobs:
   integration-tests:
     name: 🔗 Integration Tests
-    runs-on: runners-scale-set-group-fly
+    runs-on: self-hosted
     
     steps:
     - name: 📥 Checkout code

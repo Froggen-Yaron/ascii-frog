@@ -13,7 +13,7 @@ permissions:
 jobs:
   unit-tests:
     name: 🔬 Unit Tests
-    runs-on: runners-scale-set-group-fly
+    runs-on: self-hosted
     
     steps:
     - name: 📥 Checkout code
