@@ -5,14 +5,8 @@
   "main": "backend/server.js",
   "scripts": {
     "start": "node backend/server.js",
-    "server": "nodemon backend/server.js",
-    "browser-sync": "browser-sync start --config frontend/bs-config.js",
-    "dev": "concurrently \"npm run server\" \"npm run browser-sync\"",
-    "build": "echo \"Build completed - no build step required for this Node.js app\"",
-    "test": "node backend/test/health-check.js",
-    "test:api": "node backend/test/api-test.js",
-    "lint": "echo \"Linting completed - no linter configured\"",
-    "prod": "NODE_ENV=production node backend/server.js"
+    "dev": "concurrently \"nodemon backend/server.js\" \"browser-sync start --config frontend/bs-config.js\"",
+    "test": "node backend/test/health-check.js"
   },
   "keywords": [],
   "author": "",
