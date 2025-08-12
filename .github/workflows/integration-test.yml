@@ -13,7 +13,7 @@ permissions:
 jobs:
   integration-tests:
     name: 🔗 Integration Tests
-    runs-on: self-hosted
+    runs-on: fly-scale-set-runner-default
     
     steps:
     - name: 📥 Checkout code

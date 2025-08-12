@@ -15,7 +15,7 @@ permissions:
 jobs:
   system-tests:
     name: 🏗️ System Tests
-    runs-on: self-hosted
+    runs-on: fly-scale-set-runner-default
     
     strategy:
       matrix:
