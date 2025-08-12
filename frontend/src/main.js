@@ -1,4 +1,4 @@
-class AsciiFrogGenerator {
+export class AsciiFrogGenerator {
     constructor() {
         this.initializeElements();
         this.bindEvents();
@@ -255,6 +255,9 @@ class AsciiFrogGenerator {
 document.addEventListener('DOMContentLoaded', () => {
     new AsciiFrogGenerator();
 });
+
+// Export for ES6 modules
+export default AsciiFrogGenerator;
 
 // Add some fun console messages
 console.log(`

@@ -13,6 +13,9 @@ RUN npm ci --only=production
 # Copy application source
 COPY . .
 
+# Build frontend for production
+RUN npm run build
+
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S froggen -u 1001

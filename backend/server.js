@@ -22,15 +22,21 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '../frontend/public')));
+// Serve static files (built frontend or fallback to public)
+const frontendPath = process.env.NODE_ENV === 'production' 
+    ? path.join(__dirname, '../frontend/dist')
+    : path.join(__dirname, '../frontend/public');
+app.use(express.static(frontendPath));
 
 // API routes
 app.use('/api', apiRoutes);
 
 // Root route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/public', 'index.html'));
+    const htmlPath = process.env.NODE_ENV === 'production'
+        ? path.join(__dirname, '../frontend/dist', 'index.html')
+        : path.join(__dirname, '../frontend', 'index.html');
+    res.sendFile(htmlPath);
 });
 
 // Error handling middleware
