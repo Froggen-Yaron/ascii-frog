@@ -8,7 +8,7 @@ const colors = require('colors');
 const apiRoutes = require('./src/routes/api');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Security middleware
 app.use(helmet({
@@ -52,8 +52,8 @@ app.use('*', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`🐸 ASCII Frog Generator server running on port ${PORT}`.green.bold);
-    console.log(`🌐 Open http://localhost:${PORT} in your browser`.cyan);
+    console.log(`🐸 ASCII Frog Generator API server running on port ${PORT}`.green.bold);
+    console.log(`🌐 Frontend available at http://localhost:3000`.cyan);
 });
 
 module.exports = app;
