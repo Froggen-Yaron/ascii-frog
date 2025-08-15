@@ -1,5 +1,17 @@
 # Cursor Rules for ASCII Frog Project
 
-## Release Information
-- If the user asks about releasing, deploying, or the release process, refer to @RELEASE.md for complete information
-- The RELEASE.md file contains the automated GitHub Actions workflow details for both NPM and Docker releases
+## Auto Import Rules
+- When I use `colors.green()`, `colors.red()`, etc., automatically suggest adding: `const colors = require('colors');`
+- When I use `express()`, automatically suggest: `const express = require('express');`
+- When I use functions from our local modules, suggest the appropriate require statement
+- Always prefer CommonJS `require()` syntax over ES6 imports for Node.js files
+
+## Common Imports for this project:
+- `const colors = require('colors');` - for terminal colors
+- `const express = require('express');` - for web server
+- `const { generateFrog, getAvailableTemplates } = require('../templates/templates');` - for frog templates
+- `const { generateSpecificFrog, generateRandomFrog } = require('../services/frog-generator');` - for frog generation
+
+## Auto-fix suggestions
+- When I have missing imports, suggest adding them at the top of the file
+- When I ask to "fix imports" or "add missing imports", scan the file for undefined variables and suggest appropriate require statements

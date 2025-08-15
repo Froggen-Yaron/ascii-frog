@@ -1,0 +1,9 @@
+{
+  "typescript.suggest.autoImports": "on",
+  "javascript.suggest.autoImports": "on",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "javascript.preferences.includePackageJsonAutoImports": "on",
+  "editor.codeActionsOnSave": {
+    "source.addMissingImports": true
+  }
+}

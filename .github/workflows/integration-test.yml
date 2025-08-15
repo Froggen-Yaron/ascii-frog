@@ -29,7 +29,7 @@ jobs:
     - name: Setup JFrog Fly
       uses: jfrog/fly-action@v1
       with:
-        registry: https://p1-flylnp1.jfrogdev.org
+        url: https://p1-flylnp1.jfrogdev.org
         
     - name: 📦 Install dependencies
       run: npm ci

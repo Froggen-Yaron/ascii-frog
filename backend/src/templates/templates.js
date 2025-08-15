@@ -1,9 +1,9 @@
-// ASCII Frog Templates - Plain text only, no colors
+// ASCII Frog Templates - plain text names, colors applied in API layer
 
 // Professional ASCII frog templates from classic ASCII artists
 const templates = {
     tiny: {
-        name: 'Tiny Frog',
+        name: 'Strawberry Poison Frog',
         ascii: [
             '     00',
             '  (\\_--/)',
@@ -13,7 +13,7 @@ const templates = {
     },
 
     classic: {
-        name: 'Classic Frog',
+        name: 'American Bullfrog',
         ascii: [
             '        ()--()',
             '      .-(___)-.',
@@ -23,7 +23,7 @@ const templates = {
     },
 
     happy: {
-        name: 'Happy Frog',
+        name: 'Red-eyed Tree Frog',
         ascii: [
             '     (l)-(l)',
             '     /_____\\',
@@ -35,7 +35,7 @@ const templates = {
     },
 
     sitting: {
-        name: 'Sitting Frog',
+        name: 'Common Frog',
         ascii: [
             '           _   _',
             '          (o)-(o)',
@@ -48,7 +48,7 @@ const templates = {
     },
 
     large: {
-        name: 'Large Frog',
+        name: 'Goliath Frog',
         ascii: [
             '           .--._.--.',
             '          ( O     O )',
@@ -66,7 +66,7 @@ const templates = {
     },
 
     simple: {
-        name: 'Simple Frog',
+        name: 'Desert Rain Frog',
         ascii: [
             '        00         ',
             '      (\\__/)       ',
@@ -76,9 +76,9 @@ const templates = {
 };
 
 /**
- * Generate ASCII frog (plain text, no colors)
+ * Generate ASCII frog with name (plain text, no colors)
  * @param {string} templateName - Name of the template to use
- * @returns {string} Plain ASCII art string
+ * @returns {Object} Object containing ASCII art string and frog name
  */
 function generateFrog(templateName = 'classic') {
     const template = templates[templateName];
@@ -92,7 +92,10 @@ function generateFrog(templateName = 'classic') {
         ascii += line + '\n';
     });
 
-    return ascii;
+    return {
+        ascii,
+        name: template.name
+    };
 }
 
 /**

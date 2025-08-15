@@ -1,30 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const {
-    generateFrog,
-    getAvailableTemplates
-} = require('../templates/frogTemplates');
+const { getAvailableTemplates } = require('../templates/templates');
+const { generateSpecificFrog, generateRandomFrog } = require('../services/frog-generator');
 /**
  * POST /api/generate-frog
- * Generate ASCII frog (plain text)
+ * Generate AI-powered ASCII frog
  */
 router.post('/generate-frog', (req, res) => {
     try {
-        const { template = 'classic' } = req.body;
+        const { frog = 'classic' } = req.body;
 
-        console.log(`🐸 Generating frog - Template: ${template}`.cyan);
+        console.log(`🐸 AI generating frog - Type: ${frog}`.cyan);
 
-        const asciiArt = generateFrog(template);
+        const frogData = generateSpecificFrog(frog);
 
         res.json({
             success: true,
-            ascii: asciiArt,
-            template,
-            timestamp: new Date().toISOString()
+            ...frogData
         });
 
     } catch (error) {
-        console.error('Error generating frog:', error.message);
+        console.error('Error generating AI frog:', error.message);
         res.status(400).json({
             success: false,
             error: error.message
@@ -33,21 +29,27 @@ router.post('/generate-frog', (req, res) => {
 });
 
 /**
- * GET /api/templates
- * Get all available frog templates
+ * GET /api/frogs
+ * Get all available AI-generated frogs
  */
-router.get('/templates', (req, res) => {
+router.get('/frogs', (req, res) => {
     try {
-        const templates = getAvailableTemplates();
+        const frogs = getAvailableTemplates().map(template => ({
+            id: template.id,
+            name: template.name,
+            preview: template.preview,
+            type: 'AI-generated'
+        }));
         res.json({
             success: true,
-            templates
+            frogs,
+            totalFrogs: frogs.length
         });
     } catch (error) {
-        console.error('Error fetching templates:', error.message);
+        console.error('Error fetching frogs:', error.message);
         res.status(500).json({
             success: false,
-            error: 'Failed to fetch templates'
+            error: 'Failed to fetch frogs'
         });
     }
 });
@@ -56,29 +58,116 @@ router.get('/templates', (req, res) => {
 
 /**
  * GET /api/random-frog
- * Generate a random frog with random template
+ * Generate a random AI-powered frog
  */
 router.get('/random-frog', (req, res) => {
     try {
-        const templates = getAvailableTemplates();
-        const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
-        const asciiArt = generateFrog(randomTemplate.id);
-
-        console.log(`🎲 Random frog generated - Template: ${randomTemplate.id}`.magenta);
+        const frogData = generateRandomFrog();
 
         res.json({
             success: true,
-            ascii: asciiArt,
-            template: randomTemplate.id,
-            templateName: "Frog Name",
-            timestamp: new Date().toISOString()
+            ...frogData
         });
 
     } catch (error) {
-        console.error('Error generating random frog:', error.message);
+        console.error('Error generating random AI frog:', error.message);
         res.status(500).json({
             success: false,
             error: 'Failed to generate random frog'
+        });
+    }
+});
+
+/**
+ * GET /api/terminal-config
+ * Get terminal theme, configuration, and messages
+ */
+router.get('/terminal-config', (req, res) => {
+    try {
+        const config = {
+            theme: {
+                background: '#0d1117',
+                foreground: '#e6edf3',
+                cursor: '#58a6ff',
+                black: '#484f58',
+                red: '#ff7b72',
+                green: '#3fb950',
+                yellow: '#d29922',
+                blue: '#58a6ff',
+                magenta: '#bc8cff',
+                cyan: '#39c5cf',
+                white: '#b1bac4',
+                brightBlack: '#6e7681',
+                brightRed: '#ffa198',
+                brightGreen: '#56d364',
+                brightYellow: '#e3b341',
+                brightBlue: '#79c0ff',
+                brightMagenta: '#d2a8ff',
+                brightCyan: '#56d4dd',
+                brightWhite: '#f0f6fc'
+            },
+            settings: {
+                fontFamily: 'Fira Code, monospace',
+                fontSize: 14,
+                rows: 24,
+                cols: 80,
+                cursorBlink: true,
+                scrollback: 0,
+                disableStdin: true
+            },
+            messages: {
+                welcome: '🤖🐸 Welcome to AI Frog Generator Terminal!',
+                prompt: 'ai-frog@terminal:~$ '
+            }
+        };
+
+        res.json({
+            success: true,
+            config
+        });
+    } catch (error) {
+        console.error('Error fetching terminal config:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch terminal configuration'
+        });
+    }
+});
+
+/**
+ * POST /api/format-clipboard
+ * Format AI-generated ASCII art and species name for clipboard copying
+ */
+router.post('/format-clipboard', (req, res) => {
+    try {
+        const { ascii, frogName } = req.body;
+
+        if (!ascii || !frogName) {
+            return res.status(400).json({
+                success: false,
+                error: 'ASCII art and frog name are required'
+            });
+        }
+
+        // Remove ANSI color codes for plain text copy
+        const plainAscii = ascii.replace(/\x1b\[[0-9;]*m/g, '');
+
+        // Remove ANSI color codes from frog name for plain text copy
+        const plainFrogName = frogName.replace(/\x1b\[[0-9;]*m/g, '');
+
+        // Combine ASCII art with frog name
+        const fullText = `${plainAscii}\n\n${plainFrogName}\n\nGenerated by AI`;
+
+        res.json({
+            success: true,
+            formattedText: fullText
+        });
+
+    } catch (error) {
+        console.error('Error formatting clipboard text:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to format clipboard text'
         });
     }
 });
