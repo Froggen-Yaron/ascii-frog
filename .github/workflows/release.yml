@@ -23,7 +23,7 @@ jobs:
         node-version: '20'
         
     - name: Setup JFrog Fly
-      uses: jfrog/fly-action@v1
+      uses: FrogGen/fly-action
       with:
         url: https://p1-flylnp1.jfrogdev.org
         
@@ -46,7 +46,7 @@ jobs:
       uses: actions/checkout@v4
     
     - name: Setup JFrog Fly
-      uses: jfrog/fly-action@v1
+      uses: FrogGen/fly-action
       with:
         url: https://p1-flylnp1.jfrogdev.org
     
