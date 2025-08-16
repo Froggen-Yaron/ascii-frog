@@ -88,7 +88,13 @@ jobs:
         url: https://p1-flylnp1.jfrogdev.org
     
     - name: 🔨 Build Docker image
-      run: docker build -t ascii-frog .
+      run: |
+        # Copy the fly-action configured .npmrc to build context
+        cp ~/.npmrc .
+        # Build (only build stage will have .npmrc, production won't)
+        docker build -t ascii-frog .
+        # Clean up .npmrc from build context
+        rm -f .npmrc
 
     - name: 🚀 Push Docker images
       run: |

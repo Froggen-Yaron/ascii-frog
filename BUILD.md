@@ -6,7 +6,19 @@ Your project uses JFrog Fly registry which requires authentication. Docker build
 
 ## ✅ Solutions (No Credentials in Repo)
 
-### Option 1: Build with Arguments (Recommended)
+### Option 1: Use fly-action configured .npmrc (Recommended for CI)
+
+If you have fly-action configured (like in CI):
+```bash
+# Copy configured .npmrc to build context
+cp ~/.npmrc .
+# Build (multi-stage keeps credentials only in build stage)
+docker build -t ascii-frog .
+# Clean up
+rm -f .npmrc
+```
+
+### Option 2: Manual build args (Local development)
 
 ```bash
 # Get your auth token from ~/.npmrc
@@ -15,8 +27,6 @@ NPM_TOKEN=$(grep "_authToken" ~/.npmrc | cut -d'=' -f2)
 # Build with authentication
 docker build --build-arg NPM_AUTH_TOKEN="$NPM_TOKEN" -t ascii-frog .
 ```
-
-**Note:** Modern npm (v7+) handles authentication automatically when auth tokens are configured - no need for `always-auth` setting.
 
 ### Option 2: Docker Compose Override
 

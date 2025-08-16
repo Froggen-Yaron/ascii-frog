@@ -3,17 +3,11 @@ FROM p1-flylnp1.jfrogdev.org/docker/node:18-alpine AS deps
 
 WORKDIR /app
 
-# Accept build argument for npm authentication (only in build stage)
-ARG NPM_AUTH_TOKEN
+# Copy package files AND .npmrc (configured by fly-action, only in build stage)
+COPY package*.json .npmrc ./
 
-# Copy package files
-COPY package*.json ./
-
-# Configure npm registry temporarily
-RUN npm config set registry https://p1-flylnp1.jfrogdev.org/artifactory/api/npm/npm/ && \
-    npm config set //p1-flylnp1.jfrogdev.org/artifactory/api/npm/npm/:_authToken ${NPM_AUTH_TOKEN} && \
-    npm ci --only=production && \
-    npm cache clean --force
+# Install dependencies using the configured .npmrc
+RUN npm ci --only=production
 
 # Production stage (clean, no credentials)
 FROM p1-flylnp1.jfrogdev.org/docker/node:18-alpine AS production
