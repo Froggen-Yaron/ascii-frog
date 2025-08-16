@@ -1,4 +1,4 @@
-# Multi-stage build for ASCII Frog Generator
+# Production build for ASCII Frog Generator
 FROM p1-flylnp1.jfrogdev.org/docker/node:18-alpine AS base
 
 # Set working directory
@@ -16,6 +16,9 @@ COPY . .
 # Build frontend for production
 RUN npm run build
 
+# Install curl for health checks (before switching to non-root user)
+RUN apk add --no-cache curl
+
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S froggen -u 1001
@@ -27,9 +30,9 @@ USER froggen
 # Expose port
 EXPOSE 3000
 
-# Health check
+# Health check using proper endpoint
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node backend/test/health-check.js
+    CMD curl -f http://localhost:3000/health || exit 1
 
 # Set environment variables
 ENV NODE_ENV=production
