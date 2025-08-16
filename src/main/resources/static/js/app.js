@@ -10,6 +10,7 @@ class PhotoFrogApp {
     init() {
         this.bindEvents();
         this.loadTemplates();
+        this.loadSupportedFormats();
     }
 
     bindEvents() {
@@ -55,6 +56,18 @@ class PhotoFrogApp {
         }
     }
 
+    async loadSupportedFormats() {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/formats`);
+            if (response.ok) {
+                const formats = await response.json();
+                this.populateFormatSelect(formats);
+            }
+        } catch (error) {
+            console.error('Error loading formats:', error);
+        }
+    }
+
     populateTemplateSelect(templates) {
         const select = document.getElementById('template');
         select.innerHTML = '';
@@ -63,6 +76,18 @@ class PhotoFrogApp {
             const option = document.createElement('option');
             option.value = template.id;
             option.textContent = template.name;
+            select.appendChild(option);
+        });
+    }
+
+    populateFormatSelect(formats) {
+        const select = document.getElementById('format');
+        select.innerHTML = '';
+        
+        formats.forEach(format => {
+            const option = document.createElement('option');
+            option.value = format;
+            option.textContent = format.toUpperCase();
             select.appendChild(option);
         });
     }
