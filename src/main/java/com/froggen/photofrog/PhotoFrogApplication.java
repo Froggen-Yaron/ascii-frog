@@ -17,3 +17,4 @@ public class PhotoFrogApplication {
     }
 }
 // Feature 4
+// Enhancement 4
