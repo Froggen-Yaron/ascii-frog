@@ -31,7 +31,7 @@ jobs:
         cache: 'npm'
         
     - name: Setup JFrog Fly
-      uses: FrogGen/fly-action
+      uses: FrogGen/fly-action@v1
       with:
         url: https://p1-flylnp1.jfrogdev.org
         
