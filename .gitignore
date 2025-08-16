@@ -19,7 +19,6 @@ pids
 
 # NPM configuration with credentials (never commit!)
 .npmrc
-docker-compose.override.yml
 
 # Logs
 logs
