@@ -4,6 +4,7 @@ import com.froggen.photofrog.model.FrogTemplate;
 import com.froggen.photofrog.model.PhotoRequest;
 import com.froggen.photofrog.model.PhotoResponse;
 import com.froggen.photofrog.util.ImageUtils;
+import com.froggen.photofrog.util.PhotoFilters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +18,13 @@ public class PhotoGenerationService {
     
     private final TemplateService templateService;
     private final ImageUtils imageUtils;
+    private final PhotoFilters photoFilters;
 
     @Autowired
-    public PhotoGenerationService(TemplateService templateService, ImageUtils imageUtils) {
+    public PhotoGenerationService(TemplateService templateService, ImageUtils imageUtils, PhotoFilters photoFilters) {
         this.templateService = templateService;
         this.imageUtils = imageUtils;
+        this.photoFilters = photoFilters;
     }
 
     /**
@@ -91,5 +94,12 @@ public class PhotoGenerationService {
         return templateService.getTemplateById(templateId)
                 .map(FrogTemplate::getAvailableExpressions)
                 .orElse(new String[0]);
+    }
+
+    /**
+     * Apply expression filter to an image.
+     */
+    public java.awt.image.BufferedImage applyExpressionFilter(java.awt.image.BufferedImage image, String expression) {
+        return photoFilters.applyExpressionFilter(image, expression);
     }
 }

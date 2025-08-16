@@ -83,6 +83,28 @@ public class TemplateService {
             new String[]{"happy", "sad", "surprised", "excited"}
         ));
         
+        // Tree Frog Template
+        defaultTemplates.add(new FrogTemplate(
+            "frog4",
+            "Tree Frog",
+            "A colorful tree frog on a branch",
+            "/images/templates/frog4.jpg",
+            "tree",
+            new String[]{"small", "medium", "large", "custom"},
+            new String[]{"happy", "surprised", "excited", "determined"}
+        ));
+        
+        // Bullfrog Template
+        defaultTemplates.add(new FrogTemplate(
+            "frog5",
+            "Bullfrog",
+            "A large bullfrog in a pond",
+            "/images/templates/frog5.jpg",
+            "bullfrog",
+            new String[]{"medium", "large", "custom"},
+            new String[]{"happy", "sad", "determined"}
+        ));
+        
         return defaultTemplates;
     }
 
