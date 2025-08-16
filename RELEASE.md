@@ -24,29 +24,42 @@ git commit -m "feat: add new frog template and improve UI styling"
 ```
 
 **2. Bump version (only if you want to trigger a release):**
+
+**Choose the appropriate version bump based on your changes:**
+
 ```bash
-# For patch fixes (1.0.1 → 1.0.2)
+# PATCH (1.0.1 → 1.0.2) - Bug fixes, small improvements, no API changes
 npm version patch
 
-# For new features (1.0.1 → 1.1.0)
+# MINOR (1.0.1 → 1.1.0) - New features, backward compatible changes  
 npm version minor
 
-# For breaking changes (1.0.1 → 2.0.0)
+# MAJOR (1.0.1 → 2.0.0) - Breaking changes, API changes, major rewrites
 npm version major
-
-# Commit the version bump
-git add package.json
-git commit -m "chore: bump version to 1.0.2"
 ```
 
-**3. Push and create PR:**
+**💡 AI Assistant Guidelines:**
+- **Analyze git changes**: Check `git diff` to see what files/code changed
+- **Auto-detect version type**: 
+  - **PATCH**: Bug fixes, docs, tests, small improvements
+  - **MINOR**: New files, new features, enhancements
+  - **MAJOR**: Breaking changes, API changes, major rewrites
+- **Execute automatically**: Run the appropriate `npm version` command based on analysis
+
+```bash
+# Commit the version bump (done automatically by npm version)
+# No need to manually add package.json - npm version handles it
+```
+
+**3. Push to feature branch:**
 ```bash
 # Push to feature branch
 git push origin feature/your-feature-name
 ```
 
-**4. Merge to main:**
-- Create a Pull Request to `main` branch
+**4. Create PR manually (user action):**
+- Go to GitHub and create a Pull Request to `main` branch
+- Review and merge the PR
 - When the PR is merged to `main`, this automatically triggers the `🐸 ASCII Frog Release` workflow
 
 **⚠️ Important Notes:**
@@ -112,9 +125,6 @@ The workflow intelligently handles releases to prevent version conflicts:
 ✅ Release completed successfully
 ```
 
-**❌ 403 Forbidden Error**
-*This should no longer happen with our smart version checking.*
-*If it does occur, ensure you bumped the version number in package.json.*
 
 ### Release Checklist
 
