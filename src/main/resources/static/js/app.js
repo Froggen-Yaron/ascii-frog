@@ -23,6 +23,11 @@ class PhotoFrogApp {
             this.generateRandomFrog();
         });
 
+        // Preview button
+        document.getElementById('previewBtn').addEventListener('click', () => {
+            this.showPreview();
+        });
+
         // Download button
         document.getElementById('downloadBtn').addEventListener('click', () => {
             this.downloadImage();
@@ -137,6 +142,30 @@ class PhotoFrogApp {
         // For now, we'll just update the UI to reflect the current settings
         const config = this.getConfiguration();
         console.log('Preview updated with config:', config);
+    }
+
+    showPreview() {
+        const config = this.getConfiguration();
+        const preview = document.getElementById('preview');
+        
+        // Show a preview card with current settings
+        preview.innerHTML = `
+            <div class="preview-card">
+                <h3>Preview Settings</h3>
+                <div class="preview-details">
+                    <p><strong>Template:</strong> ${config.template}</p>
+                    <p><strong>Size:</strong> ${config.size}</p>
+                    <p><strong>Expression:</strong> ${config.expression}</p>
+                    <p><strong>Format:</strong> ${config.format}</p>
+                </div>
+                <div class="preview-placeholder">
+                    <span>🐸</span>
+                    <p>Click "Generate" to create your frog!</p>
+                </div>
+            </div>
+        `;
+        
+        this.showMessage('Preview updated!', 'success');
     }
 
     downloadImage() {
