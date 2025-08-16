@@ -92,34 +92,25 @@ jobs:
 
     - name: 🔨 Build and Push Docker image
       run: |
-        echo "🖥️ Workflow Runner Info:"
-        echo "OS: $(uname -s)"
-        echo "Architecture: $(uname -m)" 
-        echo "Full system: $(uname -a)"
-        echo "Docker host info:"
-        docker info --format 'Platform: {{.OSType}}/{{.Architecture}}'
-        echo "🐳 Docker version:"
-        docker version
-        echo ""
-        
-        # Setup buildx builder with explicit configuration
-        docker buildx create --name ci-builder --driver docker-container --use || true
-        docker buildx inspect --bootstrap
-        
         VERSION=$(jq -r .version < package.json)
         echo "📦 Building and pushing version: $VERSION"
-        echo "🏗️ Targeting linux/amd64 platform explicitly"
-        echo "🎯 FINAL: Using dedicated builder WITH attestation flags (both required)"
+        echo "🏗️ Using simple docker build"
         
-        docker buildx build \
-          --builder ci-builder \
-          --platform linux/amd64 \
-          --secret id=npmrc,src=$HOME/.npmrc \
-          --tag p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION \
-          --tag p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest \
-          --push \
-          --provenance=false \
-          --sbom=false \
-          .
+        # Copy .npmrc to build context (will be removed in Dockerfile)
+        cp ~/.npmrc .
+        
+        # Build with simple docker build
+        docker build -t ascii-frog .
+        
+        # Tag for both version and latest
+        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
+        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+        
+        # Push both tags
+        docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
+        docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+        
+        # Clean up .npmrc from build context
+        rm -f .npmrc
         
         echo "🎉 Built and pushed both tags successfully!"
