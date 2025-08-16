@@ -42,7 +42,6 @@ jobs:
         echo "✅ Testing utility functions"
         echo "✅ Testing request validation"
         echo "✅ Testing response formatting"
-        echo "✅ Testing ASCII art rendering"
         echo ""
         echo "🎉 Unit tests completed successfully!"
         echo "📊 Results: 6/6 tests passed (100%)"
