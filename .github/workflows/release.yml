@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   check-version:
-    name: 🔍 Version Check
+    name: 🔍 Should Release?
     runs-on: fly-scale-set-runner-default
     outputs:
       should-release: ${{ steps.check.outputs.should-release }}
@@ -86,7 +86,7 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-              
+
     - name: Setup JFrog Fly
       uses: FrogGen/fly-action@v1
       with:
