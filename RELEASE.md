@@ -6,6 +6,8 @@ The project uses GitHub Actions for automated releases. Follow this unified proc
 
 ### 🎯 Step-by-Step Release Flow
 
+**🛡️ AUTOMATED HELPER**: Use `./scripts/release.sh` to ensure proper workflow and prevent direct main commits!
+
 **1. Create feature branch and make changes:**
 ```bash
 # Check current branch first
@@ -39,12 +41,14 @@ npm version major
 ```
 
 **💡 AI Assistant Guidelines:**
+- **NEVER push directly to main**: Always enforce feature branch workflow
+- **Use the release script**: Run `./scripts/release.sh` to ensure proper process
 - **Analyze git changes**: Check `git diff` to see what files/code changed
 - **Auto-detect version type**: 
   - **PATCH**: Bug fixes, docs, tests, small improvements
   - **MINOR**: New files, new features, enhancements
   - **MAJOR**: Breaking changes, API changes, major rewrites
-- **Execute automatically**: Run the appropriate `npm version` command based on analysis
+- **Create feature branch first**: Always work on feature branches, never main
 
 ```bash
 # Commit the version bump (done automatically by npm version)
@@ -63,9 +67,36 @@ git push origin feature/your-feature-name
 - When the PR is merged to `main`, this automatically triggers the `🐸 ASCII Frog Release` workflow
 
 **⚠️ Important Notes:**
-- **Never commit directly to `main` branch**
+- **🚫 NEVER commit directly to `main` branch** - Use feature branches only!
+- **🛠️ Use the release script**: `./scripts/release.sh` enforces proper workflow
 - **Only bump version if you want to publish a new release**
 - **No version bump = no publishing** (workflow skips gracefully)
+
+## 🛡️ Branch Protection Setup
+
+To prevent accidental direct pushes to main, set up branch protection:
+
+### GitHub Branch Protection Rules
+1. Go to **Settings** → **Branches** in your GitHub repo
+2. Add rule for `main` branch:
+   - ✅ Require pull request reviews before merging
+   - ✅ Require status checks to pass before merging
+   - ✅ Require branches to be up to date before merging
+   - ✅ Include administrators (prevents even admins from pushing directly)
+
+### Local Git Hooks (Optional)
+Create `.git/hooks/pre-push` to prevent local direct pushes:
+```bash
+#!/bin/sh
+protected_branch='main'
+current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+if [ $protected_branch = $current_branch ]; then
+    echo "❌ Direct push to main branch is not allowed!"
+    echo "Use: ./scripts/release.sh"
+    exit 1
+fi
+```
 
 ## 🤖 What Happens Automatically
 

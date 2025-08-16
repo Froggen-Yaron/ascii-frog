@@ -10,7 +10,8 @@
     "frontend:dev": "vite frontend --port 3000 --config frontend/vite.config.mjs",
     "frontend:build": "vite build frontend --config frontend/vite.config.mjs",
     "frontend:preview": "vite preview frontend --config frontend/vite.config.mjs",
-    "build": "npm run frontend:build"
+    "build": "npm run frontend:build",
+    "release": "./scripts/release.sh"
   },
   "keywords": [],
   "author": "",
