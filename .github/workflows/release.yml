@@ -90,32 +90,28 @@ jobs:
       with:
         url: https://p1-flylnp1.jfrogdev.org
 
-    - name: 🔨 Build Docker image
+    - name: 🔨 Build and Push Docker image
       run: |
-        docker build --secret id=npmrc,src=$HOME/.npmrc -t ascii-frog .
-
-    - name: 🚀 Push Docker images
-      run: |
+        echo "🖥️ Workflow Runner Info:"
+        echo "OS: $(uname -s)"
+        echo "Architecture: $(uname -m)" 
+        echo "Full system: $(uname -a)"
+        echo "Docker host info:"
+        docker info --format 'Platform: {{.OSType}}/{{.Architecture}}'
         echo "🐳 Docker version:"
         docker version
         echo ""
         
         VERSION=$(jq -r .version < package.json)
-        echo "📦 Pushing version: $VERSION"
+        echo "📦 Building and pushing version: $VERSION"
+        echo "🏗️ Targeting linux/amd64 platform explicitly"
         
-        # Tag images
-        echo "🏷️ Tagging images..."
-        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
-        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+        docker buildx build \
+          --platform linux/amd64 \
+          --secret id=npmrc,src=$HOME/.npmrc \
+          --tag p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION \
+          --tag p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest \
+          --push \
+          .
         
-        # Push version tag first
-        echo "🚀 Pushing version tag: $VERSION"
-        docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
-        echo "✅ Version tag pushed successfully"
-        
-        # Then push latest tag
-        echo "🚀 Pushing latest tag"
-        docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
-        echo "✅ Latest tag pushed successfully"
-        
-        echo "🎉 Both images pushed successfully!"
+        echo "🎉 Built and pushed both tags successfully!"
