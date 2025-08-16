@@ -142,20 +142,6 @@ To prevent accidental direct pushes to main, set up branch protection:
    - ✅ Require branches to be up to date before merging
    - ✅ Include administrators (prevents even admins from pushing directly)
 
-### Local Git Hooks (Optional)
-You can optionally add a pre-push hook to prevent direct pushes to main:
-```bash
-#!/bin/sh
-# Create this file at .git/hooks/pre-push and make it executable
-protected_branch='main'
-current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
-
-if [ $protected_branch = $current_branch ]; then
-    echo "❌ Direct push to main branch is not allowed!"
-    echo "🐸 Use proper feature branch workflow"
-    exit 1
-fi
-```
 
 ## 🤖 What Happens Automatically
 
