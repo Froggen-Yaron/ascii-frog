@@ -16,3 +16,4 @@ public class PhotoFrogApplication {
         SpringApplication.run(PhotoFrogApplication.class, args);
     }
 }
+// Feature 9
