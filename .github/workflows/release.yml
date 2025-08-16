@@ -109,7 +109,7 @@ jobs:
         VERSION=$(jq -r .version < package.json)
         echo "📦 Building and pushing version: $VERSION"
         echo "🏗️ Targeting linux/amd64 platform explicitly"
-        echo "🧪 TEST 2: Using dedicated builder WITHOUT attestation flags"
+        echo "🎯 FINAL: Using dedicated builder WITH attestation flags (both required)"
         
         docker buildx build \
           --builder ci-builder \
@@ -118,6 +118,8 @@ jobs:
           --tag p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION \
           --tag p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest \
           --push \
+          --provenance=false \
+          --sbom=false \
           .
         
         echo "🎉 Built and pushed both tags successfully!"
