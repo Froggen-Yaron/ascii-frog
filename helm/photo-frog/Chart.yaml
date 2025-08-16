@@ -1,0 +1,17 @@
+apiVersion: v2
+name: photo-frog
+description: A Helm chart for Photo Frog Generator
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - frog
+  - photo
+  - generator
+  - spring-boot
+home: https://github.com/your-org/photo-frog
+sources:
+  - https://github.com/your-org/photo-frog
+maintainers:
+  - name: Photo Frog Team
+    email: team@froggen.com
