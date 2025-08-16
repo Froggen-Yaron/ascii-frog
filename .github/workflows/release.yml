@@ -92,13 +92,8 @@ jobs:
 
     - name: 🔨 Build and Push Docker image
       run: |
-        
-        # TEST 1: No dedicated builder, but keep attestation flags
-        
         VERSION=$(jq -r .version < package.json)
         echo "📦 Building and pushing version: $VERSION"
-        echo "🏗️ Targeting linux/amd64 platform explicitly"
-        echo "🧪 TEST 1: Using default builder with attestation flags"
         
         docker buildx build \
           --platform linux/amd64 \
