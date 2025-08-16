@@ -6,7 +6,7 @@ The project uses GitHub Actions for automated releases. Follow this unified proc
 
 ### 🎯 Step-by-Step Release Flow
 
-**🛡️ AUTOMATED HELPER**: Use `./scripts/release.sh` to ensure proper workflow and prevent direct main commits!
+**🤖 AI ASSISTANT WORKFLOW**: The AI assistant will enforce proper release workflow automatically!
 
 **1. Create feature branch and make changes:**
 ```bash
@@ -40,15 +40,73 @@ npm version minor
 npm version major
 ```
 
-**💡 AI Assistant Guidelines:**
-- **NEVER push directly to main**: Always enforce feature branch workflow
-- **Use the release script**: Run `./scripts/release.sh` to ensure proper process
-- **Analyze git changes**: Check `git diff` to see what files/code changed
-- **Auto-detect version type**: 
-  - **PATCH**: Bug fixes, docs, tests, small improvements
-  - **MINOR**: New files, new features, enhancements
-  - **MAJOR**: Breaking changes, API changes, major rewrites
-- **Create feature branch first**: Always work on feature branches, never main
+## 🤖 AI Assistant Release Protocol
+
+**CRITICAL RULES - MUST ALWAYS FOLLOW:**
+
+### 🚫 Absolute Prohibitions
+- **NEVER push directly to main branch** - This is FORBIDDEN
+- **NEVER commit to main branch** - Always use feature branches
+- **NEVER bypass the workflow** - Follow the process every time
+
+### 🔄 Mandatory Workflow Steps
+
+**1. ALWAYS check current branch first:**
+```bash
+git branch --show-current
+```
+
+**2. If on main branch - STOP and create feature branch:**
+```bash
+git checkout -b feature/release-vX.X.X
+# OR appropriate feature name based on changes
+```
+
+**3. Analyze changes to determine version bump:**
+- **PATCH**: Bug fixes, docs, tests, small improvements, workflow updates
+- **MINOR**: New features, new functionality, backward compatible changes  
+- **MAJOR**: Breaking changes, API changes, major rewrites
+
+**4. Auto-detect version type from git diff:**
+```bash
+git diff main..HEAD
+```
+- Look for: `feat:`, `feature:`, new files → **MINOR**
+- Look for: `BREAKING CHANGE`, `major:` → **MAJOR**  
+- Default to: **PATCH** for everything else
+
+**5. Execute version bump:**
+```bash
+npm version [patch|minor|major]
+```
+
+**6. Push to feature branch:**
+```bash
+git push origin [feature-branch-name]
+```
+
+**7. Instruct user to create PR:**
+- User must manually create PR from feature branch to main
+- When PR is merged → automatic release workflow triggers
+
+### 🚨 Error Recovery Scenarios
+
+**If AI Assistant accidentally commits to main:**
+1. Stop immediately - do not push
+2. Create feature branch: `git checkout -b feature/fix-release-flow`
+3. Move commits to feature branch
+4. Reset main branch to previous state
+5. Continue with proper workflow
+
+**If AI Assistant detects they're on main:**
+1. STOP all operations immediately
+2. Create feature branch before any commits
+3. Follow the protocol from step 2 above
+
+**If direct push to main happens:**
+1. The git hook should prevent this
+2. If it somehow occurs, immediately create a revert strategy
+3. Use feature branch for all future work
 
 ```bash
 # Commit the version bump (done automatically by npm version)
@@ -66,9 +124,9 @@ git push origin feature/your-feature-name
 - Review and merge the PR
 - When the PR is merged to `main`, this automatically triggers the `🐸 ASCII Frog Release` workflow
 
-**⚠️ Important Notes:**
+**⚠️ Critical Reminders:**
 - **🚫 NEVER commit directly to `main` branch** - Use feature branches only!
-- **🛠️ Use the release script**: `./scripts/release.sh` enforces proper workflow
+- **🤖 AI Assistant must follow the protocol above** - No exceptions!
 - **Only bump version if you want to publish a new release**
 - **No version bump = no publishing** (workflow skips gracefully)
 
@@ -84,8 +142,8 @@ To prevent accidental direct pushes to main, set up branch protection:
    - ✅ Require branches to be up to date before merging
    - ✅ Include administrators (prevents even admins from pushing directly)
 
-### Local Git Hooks (Optional)
-Create `.git/hooks/pre-push` to prevent local direct pushes:
+### Local Git Hooks (Recommended)
+The git hook is already configured to prevent direct pushes to main:
 ```bash
 #!/bin/sh
 protected_branch='main'
@@ -93,7 +151,7 @@ current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
 if [ $protected_branch = $current_branch ]; then
     echo "❌ Direct push to main branch is not allowed!"
-    echo "Use: ./scripts/release.sh"
+    echo "🐸 Use proper feature branch workflow"
     exit 1
 fi
 ```
