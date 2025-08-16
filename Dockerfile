@@ -1,14 +1,29 @@
-# Production build for ASCII Frog Generator
-FROM p1-flylnp1.jfrogdev.org/docker/node:18-alpine AS base
+# Build stage with dependencies
+FROM p1-flylnp1.jfrogdev.org/docker/node:18-alpine AS deps
 
-# Set working directory
 WORKDIR /app
+
+# Accept build argument for npm authentication (only in build stage)
+ARG NPM_AUTH_TOKEN
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Configure npm registry temporarily
+RUN npm config set registry https://p1-flylnp1.jfrogdev.org/artifactory/api/npm/npm/ && \
+    npm config set //p1-flylnp1.jfrogdev.org/artifactory/api/npm/npm/:_authToken ${NPM_AUTH_TOKEN} && \
+    npm config set always-auth true && \
+    npm ci --only=production && \
+    npm cache clean --force
+
+# Production stage (clean, no credentials)
+FROM p1-flylnp1.jfrogdev.org/docker/node:18-alpine AS production
+
+WORKDIR /app
+
+# Copy only production dependencies (no npm config with credentials)
+COPY --from=deps /app/node_modules ./node_modules
+COPY package*.json ./
 
 # Copy application source
 COPY . .
