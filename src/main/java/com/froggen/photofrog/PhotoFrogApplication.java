@@ -29,3 +29,12 @@ public class PhotoFrogApplication {
 // Feature 7
 // Enhancement 7
 // Fix 7
+// Feature 8
+// Enhancement 8
+// Fix 8
+// Feature 9
+// Enhancement 9
+// Fix 9
+// Feature 10
+// Enhancement 10
+// Fix 10
