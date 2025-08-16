@@ -9,9 +9,45 @@ permissions:
   id-token: write
 
 jobs:
+  check-version:
+    name: 🔍 Version Check
+    runs-on: fly-scale-set-runner-default
+    outputs:
+      should-release: ${{ steps.check.outputs.should-release }}
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'      
+        
+    - name: Setup JFrog Fly
+      uses: FrogGen/fly-action@v1
+      with:
+        url: https://p1-flylnp1.jfrogdev.org
+        
+    - name: 🔍 Check if new version needs publishing
+      id: check
+      run: |
+        CURRENT_VERSION=$(jq -r .version < package.json)
+        LATEST_VERSION=$(npm view ascii-frog version 2>/dev/null || echo "0.0.0")
+        
+        if [ "$LATEST_VERSION" = "$CURRENT_VERSION" ]; then
+          echo "⏭️ Version $CURRENT_VERSION already published - skipping release"
+          echo "should-release=false" >> $GITHUB_OUTPUT
+        else
+          echo "✅ New version detected: $LATEST_VERSION → $CURRENT_VERSION"
+          echo "should-release=true" >> $GITHUB_OUTPUT
+        fi
+
   release:
     name: 🚀 Release
     runs-on: fly-scale-set-runner-default
+    needs: check-version
+    if: needs.check-version.outputs.should-release == 'true'
     
     steps:
     - name: 📥 Checkout code
@@ -26,18 +62,6 @@ jobs:
       uses: FrogGen/fly-action@v1
       with:
         url: https://p1-flylnp1.jfrogdev.org
-        
-    - name: 🔍 Check if new version needs publishing
-      run: |
-        CURRENT_VERSION=$(jq -r .version < package.json)
-        LATEST_VERSION=$(npm view ascii-frog version 2>/dev/null || echo "0.0.0")
-        
-        if [ "$LATEST_VERSION" = "$CURRENT_VERSION" ]; then
-          echo "⏭️ Version $CURRENT_VERSION already published - skipping release"
-          exit 0
-        fi
-        
-        echo "✅ New version detected: $LATEST_VERSION → $CURRENT_VERSION"
         
     - name: 📦 Install dependencies
       run: npm ci
