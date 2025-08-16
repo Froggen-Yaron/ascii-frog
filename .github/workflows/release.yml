@@ -43,8 +43,8 @@ jobs:
           echo "should-release=true" >> $GITHUB_OUTPUT
         fi
 
-  release:
-    name: 🚀 Release
+  npm-release:
+    name: 📦 NPM Release
     runs-on: fly-scale-set-runner-default
     needs: check-version
     if: needs.check-version.outputs.should-release == 'true'
@@ -71,6 +71,26 @@ jobs:
       
     - name: 🚀 Publish to NPM
       run: npm publish
+
+  docker-release:
+    name: 🐳 Docker Release
+    runs-on: fly-scale-set-runner-default
+    needs: check-version
+    if: needs.check-version.outputs.should-release == 'true'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+              
+    - name: Setup JFrog Fly
+      uses: FrogGen/fly-action@v1
+      with:
+        url: https://p1-flylnp1.jfrogdev.org
 
     - name: 🔨 Build Docker image
       run: |
