@@ -92,16 +92,6 @@ jobs:
 
     - name: 🔨 Build and Push Docker image
       run: |
-        echo "🖥️ Workflow Runner Info:"
-        echo "OS: $(uname -s)"
-        echo "Architecture: $(uname -m)" 
-        echo "Full system: $(uname -a)"
-        echo "Docker host info:"
-        docker info --format 'Platform: {{.OSType}}/{{.Architecture}}'
-        echo "🐳 Docker version:"
-        docker version
-        echo ""
-        
         VERSION=$(jq -r .version < package.json)
         echo "📦 Building and pushing version: $VERSION"
         echo "🏗️ Using simple docker build"
