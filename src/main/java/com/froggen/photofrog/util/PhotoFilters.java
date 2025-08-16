@@ -71,7 +71,7 @@ public class PhotoFilters {
     }
 
     /**
-     * Apply expression-based filter to simulate different frog expressions.
+     * Apply expression filter to simulate different frog expressions.
      */
     public BufferedImage applyExpressionFilter(BufferedImage image, String expression) {
         return switch (expression.toLowerCase()) {
@@ -82,6 +82,17 @@ public class PhotoFilters {
             case "determined" -> applyDeterminedFilter(image);
             default -> image;
         };
+    }
+
+    /**
+     * Optimized filter application with caching.
+     */
+    private final java.util.Map<String, BufferedImage> filterCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public BufferedImage applyExpressionFilterOptimized(BufferedImage image, String expression) {
+        String cacheKey = expression + "_" + image.getWidth() + "x" + image.getHeight();
+        
+        return filterCache.computeIfAbsent(cacheKey, k -> applyExpressionFilter(image, expression));
     }
 
     /**
