@@ -16,6 +16,25 @@ public class PhotoFrogApplication {
         SpringApplication.run(PhotoFrogApplication.class, args);
     }
 }
+
+// Feature 4
+// Enhancement 4
+// Fix 4
+// Feature 5
+// Enhancement 5
+// Fix 5
+// Feature 6
+// Enhancement 6
+// Fix 6
+// Feature 7
+// Enhancement 7
+// Fix 7
+// Feature 8
+// Enhancement 8
+// Fix 8
 // Feature 9
 // Enhancement 9
 // Fix 9
+// Feature 10
+// Enhancement 10
+// Fix 10

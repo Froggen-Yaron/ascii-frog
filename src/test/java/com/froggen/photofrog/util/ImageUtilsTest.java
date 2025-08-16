@@ -115,4 +115,25 @@ public class ImageUtilsTest {
         assertFalse(imageUtils.isValidFormat(""));
         assertFalse(imageUtils.isValidFormat(null));
     }
+
+    @Test
+    @DisplayName("Should return supported formats")
+    void shouldReturnSupportedFormats() {
+        String[] formats = imageUtils.getSupportedFormats();
+        
+        assertNotNull(formats);
+        assertEquals(3, formats.length);
+        assertArrayEquals(new String[]{"jpeg", "jpg", "png"}, formats);
+    }
+
+    @Test
+    @DisplayName("Should return correct MIME types")
+    void shouldReturnCorrectMimeTypes() {
+        assertEquals("image/jpeg", imageUtils.getMimeType("jpeg"));
+        assertEquals("image/jpeg", imageUtils.getMimeType("jpg"));
+        assertEquals("image/png", imageUtils.getMimeType("png"));
+        assertEquals("image/jpeg", imageUtils.getMimeType("JPEG"));
+        assertEquals("image/png", imageUtils.getMimeType("PNG"));
+        assertEquals("image/jpeg", imageUtils.getMimeType("invalid"));
+    }
 }

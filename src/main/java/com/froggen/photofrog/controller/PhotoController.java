@@ -89,6 +89,15 @@ public class PhotoController {
     }
 
     /**
+     * Get supported image formats.
+     */
+    @GetMapping("/formats")
+    public ResponseEntity<String[]> getSupportedFormats() {
+        String[] formats = photoGenerationService.getSupportedFormats();
+        return ResponseEntity.ok(formats);
+    }
+
+    /**
      * Health check endpoint.
      */
     @GetMapping("/health")

@@ -10,6 +10,7 @@ class PhotoFrogApp {
     init() {
         this.bindEvents();
         this.loadTemplates();
+        this.loadSupportedFormats();
     }
 
     bindEvents() {
@@ -33,11 +34,30 @@ class PhotoFrogApp {
             this.downloadImage();
         });
 
+        // Touch events for mobile
+        this.bindTouchEvents();
+
         // Real-time preview on control changes
         const controls = ['template', 'size', 'expression'];
         controls.forEach(controlId => {
             document.getElementById(controlId).addEventListener('change', () => {
                 this.updatePreview();
+            });
+        });
+    }
+
+    bindTouchEvents() {
+        // Add touch event handling for mobile devices
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                button.style.transform = 'scale(0.95)';
+            });
+            
+            button.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                button.style.transform = '';
             });
         });
     }
@@ -55,6 +75,18 @@ class PhotoFrogApp {
         }
     }
 
+    async loadSupportedFormats() {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/formats`);
+            if (response.ok) {
+                const formats = await response.json();
+                this.populateFormatSelect(formats);
+            }
+        } catch (error) {
+            console.error('Error loading formats:', error);
+        }
+    }
+
     populateTemplateSelect(templates) {
         const select = document.getElementById('template');
         select.innerHTML = '';
@@ -63,6 +95,18 @@ class PhotoFrogApp {
             const option = document.createElement('option');
             option.value = template.id;
             option.textContent = template.name;
+            select.appendChild(option);
+        });
+    }
+
+    populateFormatSelect(formats) {
+        const select = document.getElementById('format');
+        select.innerHTML = '';
+        
+        formats.forEach(format => {
+            const option = document.createElement('option');
+            option.value = format;
+            option.textContent = format.toUpperCase();
             select.appendChild(option);
         });
     }
