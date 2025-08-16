@@ -44,8 +44,7 @@ Thumbs.db
 *.swo
 *~
 
-# Build outputs
-dist/
+# Build outputs (keep frontend/dist for npm package)
 build/
 
 # Temporary files

@@ -3,14 +3,18 @@
   "version": "1.2.0",
   "description": "ASCII Frog Generator - A fun web service to generate colorful ASCII art frogs",
   "main": "backend/server.js",
+  "bin": {
+    "ascii-frog": "backend/server.js"
+  },
   "scripts": {
     "start": "node backend/server.js",
     "dev": "concurrently \"PORT=3000 nodemon backend/server.js\" \"npm run frontend:dev\"",
     "test": "node backend/test/health-check.js",
-    "frontend:dev": "vite frontend --port 3000 --config frontend/vite.config.mjs",
-    "frontend:build": "vite build frontend --config frontend/vite.config.mjs",
-    "frontend:preview": "vite preview frontend --config frontend/vite.config.mjs",
-    "build": "npm run frontend:build"
+    "frontend:dev": "cd frontend && vite --port 3000",
+    "frontend:build": "cd frontend && vite build",
+    "frontend:preview": "cd frontend && vite preview",
+    "build": "npm run frontend:build",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [],
   "author": "",

@@ -74,12 +74,7 @@ jobs:
 
     - name: 🔨 Build Docker image
       run: |
-        # Copy the fly-action configured .npmrc to build context
-        cp ~/.npmrc .
-        # Build (only build stage will have .npmrc, production won't)
-        docker build -t ascii-frog .
-        # Clean up .npmrc from build context
-        rm -f .npmrc
+        docker build --secret id=npmrc,src=$HOME/.npmrc -t ascii-frog .
 
     - name: 🚀 Push Docker images
       run: |
