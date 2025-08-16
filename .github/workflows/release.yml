@@ -96,8 +96,26 @@ jobs:
 
     - name: 🚀 Push Docker images
       run: |
+        echo "🐳 Docker version:"
+        docker version
+        echo ""
+        
         VERSION=$(jq -r .version < package.json)
+        echo "📦 Pushing version: $VERSION"
+        
+        # Tag images
+        echo "🏷️ Tagging images..."
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+        
+        # Push version tag first
+        echo "🚀 Pushing version tag: $VERSION"
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
+        echo "✅ Version tag pushed successfully"
+        
+        # Then push latest tag
+        echo "🚀 Pushing latest tag"
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+        echo "✅ Latest tag pushed successfully"
+        
+        echo "🎉 Both images pushed successfully!"
