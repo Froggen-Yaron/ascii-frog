@@ -97,5 +97,8 @@ jobs:
 
     - name: 🚀 Push Docker images
       run: |
+        VERSION=$(jq -r .version < package.json)
+        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+        docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
