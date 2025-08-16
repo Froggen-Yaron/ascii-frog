@@ -102,4 +102,18 @@ public class PhotoGenerationService {
     public java.awt.image.BufferedImage applyExpressionFilter(java.awt.image.BufferedImage image, String expression) {
         return photoFilters.applyExpressionFilter(image, expression);
     }
+
+    /**
+     * Validate image format for generation.
+     */
+    public boolean isValidGenerationFormat(String format) {
+        return imageUtils.isValidFormat(format);
+    }
+
+    /**
+     * Get supported generation formats.
+     */
+    public String[] getSupportedFormats() {
+        return imageUtils.getSupportedFormats();
+    }
 }
