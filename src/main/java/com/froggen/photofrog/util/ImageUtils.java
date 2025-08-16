@@ -60,4 +60,22 @@ public class ImageUtils {
                "jpg".equalsIgnoreCase(format) || 
                "png".equalsIgnoreCase(format);
     }
+
+    /**
+     * Get supported image formats.
+     */
+    public String[] getSupportedFormats() {
+        return new String[]{"jpeg", "jpg", "png"};
+    }
+
+    /**
+     * Convert format to MIME type.
+     */
+    public String getMimeType(String format) {
+        return switch (format.toLowerCase()) {
+            case "jpeg", "jpg" -> "image/jpeg";
+            case "png" -> "image/png";
+            default -> "image/jpeg";
+        };
+    }
 }
