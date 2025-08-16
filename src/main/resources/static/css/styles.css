@@ -183,12 +183,71 @@ main {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
+/* Preview card */
+.preview-card {
+    text-align: center;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.preview-card h3 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.preview-details {
+    text-align: left;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.preview-details p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.preview-placeholder {
+    margin-top: 20px;
+}
+
+.preview-placeholder span {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.preview-placeholder p {
+    color: #666;
+    font-style: italic;
+}
+
 /* Footer */
 footer {
     text-align: center;
     color: white;
     opacity: 0.8;
     margin-top: 40px;
+}
+
+.footer-links {
+    margin-top: 10px;
+}
+
+.footer-links a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.footer-links a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Responsive design */
