@@ -1,5 +1,11 @@
 # Cursor Rules for ASCII Frog Project
 
+## 🚫 CRITICAL GIT RULES - NEVER VIOLATE
+- **NEVER COMMIT OR PUSH** unless the user explicitly asks to do so
+- **NEVER PUSH TO MAIN BRANCH** - Always use feature branches
+- **ALWAYS ASK PERMISSION** before any git operations (add, commit, push)
+- **FOLLOW RELEASE.md WORKFLOW** - Use feature branches and PRs only
+
 ## Auto Import Rules
 - When I use `colors.green()`, `colors.red()`, etc., automatically suggest adding: `const colors = require('colors');`
 - When I use `express()`, automatically suggest: `const express = require('express');`
