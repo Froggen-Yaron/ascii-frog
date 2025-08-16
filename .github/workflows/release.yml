@@ -9,9 +9,45 @@ permissions:
   id-token: write
 
 jobs:
+  version-check:
+    name: 🔍 Version Change Check
+    runs-on: fly-scale-set-runner-default
+    outputs:
+      should_publish: ${{ steps.version_comparison.outputs.should_publish }}
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Setup JFrog Fly
+      uses: FrogGen/fly-action@v1
+      with:
+        url: https://p1-flylnp1.jfrogdev.org
+        
+    - name: 🔍 Compare latest published vs current version
+      id: version_comparison
+      # Only publish if current version differs from what's already published
+      run: |
+        CURRENT_VERSION=$(jq -r .version < package.json)
+        LATEST_VERSION=$(npm view ascii-frog version 2>/dev/null || echo "0.0.0")
+        
+        if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
+          echo "should_publish=true" >> $GITHUB_OUTPUT
+          echo "✅ Will publish $CURRENT_VERSION"
+        else
+          echo "⏭️ Skipping - version unchanged"
+        fi
+
   npm-release:
     name: 📦 NPM Release
     runs-on: fly-scale-set-runner-default
+    needs: version-check
+    if: needs.version-check.outputs.should_publish == 'true'
     
     steps:
     - name: 📥 Checkout code
@@ -36,10 +72,11 @@ jobs:
     - name: 🚀 Publish to NPM
       run: npm publish
 
-
   docker-release:
     name: 🐳 Docker Release
     runs-on: fly-scale-set-runner-default
+    needs: version-check
+    if: needs.version-check.outputs.should_publish == 'true'
     
     steps:
     - name: 📥 Checkout code
