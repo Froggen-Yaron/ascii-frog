@@ -6,6 +6,15 @@
 - **ALWAYS ASK PERMISSION** before any git operations (add, commit, push)
 - **FOLLOW RELEASE.md WORKFLOW** - Use feature branches and PRs only
 
+## 🚀 RELEASE RULES - MANDATORY CHECKLIST
+When user says "release":
+1. **ALWAYS run**: `git diff main..HEAD` to analyze changes
+2. **ALWAYS determine**: patch/minor/major based on commits with `feat:`, `fix:`, `BREAKING:`
+3. **MANDATORY**: Run `npm version [patch|minor|major]` BEFORE any commits
+4. **THEN**: git add, commit, push
+5. **VERIFY**: Ask user to confirm version bump is correct
+6. **NEVER skip step 3** - Version bump is REQUIRED for releases
+
 ## Auto Import Rules
 - When I use `colors.green()`, `colors.red()`, etc., automatically suggest adding: `const colors = require('colors');`
 - When I use `express()`, automatically suggest: `const express = require('express');`
