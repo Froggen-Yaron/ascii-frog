@@ -74,8 +74,7 @@ jobs:
   docker-release:
     name: 🐳 Docker Release
     runs-on: fly-scale-set-runner-default
-    needs: check-version
-    if: needs.check-version.outputs.should-release == 'true'
+    needs: npm-release
     
     steps:
     - name: 📥 Checkout code
@@ -97,5 +96,8 @@ jobs:
 
     - name: 🚀 Push Docker images
       run: |
+        VERSION=$(jq -r .version < package.json)
+        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+        docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
