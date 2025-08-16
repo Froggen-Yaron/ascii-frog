@@ -201,7 +201,6 @@ The workflow intelligently handles releases to prevent version conflicts:
 ✅ Release completed successfully
 ```
 
-
 ### Release Checklist
 
 - [ ] Version bumped in `package.json`
