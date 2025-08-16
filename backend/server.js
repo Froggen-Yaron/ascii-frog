@@ -1,12 +1,17 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const path = require('path');
-const colors = require('colors');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import path from 'path';
+import colors from 'colors';
+import { fileURLToPath } from 'url';
 
 // Import routes
-const apiRoutes = require('./src/routes/api');
-const healthRoutes = require('./src/routes/health');
+import apiRoutes from './src/routes/api.js';
+import healthRoutes from './src/routes/health.js';
+
+// ESM equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -60,4 +65,4 @@ app.listen(PORT, () => {
     console.log(`🌐 Frontend available at http://localhost:3000`.cyan);
 });
 
-module.exports = app;
+export default app;

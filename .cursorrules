@@ -17,10 +17,11 @@ When user says "release":
 7. **NEVER skip steps 4-5** - Version bump must be the final release step
 
 ## Auto Import Rules
-- When I use `colors.green()`, `colors.red()`, etc., automatically suggest adding: `const colors = require('colors');`
-- When I use functions from our local modules, suggest the appropriate require statement
-- Always prefer CommonJS `require()` syntax over ES6 imports for Node.js files
+- When I use `colors.green()`, `colors.red()`, etc., automatically suggest adding: `import colors from 'colors';`
+- When I use functions from our local modules, suggest the appropriate import statement
+- **This project uses ESM** - Always use modern `import`/`export` syntax
+- Always include `.js` file extensions in import paths (required for ESM)
 
 ## Auto-fix suggestions
 - When I have missing imports, suggest adding them at the top of the file
-- When I ask to "fix imports" or "add missing imports", scan the file for undefined variables and suggest appropriate require statements
+- When I ask to "fix imports" or "add missing imports", scan the file for undefined variables and suggest appropriate import statements

@@ -1,5 +1,6 @@
 
-const { generateFrog, getAvailableTemplates } = require('../templates/templates');
+import { generateFrog, getAvailableTemplates } from '../templates/templates.js';
+import colors from 'colors';
 
 
 /**
@@ -26,7 +27,7 @@ function generateRandomFrog() {
     return generateSpecificFrog(randomFrog.id);
 }
 
-module.exports = {
+export {
     generateSpecificFrog,
     generateRandomFrog
 };

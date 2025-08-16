@@ -55,8 +55,10 @@ async function runHealthCheck() {
 }
 
 // Only run if this file is executed directly
-if (require.main === module) {
+// ESM equivalent of require.main === module
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+if (isMainModule) {
     runHealthCheck();
 }
 
-module.exports = { healthCheck, testApiEndpoints, testTemplates };
+export { healthCheck, testApiEndpoints, testTemplates };

@@ -110,7 +110,7 @@ function getAvailableTemplates() {
     }));
 }
 
-module.exports = {
+export {
     generateFrog,
     getAvailableTemplates,
     templates

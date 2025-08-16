@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
 // Health check endpoint for Docker and monitoring
@@ -11,4 +11,4 @@ router.get('/', (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;
