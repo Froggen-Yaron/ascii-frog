@@ -6,9 +6,10 @@ const colors = require('colors');
 
 // Import routes
 const apiRoutes = require('./src/routes/api');
+const healthRoutes = require('./src/routes/health');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Security middleware
 app.use(helmet({
@@ -27,6 +28,9 @@ const frontendPath = process.env.NODE_ENV === 'production'
     ? path.join(__dirname, '../frontend/dist')
     : path.join(__dirname, '../frontend/public');
 app.use(express.static(frontendPath));
+
+// Health check route (before API routes for priority)
+app.use('/health', healthRoutes);
 
 // API routes
 app.use('/api', apiRoutes);

@@ -17,6 +17,9 @@ pids
 .env.test.local
 .env.production.local
 
+# NPM configuration with credentials (never commit!)
+.npmrc
+
 # Logs
 logs
 *.log
