@@ -92,26 +92,15 @@ jobs:
 
     - name: 🔨 Build and Push Docker image
       run: |
-        echo "🖥️ Workflow Runner Info:"
-        echo "OS: $(uname -s)"
-        echo "Architecture: $(uname -m)" 
-        echo "Full system: $(uname -a)"
-        echo "Docker host info:"
-        docker info --format 'Platform: {{.OSType}}/{{.Architecture}}'
-        echo "🐳 Docker version:"
-        docker version
-        echo ""
         
-        # Setup buildx builder with explicit configuration
-        docker buildx create --name ci-builder --driver docker-container --use || true
-        docker buildx inspect --bootstrap
+        # TEST 1: No dedicated builder, but keep attestation flags
         
         VERSION=$(jq -r .version < package.json)
         echo "📦 Building and pushing version: $VERSION"
         echo "🏗️ Targeting linux/amd64 platform explicitly"
+        echo "🧪 TEST 1: Using default builder with attestation flags"
         
         docker buildx build \
-          --builder ci-builder \
           --platform linux/amd64 \
           --secret id=npmrc,src=$HOME/.npmrc \
           --tag p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION \
