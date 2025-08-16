@@ -1,4 +1,4 @@
-name: frogbot-scan
+name: 🐸 FrogBot Security Scan
 
 on:
   push:
