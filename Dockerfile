@@ -1,27 +1,35 @@
-# Build stage with dependencies
-FROM p1-flylnp1.jfrogdev.org/docker/node:18-alpine AS deps
+# ==============================================================================
+# BUILD STAGE - Contains npm credentials (.npmrc) - NEVER SHIPPED TO PRODUCTION
+# ==============================================================================
+FROM p1-flylnp1.jfrogdev.org/docker/node:20-alpine AS deps
 
 WORKDIR /app
 
-# Copy package files AND .npmrc (configured by fly-action, only in build stage)
+# Copy package files AND .npmrc
 COPY package*.json .npmrc ./
 
-# Install dependencies using the configured .npmrc
+# Install dependencies using the configured .npmrc (credentials available here)
 RUN npm ci --only=production
 
-# Production stage (clean, no credentials)
-FROM p1-flylnp1.jfrogdev.org/docker/node:18-alpine AS production
+# ==============================================================================
+# PRODUCTION STAGE - CLEAN IMAGE - NO CREDENTIALS - NO .npmrc
+# ==============================================================================
+FROM p1-flylnp1.jfrogdev.org/docker/node:20-alpine AS production
 
 WORKDIR /app
 
-# Copy only production dependencies (no npm config with credentials)
+# Copy ONLY node_modules from build stage (NO .npmrc, NO credentials)
 COPY --from=deps /app/node_modules ./node_modules
+
+# Copy package files (needed for npm start)
 COPY package*.json ./
 
-# Copy application source
-COPY . .
+# Copy application source files SELECTIVELY (NO .npmrc!)
+COPY backend/ ./backend/
+COPY frontend/ ./frontend/
+# Note: jsconfig.json & tsconfig.json NOT needed in production (IDE/dev tools only)
 
-# Build frontend for production
+# Build frontend for production (no npm auth needed - deps already installed)
 RUN npm run build
 
 # Install curl for health checks (before switching to non-root user)
