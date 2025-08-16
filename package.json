@@ -1,6 +1,6 @@
 {
   "name": "ascii-frog",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "ASCII Frog Generator - A fun web service to generate colorful ASCII art frogs",
   "main": "backend/server.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "type": "git",
     "url": "git@github-playground.jfrogdev.org:FrogGen/ascii-frog.git"
   },
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",

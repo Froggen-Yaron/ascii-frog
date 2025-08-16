@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { getAvailableTemplates } from '../templates/templates.js';
+import { generateSpecificFrog, generateRandomFrog } from '../services/frog-generator.js';
+
 const router = express.Router();
-const { getAvailableTemplates } = require('../templates/templates');
-const { generateSpecificFrog, generateRandomFrog } = require('../services/frog-generator');
 /**
  * POST /api/generate-frog
  * Generate AI-powered ASCII frog
@@ -172,4 +173,4 @@ router.post('/format-clipboard', (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
