@@ -18,3 +18,4 @@ public class PhotoFrogApplication {
 }
 // Feature 6
 // Enhancement 6
+// Fix 6
