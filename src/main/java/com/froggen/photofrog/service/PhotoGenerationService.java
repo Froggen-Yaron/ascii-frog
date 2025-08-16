@@ -97,9 +97,40 @@ public class PhotoGenerationService {
     }
 
     /**
+     * Generate photo with performance monitoring.
+     */
+    public PhotoResponse generatePhotoWithPerformance(PhotoRequest request) {
+        long startTime = System.currentTimeMillis();
+        
+        PhotoResponse response = generatePhoto(request);
+        
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        
+        // Log performance metrics
+        System.out.println("Photo generation took " + duration + "ms for template: " + request.getTemplate());
+        
+        return response;
+    }
+
+    /**
      * Apply expression filter to an image.
      */
     public java.awt.image.BufferedImage applyExpressionFilter(java.awt.image.BufferedImage image, String expression) {
         return photoFilters.applyExpressionFilter(image, expression);
+    }
+
+    /**
+     * Validate image format for generation.
+     */
+    public boolean isValidGenerationFormat(String format) {
+        return imageUtils.isValidFormat(format);
+    }
+
+    /**
+     * Get supported generation formats.
+     */
+    public String[] getSupportedFormats() {
+        return imageUtils.getSupportedFormats();
     }
 }
