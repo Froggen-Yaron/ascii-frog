@@ -12,7 +12,6 @@ COPY package*.json ./
 # Configure npm registry temporarily
 RUN npm config set registry https://p1-flylnp1.jfrogdev.org/artifactory/api/npm/npm/ && \
     npm config set //p1-flylnp1.jfrogdev.org/artifactory/api/npm/npm/:_authToken ${NPM_AUTH_TOKEN} && \
-    npm config set always-auth true && \
     npm ci --only=production && \
     npm cache clean --force
 
