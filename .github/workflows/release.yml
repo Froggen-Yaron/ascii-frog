@@ -27,34 +27,28 @@ jobs:
       with:
         url: https://p1-flylnp1.jfrogdev.org
         
-    - name: 🔍 Compare latest published vs current version
-      id: version_comparison
+    - name: 🔍 Check if new version needs publishing
       run: |
         CURRENT_VERSION=$(jq -r .version < package.json)
         LATEST_VERSION=$(npm view ascii-frog version 2>/dev/null || echo "0.0.0")
         
-        if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
-          echo "should_publish=true" >> $GITHUB_OUTPUT
-          echo "✅ Will publish $CURRENT_VERSION"
-        else
-          echo "should_publish=false" >> $GITHUB_OUTPUT
-          echo "⏭️ Skipping - version unchanged"
+        if [ "$LATEST_VERSION" = "$CURRENT_VERSION" ]; then
+          echo "⏭️ Version $CURRENT_VERSION already published - skipping release"
+          exit 0
         fi
         
+        echo "✅ New version detected: $LATEST_VERSION → $CURRENT_VERSION"
+        
     - name: 📦 Install dependencies
-      if: steps.version_comparison.outputs.should_publish == 'true'
       run: npm ci
       
     - name: 🧪 Run tests
-      if: steps.version_comparison.outputs.should_publish == 'true'
       run: npm test
       
     - name: 🚀 Publish to NPM
-      if: steps.version_comparison.outputs.should_publish == 'true'
       run: npm publish
 
     - name: 🔨 Build Docker image
-      if: steps.version_comparison.outputs.should_publish == 'true'
       run: |
         # Copy the fly-action configured .npmrc to build context
         cp ~/.npmrc .
@@ -64,7 +58,6 @@ jobs:
         rm -f .npmrc
 
     - name: 🚀 Push Docker images
-      if: steps.version_comparison.outputs.should_publish == 'true'
       run: |
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
