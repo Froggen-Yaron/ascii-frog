@@ -3,15 +3,9 @@ FROM p1-flylnp1.jfrogdev.org/docker/node:20-alpine
 
 WORKDIR /app
 
-# Copy package files first
-COPY package*.json ./
-
-# Install dependencies using secrets for private registry access
+# Install package from private registry (using secrets)
 RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
-    npm ci --only=production
-
-# Copy application code
-COPY . .
+    npm install ascii-frog@latest
 
 # Setup security: curl + non-root user
 RUN apk add --no-cache curl && \

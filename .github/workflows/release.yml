@@ -74,18 +74,9 @@ jobs:
 
     - name: 🔨 Build Docker image
       run: |
-        # Enable BuildKit for secret mounting
-        export DOCKER_BUILDKIT=1
         docker build --secret id=npmrc,src=$HOME/.npmrc -t ascii-frog .
-
-    - name: 🏷️ Tag Docker image with version
-      run: |
-        VERSION=$(jq -r .version < package.json)
-        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
-        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:v$VERSION
 
     - name: 🚀 Push Docker images
       run: |
-        VERSION=$(jq -r .version < package.json)
+        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
-        docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:v$VERSION
