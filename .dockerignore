@@ -1,36 +1,41 @@
-# Dependencies
+# Exclude dev dependencies and build artifacts
 node_modules
 npm-debug.log*
-
-# Development files
-.git
-.github
-*.md
-PROJECT_PLAN.md
-
-# Development tools
-bs-config.js
-.vscode
-.cursor
-
-# Logs
-logs
-*.log
-
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# Coverage directory used by tools like istanbul
+.npm
+.nyc_output
 coverage
 
-# macOS
-.DS_Store
+# Git and IDE files
+.git
+.gitignore
+.gitattributes
+*.swp
+*.swo
+*~
 
-# Windows
-Thumbs.db
+# Documentation and configuration
+README.md
+RELEASE.md
+.cursorrules
+.github/
+scripts/
 
-# Temporary folders
+# Frontend build (we'll copy dist if needed)
+frontend/node_modules
+frontend/.vite
+frontend/dist
+
+# Test files
+test/
+*.test.js
+*.spec.js
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Temporary files
 tmp/
 temp/
+.tmp
