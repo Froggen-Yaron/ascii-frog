@@ -1,8 +1,15 @@
 # 🚀 MANDATORY RELEASE CHECKLIST
 
-## Before ANY release operation:
+## EXACT ORDER for release:
 
-### ✅ Step 1: Analyze Changes
+### ✅ Step 1: Commit All Changes First
+```bash
+git add .
+git commit -m "..."
+git push origin [branch]
+```
+
+### ✅ Step 2: Analyze Changes
 ```bash
 git diff main..HEAD
 ```
@@ -11,23 +18,23 @@ Look for:
 - `fix:` → PATCH  
 - `BREAKING:` → MAJOR
 
-### ✅ Step 2: Version Bump (MANDATORY)
+### ✅ Step 3: Version Bump (FINAL STEP - MANDATORY)
 ```bash
 npm version [patch|minor|major]
 ```
-**THIS STEP CANNOT BE SKIPPED**
+**THIS IS THE FINAL STEP - NEVER SKIP**
 
-### ✅ Step 3: Push Version
+### ✅ Step 4: Push Version Bump
 ```bash
 git push origin [branch-name]
 ```
 
-### ✅ Step 4: Verify
+### ✅ Step 5: Verify
 ```bash
 node -p "require('./package.json').version"
 ```
 
 ## ❌ FAILURE POINTS TO AVOID:
-- Never commit without version bump when releasing
+- Never skip version bump as final release step
 - Never push without confirming version changed
-- Never assume version bump happened
+- Version bump must be AFTER all development commits

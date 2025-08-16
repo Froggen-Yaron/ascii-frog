@@ -8,24 +8,18 @@
 
 ## 🚀 RELEASE RULES - MANDATORY CHECKLIST
 When user says "release":
-1. **ALWAYS run**: `git diff main..HEAD` to analyze changes
-2. **ALWAYS determine**: patch/minor/major based on commits with `feat:`, `fix:`, `BREAKING:`
-3. **MANDATORY**: Run `npm version [patch|minor|major]` BEFORE any commits
-4. **THEN**: git add, commit, push
-5. **VERIFY**: Ask user to confirm version bump is correct
-6. **NEVER skip step 3** - Version bump is REQUIRED for releases
+1. **FIRST**: Commit and push all current changes
+2. **ANALYZE**: `git diff main..HEAD` to determine version type
+3. **DETERMINE**: patch/minor/major based on commits with `feat:`, `fix:`, `BREAKING:`
+4. **FINAL STEP - MANDATORY**: Run `npm version [patch|minor|major]` 
+5. **PUSH VERSION**: `git push origin [branch]`
+6. **VERIFY**: Ask user to confirm version bump is correct
+7. **NEVER skip steps 4-5** - Version bump must be the final release step
 
 ## Auto Import Rules
 - When I use `colors.green()`, `colors.red()`, etc., automatically suggest adding: `const colors = require('colors');`
-- When I use `express()`, automatically suggest: `const express = require('express');`
 - When I use functions from our local modules, suggest the appropriate require statement
 - Always prefer CommonJS `require()` syntax over ES6 imports for Node.js files
-
-## Common Imports for this project:
-- `const colors = require('colors');` - for terminal colors
-- `const express = require('express');` - for web server
-- `const { generateFrog, getAvailableTemplates } = require('../templates/templates');` - for frog templates
-- `const { generateSpecificFrog, generateRandomFrog } = require('../services/frog-generator');` - for frog generation
 
 ## Auto-fix suggestions
 - When I have missing imports, suggest adding them at the top of the file
