@@ -66,8 +66,14 @@ jobs:
         echo "📦 Building and pushing version: $VERSION"
         
         # Copy .npmrc to build context (will be removed in Dockerfile)
-        cp ~/.npmrc .
-        
+        if [ -f ~/.npmrc ]; then
+          echo "📁 Found ~/.npmrc, copying to build context"
+          cp ~/.npmrc .
+        else
+          echo "⚠️ WARNING: ~/.npmrc not found in $HOME"
+          echo "📍 Checking if JFrog Fly created it elsewhere..."
+          ls -la $HOME/ | grep npmrc || echo "No .npmrc files found"
+        fi        
         docker build -t ascii-frog .
         
         # Tag for both version and latest
@@ -75,6 +81,8 @@ jobs:
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
         
         # Push both tags
+        echo "🔍 DEBUG: About to push with VERSION='$VERSION'"
+        echo "🔍 DEBUG: Full tag: p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION"
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
         
