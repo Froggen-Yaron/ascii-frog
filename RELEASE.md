@@ -1,93 +1,80 @@
 # 🚀 Release Guide - ASCII Frog Generator
 
-## 📦 Complete Release Process
+## ⚠️ FULLY AUTOMATED RELEASE PROCESS NOW ACTIVE
+**🤖 EVERY PR GETS AUTO-VERSIONED AND RELEASED** - Zero manual version management!
 
-The project uses GitHub Actions for automated releases. Follow this unified process:
+New automated workflow:
+1. **Create PR to main** → Version bump automatically added to PR by `npm-version-bump` bot
+2. **Merge PR** → Automatic release to npm and docker registries
+3. **Zero manual work** - No `npm version` commands needed!
 
-### 🎯 Step-by-Step Release Flow
+## 📦 New Automated Release Process
 
-**🤖 AI ASSISTANT WORKFLOW**: The AI assistant will enforce proper release workflow automatically!
+The project uses GitHub Actions for **fully automated** releases. No manual version management needed!
+
+### 🎯 Step-by-Step Developer Workflow
+
+**✨ SIMPLE 3-STEP PROCESS:**
 
 **1. Create feature branch and make changes:**
 ```bash
-# Check current branch first
-git branch --show-current
-
-# Create and switch to feature branch (skip if already on feature branch)  
+# Create and switch to feature branch
 git checkout -b feature/your-feature-name
 
 # Make your code changes...
 
-# Stage your changes
+# Stage and commit your changes
 git add .
-
-# Commit with a descriptive message
 git commit -m "feat: add new frog template and improve UI styling"
+
+# Push feature branch
+git push origin feature/your-feature-name
 ```
 
-**2. Bump version (only if you want to trigger a release):**
+**2. Create Pull Request:**
+- Create PR from your feature branch to `main`
+- **🤖 AUTOMATIC**: Version bump commit gets added to your PR by `npm-version-bump` bot
+- Review the PR (including the version bump)
 
-**Choose the appropriate version bump based on your changes:**
+**3. Merge Pull Request:**
+- Merge the PR to main
+- **🤖 AUTOMATIC**: Release workflow publishes to npm and docker registries
+- **Done!** New version is live
 
-```bash
-# PATCH (1.0.1 → 1.0.2) - Bug fixes, small improvements, no API changes
-npm version patch
+## 🤖 What Happens Automatically
 
-# MINOR (1.0.1 → 1.1.0) - New features, backward compatible changes  
-npm version minor
+**🔄 PR Workflow (`version-bump-pr.yml`):**
+- **Triggers**: When PR is created/updated to main
+- **Checks**: If PR already has version bump commit from `npm-version-bump`
+- **Action**: Adds `npm version patch` commit to PR if needed
+- **Result**: Every PR gets a version bump automatically
 
-# MAJOR (1.0.1 → 2.0.0) - Breaking changes, API changes, major rewrites
-npm version major
-```
+**🚀 Release Workflow (`release.yml`):**
+- **Triggers**: When PR is merged to main (every push to main)
+- **NPM Release**: Publishes to npm registry using version from package.json
+- **Docker Release**: Builds and pushes with timestamp version (e.g., `2025.01.08-17.07.01`)
+- **Result**: Every merge creates a new release
 
-## 🤖 AI Assistant Release Protocol
+## 🎯 Version Strategy
 
-**CRITICAL RULES - MUST ALWAYS FOLLOW:**
+- **NPM**: Uses semantic versioning from package.json (auto-bumped patch versions)
+- **Docker**: Uses timestamp-based versions for unique identification
+- **Frequency**: One release per merged PR
+- **Type**: Always patch versions (1.0.1 → 1.0.2 → 1.0.3...)
 
-### 🚫 Absolute Prohibitions
-- **NEVER push directly to main branch** - This is FORBIDDEN
-- **NEVER commit to main branch** - Always use feature branches
-- **NEVER bypass the workflow** - Follow the process every time
+## 🚫 No Manual Actions Needed
 
-### 🔄 Mandatory Workflow Steps
+**❌ DON'T DO THESE ANYMORE:**
+- ~~`npm version patch`~~ (automated in PR)
+- ~~Manual version bumping~~ (automated in PR) 
+- ~~Release planning~~ (every PR is a release)
+- ~~Version coordination~~ (fully automated)
 
-**1. ALWAYS check current branch first:**
-```bash
-git branch --show-current
-```
-
-**2. If on main branch - STOP and create feature branch:**
-```bash
-git checkout -b feature/release-vX.X.X
-# OR appropriate feature name based on changes
-```
-
-**3. Analyze changes to determine version bump:**
-- **PATCH**: Bug fixes, docs, tests, small improvements, workflow updates
-- **MINOR**: New features, new functionality, backward compatible changes  
-- **MAJOR**: Breaking changes, API changes, major rewrites
-
-**4. Auto-detect version type from git diff:**
-```bash
-git diff main..HEAD
-```
-- Look for: `feat:`, `feature:`, new files → **MINOR**
-- Look for: `BREAKING CHANGE`, `major:` → **MAJOR**  
-- Default to: **PATCH** for everything else
-
-**5. Execute version bump:**
-```bash
-npm version [patch|minor|major]
-```
-
-**6. Push to feature branch:**
-```bash
-git push origin [feature-branch-name]
-```
-
-**7. Instruct user to create PR:**
-- User must manually create PR from feature branch to main
-- When PR is merged → automatic release workflow triggers
+**✅ JUST FOCUS ON:**
+- Writing code
+- Creating PRs
+- Code reviews
+- Merging when ready
 
 ### 🚨 Error Recovery Scenarios
 
