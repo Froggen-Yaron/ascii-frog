@@ -17,6 +17,13 @@ When user says "release":
 7. **NEVER skip steps 4-5** - Version bump must be the final release step
 
 
+## 🔧 TESTING & DEVELOPMENT RULES
+- **NEVER RUN PROJECT AUTOMATICALLY** - Don't start servers or run tests unless explicitly asked
+- **WHEN TASK IS COMPLETE, STOP** - After finishing code changes, don't automatically run/start/test
+- **SUGGEST, DON'T EXECUTE** - Can suggest running `npm run dev` or testing but ask first
+- **NO AUTO-TESTING** - Don't test functionality on your own unless requested
+- **ASK PERMISSION** before running any development commands (npm start, npm test, etc.)
+
 ## Auto-fix suggestions
 - When I have missing imports, suggest adding them at the top of the file
 - When I ask to "fix imports" or "add missing imports", scan the file for undefined variables and suggest appropriate import statements
