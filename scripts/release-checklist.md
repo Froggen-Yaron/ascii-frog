@@ -29,11 +29,6 @@ npm version [patch|minor|major]
 git push origin [branch-name]
 ```
 
-### ✅ Step 5: Verify
-```bash
-node -p "require('./package.json').version"
-```
-
 ## ❌ FAILURE POINTS TO AVOID:
 - Never skip version bump as final release step
 - Never push without confirming version changed

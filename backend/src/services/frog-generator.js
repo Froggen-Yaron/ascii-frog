@@ -1,7 +1,5 @@
 
 import { generateFrog, getAvailableTemplates } from '../templates/templates.js';
-import colors from 'colors';
-
 
 /**
  * Generate a frog with specified type/ID
@@ -12,7 +10,7 @@ function generateSpecificFrog(frogId) {
     const frogData = generateFrog(frogId);
     return {
         ascii: frogData.ascii,
-        frogName: colors.green(frogData.name)
+        frogName: frogData.name
     };
 }
 
