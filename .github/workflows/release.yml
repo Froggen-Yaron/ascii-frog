@@ -62,14 +62,14 @@ jobs:
 
     - name: 🔨 Build and Push Docker image
       run: |
+        VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
+        echo "📦 Building and pushing version: $VERSION"
+        
         # Copy .npmrc to build context (will be removed in Dockerfile)
         cp ~/.npmrc .
         
         docker build -t ascii-frog .
-
-        echo "📦 Pushing version: $VERSION"  
-        VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
-
+        
         # Tag for both version and latest
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
