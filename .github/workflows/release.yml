@@ -5,48 +5,13 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
-  check-version:
-    name: 🔍 Should Release?
-    runs-on: fly-scale-set-runner-default
-    outputs:
-      should-release: ${{ steps.check.outputs.should-release }}
-    
-    steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
-
-    - name: 🟢 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'      
-        
-    - name: Setup JFrog Fly
-      uses: FrogGen/fly-action@v1
-      with:
-        url: https://p1-flylnp1.jfrogdev.org
-        
-    - name: 🔍 Check if new version needs publishing
-      id: check
-      run: |
-        CURRENT_VERSION=$(jq -r .version < package.json)
-        LATEST_VERSION=$(npm view ascii-frog version 2>/dev/null || echo "0.0.0")
-        
-        if [ "$LATEST_VERSION" = "$CURRENT_VERSION" ]; then
-          echo "⏭️ Version $CURRENT_VERSION already published - skipping release"
-        else
-          echo "✅ New version detected: $LATEST_VERSION → $CURRENT_VERSION"
-          echo "should-release=true" >> $GITHUB_OUTPUT
-        fi
-
   npm-release:
     name: 📦 NPM Release
     runs-on: fly-scale-set-runner-default
-    needs: check-version
-    if: needs.check-version.outputs.should-release == 'true'
     
     steps:
     - name: 📥 Checkout code
@@ -61,6 +26,11 @@ jobs:
       uses: FrogGen/fly-action@v1
       with:
         url: https://p1-flylnp1.jfrogdev.org
+        
+    - name: 📦 NPM version ready
+      run: |
+        NPM_VERSION=$(jq -r .version < package.json)
+        echo "📦 Publishing NPM version: $NPM_VERSION"
         
     - name: 📦 Install dependencies
       run: npm ci
@@ -92,16 +62,14 @@ jobs:
 
     - name: 🔨 Build and Push Docker image
       run: |
-        VERSION=$(jq -r .version < package.json)
-        echo "📦 Building and pushing version: $VERSION"
-        echo "🏗️ Using simple docker build"
-        
         # Copy .npmrc to build context (will be removed in Dockerfile)
         cp ~/.npmrc .
         
-        # Build with simple docker build
         docker build -t ascii-frog .
-        
+
+        echo "📦 Pushing version: $VERSION"  
+        VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
+
         # Tag for both version and latest
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest

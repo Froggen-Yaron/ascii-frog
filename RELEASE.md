@@ -1,211 +1,115 @@
 # 🚀 Release Guide - ASCII Frog Generator
 
-## 📦 Complete Release Process
+## ⚠️ FULLY AUTOMATED RELEASE PROCESS NOW ACTIVE
+**🤖 EVERY PR GETS AUTO-VERSIONED AND RELEASED** - Zero manual version management!
 
-The project uses GitHub Actions for automated releases. Follow this unified process:
+New automated workflow:
+1. **Create PR to main** → Version bump automatically added to PR by `npm-version-bump` bot
+2. **Merge PR** → Automatic release to npm and docker registries
+3. **Zero manual work** - No `npm version` commands needed!
 
-### 🎯 Step-by-Step Release Flow
+## 📦 New Automated Release Process
 
-**🤖 AI ASSISTANT WORKFLOW**: The AI assistant will enforce proper release workflow automatically!
+The project uses GitHub Actions for **fully automated** releases. No manual version management needed!
+
+### 🎯 Step-by-Step Developer Workflow
+
+**✨ SIMPLE 3-STEP PROCESS:**
 
 **1. Create feature branch and make changes:**
 ```bash
-# Check current branch first
-git branch --show-current
-
-# Create and switch to feature branch (skip if already on feature branch)  
+# Create and switch to feature branch
 git checkout -b feature/your-feature-name
 
 # Make your code changes...
 
-# Stage your changes
+# Stage and commit your changes
 git add .
-
-# Commit with a descriptive message
 git commit -m "feat: add new frog template and improve UI styling"
-```
 
-**2. Bump version (only if you want to trigger a release):**
-
-**Choose the appropriate version bump based on your changes:**
-
-```bash
-# PATCH (1.0.1 → 1.0.2) - Bug fixes, small improvements, no API changes
-npm version patch
-
-# MINOR (1.0.1 → 1.1.0) - New features, backward compatible changes  
-npm version minor
-
-# MAJOR (1.0.1 → 2.0.0) - Breaking changes, API changes, major rewrites
-npm version major
-```
-
-## 🤖 AI Assistant Release Protocol
-
-**CRITICAL RULES - MUST ALWAYS FOLLOW:**
-
-### 🚫 Absolute Prohibitions
-- **NEVER push directly to main branch** - This is FORBIDDEN
-- **NEVER commit to main branch** - Always use feature branches
-- **NEVER bypass the workflow** - Follow the process every time
-
-### 🔄 Mandatory Workflow Steps
-
-**1. ALWAYS check current branch first:**
-```bash
-git branch --show-current
-```
-
-**2. If on main branch - STOP and create feature branch:**
-```bash
-git checkout -b feature/release-vX.X.X
-# OR appropriate feature name based on changes
-```
-
-**3. Analyze changes to determine version bump:**
-- **PATCH**: Bug fixes, docs, tests, small improvements, workflow updates
-- **MINOR**: New features, new functionality, backward compatible changes  
-- **MAJOR**: Breaking changes, API changes, major rewrites
-
-**4. Auto-detect version type from git diff:**
-```bash
-git diff main..HEAD
-```
-- Look for: `feat:`, `feature:`, new files → **MINOR**
-- Look for: `BREAKING CHANGE`, `major:` → **MAJOR**  
-- Default to: **PATCH** for everything else
-
-**5. Execute version bump:**
-```bash
-npm version [patch|minor|major]
-```
-
-**6. Push to feature branch:**
-```bash
-git push origin [feature-branch-name]
-```
-
-**7. Instruct user to create PR:**
-- User must manually create PR from feature branch to main
-- When PR is merged → automatic release workflow triggers
-
-### 🚨 Error Recovery Scenarios
-
-**If AI Assistant accidentally commits to main:**
-1. Stop immediately - do not push
-2. Create feature branch: `git checkout -b feature/fix-release-flow`
-3. Move commits to feature branch
-4. Reset main branch to previous state
-5. Continue with proper workflow
-
-**If AI Assistant detects they're on main:**
-1. STOP all operations immediately
-2. Create feature branch before any commits
-3. Follow the protocol from step 2 above
-
-**If direct push to main happens:**
-1. The git hook should prevent this
-2. If it somehow occurs, immediately create a revert strategy
-3. Use feature branch for all future work
-
-```bash
-# Commit the version bump (done automatically by npm version)
-# No need to manually add package.json - npm version handles it
-```
-
-**3. Push to feature branch:**
-```bash
-# Push to feature branch
+# Push feature branch
 git push origin feature/your-feature-name
 ```
 
-**4. Create PR manually (user action):**
-- Go to GitHub and create a Pull Request to `main` branch
-- Review and merge the PR
-- When the PR is merged to `main`, this automatically triggers the `🐸 ASCII Frog Release` workflow
+**2. Create Pull Request:**
+- Create PR from your feature branch to `main`
+- **🤖 AUTOMATIC**: Version bump commit gets added to your PR by `npm-version-bump` bot
+- Review the PR (including the version bump)
 
-**⚠️ Critical Reminders:**
-- **🚫 NEVER commit directly to `main` branch** - Use feature branches only!
-- **🤖 AI Assistant must follow the protocol above** - No exceptions!
-- **Only bump version if you want to publish a new release**
-- **No version bump = no publishing** (workflow skips gracefully)
-
-## 🛡️ Branch Protection Setup
-
-To prevent accidental direct pushes to main, set up branch protection:
-
-### GitHub Branch Protection Rules
-1. Go to **Settings** → **Branches** in your GitHub repo
-2. Add rule for `main` branch:
-   - ✅ Require pull request reviews before merging
-   - ✅ Require status checks to pass before merging
-   - ✅ Require branches to be up to date before merging
-   - ✅ Include administrators (prevents even admins from pushing directly)
-
+**3. Merge Pull Request:**
+- Merge the PR to main
+- **🤖 AUTOMATIC**: Release workflow publishes to npm and docker registries
+- **Done!** New version is live
 
 ## 🤖 What Happens Automatically
 
-The workflow intelligently handles releases to prevent version conflicts:
+**🔄 PR Workflow (`version-bump-pr.yml`):**
+- **Triggers**: When PR is created/updated to main
+- **Checks**: If PR already has version bump commit from `npm-version-bump`
+- **Action**: Adds `npm version patch` commit to PR if needed
+- **Result**: Every PR gets a version bump automatically
 
-1. **🔍 Version Check Job:**
-   - **Compare local vs published version**
-   - **Skip if versions match** - already published
-   - **Continue if versions differ** - trigger both release jobs
+**🚀 Release Workflow (`release.yml`):**
+- **Triggers**: When PR is merged to main (every push to main)
+- **NPM Release**: Publishes to npm registry using version from package.json
+- **Docker Release**: Builds and pushes with timestamp version (e.g., `2025.01.08-17.07.01`)
+- **Result**: Every merge creates a new release
 
-2. **📦 NPM Release Job (conditional):**
-   - **Only runs if version changed**
-   - Setup Node.js 20 + JFrog Fly
-   - Install dependencies (`npm ci`)
-   - Run tests (`npm test`)
-   - Publish to NPM (`npm publish`)
+## 🎯 Version Strategy
 
-3. **🐳 Docker Release Job (conditional):**
-   - **Only runs if version changed**
-   - Setup JFrog Fly
-   - Build Docker image (`docker build`)
-   - Push to JFrog Fly registry (`p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest`)
+- **NPM**: Uses semantic versioning from package.json (auto-bumped patch versions)
+- **Docker**: Uses timestamp-based versions for unique identification
+- **Frequency**: One release per merged PR
+- **Type**: Always patch versions (1.0.1 → 1.0.2 → 1.0.3...)
 
-### 🎯 Smart Version Handling
+## 🚫 No Manual Actions Needed
 
-- **Version already published**: Workflow completes successfully, skips publishing
-- **New version detected**: Publishes to both NPM and Docker registries  
-- **No more 403 errors** from duplicate version publishing
-- **Simple version comparison** - local vs published
+**❌ DON'T DO THESE ANYMORE:**
+- ~~`npm version patch`~~ (automated in PR)
+- ~~Manual version bumping~~ (automated in PR) 
+- ~~Release planning~~ (every PR is a release)
+- ~~Version coordination~~ (fully automated)
 
-**🔍 Current Version: `1.0.1`**
-
-### Monitor Progress
-
-- Go to **Actions** tab in your repository
-- Watch the workflow execution
-- Check logs for any errors
+**✅ JUST FOCUS ON:**
+- Writing code
+- Creating PRs
+- Code reviews
+- Merging when ready
 
 ## 🔧 Troubleshooting
 
 ### Common Scenarios
 
-**✅ Version Already Published**
-```
-🔍 Current: 1.0.1, Latest: 1.0.1
-⏭️ Skipping - version unchanged
-✅ Workflow completed successfully
-```
-*This is normal - no action needed.*
+**✅ Normal PR Flow**
+1. Create PR → version bump auto-added by `npm-version-bump`
+2. Merge PR → automatic release triggers
+3. Check **Actions** tab to monitor release progress
 
-**✅ New Version**
-```
-🔍 Current: 1.0.2, Latest: 1.0.1
-✅ Will publish 1.0.2
-📦 Publishing to npm registry...
-🐳 Building and pushing Docker image...
-✅ Release completed successfully
-```
+**⚠️ If version bump missing from PR:**
+- Wait a few minutes (workflow might still be running)
+- Check PR **Checks** tab for workflow status
+- Re-run failed workflow if needed
 
-### Release Checklist
+**⚠️ If release fails:**
+- Check **Actions** tab for error details
+- Common issues: npm auth, docker registry permissions
+- Re-run failed release workflow after fixing
 
-- [ ] Version bumped in `package.json`
-- [ ] Changes tested locally (`npm test`)
-- [ ] Feature branch merged to `main`
-- [ ] GitHub Actions workflow completed
-- [ ] Check npm registry for new package
-- [ ] Verify Docker image in JFrog registry
+### Monitor Progress
+
+- **Actions** tab in your repository shows all workflow runs
+- **PR Checks** show version bump workflow status
+- **npm registry** to verify published packages
+- **JFrog registry** to verify docker images
+
+## 📊 What Gets Released
+
+**📦 NPM Package:**
+- Published to npm registry
+- Version from `package.json` (auto-bumped)
+- Includes built frontend assets
+
+**🐳 Docker Image:**
+- Pushed to `p1-flylnp1.jfrogdev.org/docker/ascii-frog`
+- Tagged with timestamp (e.g., `2025.01.08-17.07.01`)
+- Also tagged as `latest`

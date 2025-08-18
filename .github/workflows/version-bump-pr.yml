@@ -1,0 +1,45 @@
+name: 🔖 Auto Version Bump on PR
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  version-bump:
+    name: 📈 Add Version Bump to PR
+    runs-on: fly-scale-set-runner-default
+    
+    steps:
+    - name: 📥 Checkout PR branch
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: ${{ github.event.pull_request.head.ref }}
+        fetch-depth: 0
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: 🔧 Configure Git
+      run: |
+        git config --global user.name "npm-version-bump"
+        git config --global user.email "npm-version-bump@users.noreply.github.com"
+
+    - name: 📈 Bump version if needed
+      run: |
+        # Check if any commit in PR is from npm-version-bump
+        if git log --pretty=%an | grep "npm-version-bump"; then
+          echo "⏭️ PR already has version bump commit - skipping"
+        else
+          echo "🔖 Running npm version patch..."
+          npm version patch
+          echo "📤 Pushing version bump to PR branch..."
+          git push origin ${{ github.event.pull_request.head.ref }}
+        fi
