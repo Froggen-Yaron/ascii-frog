@@ -60,20 +60,19 @@ jobs:
       with:
         url: https://p1-flylnp1.jfrogdev.org
 
+    - name: 🔑 Docker Login to JFrog
+      run: |
+        echo "🔐 Logging into JFrog Docker registry with custom token..."
+        echo "${{ secrets.FLY_TOKEN }}" | docker login https://p1-flylnp1.jfrogdev.org --username admin --password-stdin
+
     - name: 🔨 Build and Push Docker image
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
         echo "📦 Building and pushing version: $VERSION"
         
         # Copy .npmrc to build context (will be removed in Dockerfile)
-        if [ -f ~/.npmrc ]; then
-          echo "📁 Found ~/.npmrc, copying to build context"
-          cp ~/.npmrc .
-        else
-          echo "⚠️ WARNING: ~/.npmrc not found in $HOME"
-          echo "📍 Checking if JFrog Fly created it elsewhere..."
-          ls -la $HOME/ | grep npmrc || echo "No .npmrc files found"
-        fi        
+        cp ~/.npmrc .
+              
         docker build -t ascii-frog .
         
         # Tag for both version and latest
