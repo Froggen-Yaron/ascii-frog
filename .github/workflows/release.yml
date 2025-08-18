@@ -63,7 +63,7 @@ jobs:
     - name: 🔑 Docker Login to JFrog
       run: |
         echo "🔐 Logging into JFrog Docker registry with custom token..."
-        echo "${{ secrets.FLY_TOKEN }}" | docker login https://p1-flylnp1.jfrogdev.org --username ${{ github.actor }} --password-stdin
+        echo "${{ secrets.FLY_TOKEN }}" | docker login https://p1-flylnp1.jfrogdev.org --username admin --password-stdin
 
     - name: 🔨 Build and Push Docker image
       run: |
