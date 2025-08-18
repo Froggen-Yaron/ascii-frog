@@ -34,8 +34,8 @@ jobs:
 
     - name: 📈 Bump version if needed
       run: |
-        # Check if any commit in PR is from npm-version-bump
-        if git log --pretty=%an | grep "npm-version-bump"; then
+        # Check if any commit in THIS PR is from npm-version-bump
+        if git log main..HEAD --pretty=%an | grep "npm-version-bump"; then
           echo "⏭️ PR already has version bump commit - skipping"
         else
           echo "🔖 Running npm version patch..."
