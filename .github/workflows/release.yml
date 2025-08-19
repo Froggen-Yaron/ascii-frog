@@ -9,8 +9,8 @@ permissions:
   id-token: write
 
 jobs:
-  npm-release:
-    name: 📦 NPM Release
+  release:
+    name: 📦 NPM & 🐳 Docker Release
     runs-on: fly-scale-set-runner-default
     
     steps:
@@ -27,76 +27,30 @@ jobs:
       with:
         url: https://p1-flylnp1.jfrogdev.org
         
-    - name: 📦 NPM version ready
+    - name: 🚀 Publish NPM package
       run: |
         NPM_VERSION=$(jq -r .version < package.json)
         echo "📦 Publishing NPM version: $NPM_VERSION"
+        npm ci
+        npm test
+        npm publish
         
-    - name: 📦 Install dependencies
-      run: npm ci
-      
-    - name: 🧪 Run tests
-      run: npm test
-      
-    - name: 🚀 Publish to NPM
-      run: npm publish
+        # Install production dependencies for Docker
+        npm ci --only=production
 
-  docker-release:
-    name: 🐳 Docker Release
-    runs-on: fly-scale-set-runner-default
-    needs: npm-release
-    
-    steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
-
-    - name: 🟢 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
-    - name: Setup JFrog Fly
-      uses: FrogGen/fly-action@v1
-      with:
-        url: https://p1-flylnp1.jfrogdev.org
-
-    - name: 🔍 Docker Configuration Diagnostics
-      run: |
-        echo "🔍 Checking Docker configuration after JFrog Fly setup..."
-        echo "📋 Docker config.json registry URLs:"
-        jq -r '.auths | keys[]' ~/.docker/config.json 2>/dev/null || echo "No auths found"
-        echo "🔑 Auth tokens (masked):"
-        jq -r '.auths | to_entries[] | .key + ": " + (.value.auth[:15] + "...")' ~/.docker/config.json 2>/dev/null || echo "No auth found"
-        echo ""
-        echo "🌐 Testing docker info:"
-        docker info | grep -A10 -B10 "Registry" || echo "No registry info found"
-        echo ""
-
-    - name: 🔨 Build and Push Docker image
+    - name: 🐳 Push Docker image
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
-        echo "📦 Building and pushing version: $VERSION"
+        echo "📦 Building and pushing Docker version: $VERSION"
         
-        # Copy .npmrc to build context (will be removed in Dockerfile)
-        cp ~/.npmrc .
-
+        # Build Docker image (uses local build files)
         docker build -t ascii-frog .
         
         # Tag for both version and latest
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
-        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
-        
-        # Verify credentials are still valid before push
-        echo "🔍 Testing registry connectivity..."
-        docker pull p1-flylnp1.jfrogdev.org/docker/hello-world:latest || echo "Registry test failed but continuing..."
+        # docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
         
         # Push both tags
-        echo "🔍 DEBUG: About to push with VERSION='$VERSION'"
-        echo "🔍 DEBUG: Full tag: p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION"
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
-        docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+        # docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
         
-        # Clean up .npmrc from build context
-        rm -f .npmrc
-        
-        echo "🎉 Built and pushed both tags successfully!"

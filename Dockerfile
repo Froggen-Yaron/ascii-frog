@@ -3,10 +3,10 @@ FROM p1-flylnp1.jfrogdev.org/docker/node:20-alpine
 
 WORKDIR /app
 
-# Install package from private registry (using copied .npmrc)
-COPY .npmrc /root/.npmrc
-RUN npm install ascii-frog@latest && \
-    rm /root/.npmrc
+# Copy pre-built application files and dependencies
+COPY frontend/dist/ ./frontend/dist/
+COPY backend/ ./backend/
+COPY node_modules/ ./node_modules/
 
 # Setup security: curl + non-root user
 RUN apk add --no-cache curl && \
@@ -25,4 +25,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 # Environment
 ENV NODE_ENV=production PORT=3000
 
-CMD ["npx", "ascii-frog"]
+CMD ["node", "backend/server.js"]
