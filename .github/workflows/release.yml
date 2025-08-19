@@ -36,9 +36,6 @@ jobs:
         echo "🌐 Testing docker info:"
         docker info | grep -A10 -B10 "Registry" || echo "No registry info found"
         echo ""
-        echo "🔐 Docker credential helpers:"
-        docker-credential-secretservice --help 2>/dev/null || echo "No secretservice helper"
-        echo ""
 
     - name: 🔨 Build and Push Docker image
       run: |
