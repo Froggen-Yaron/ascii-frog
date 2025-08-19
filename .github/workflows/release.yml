@@ -26,44 +26,19 @@ jobs:
       uses: FrogGen/fly-action@v1
       with:
         url: https://p1-flylnp1.jfrogdev.org
-        
-    - name: 📦 NPM version ready
+
+    - name: 🔍 Docker Configuration Diagnostics
       run: |
-        NPM_VERSION=$(jq -r .version < package.json)
-        echo "📦 Publishing NPM version: $NPM_VERSION"
-        
-    - name: 📦 Install dependencies
-      run: npm ci
-      
-    - name: 🧪 Run tests
-      run: npm test
-      
-    - name: 🚀 Publish to NPM
-      run: npm publish
-
-  docker-release:
-    name: 🐳 Docker Release
-    runs-on: fly-scale-set-runner-default
-    needs: npm-release
-    
-    steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
-
-    - name: 🟢 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
-    - name: Setup JFrog Fly
-      uses: FrogGen/fly-action@v1
-      with:
-        url: https://p1-flylnp1.jfrogdev.org
-
-    - name: 🔑 Docker Login to JFrog
-      run: |
-        echo "🔐 Logging into JFrog Docker registry with custom token..."
-        echo "${{ secrets.FLY_TOKEN }}" | docker login https://p1-flylnp1.jfrogdev.org --username admin --password-stdin
+        echo "🔍 Checking Docker configuration after JFrog Fly setup..."
+        echo "📋 Docker config.json contents:"
+        cat ~/.docker/config.json || echo "No config.json found"
+        echo ""
+        echo "🌐 Testing docker info:"
+        docker info | grep -A10 -B10 "Registry" || echo "No registry info found"
+        echo ""
+        echo "🔐 Docker credential helpers:"
+        docker-credential-secretservice --help 2>/dev/null || echo "No secretservice helper"
+        echo ""
 
     - name: 🔨 Build and Push Docker image
       run: |
@@ -71,8 +46,14 @@ jobs:
         echo "📦 Building and pushing version: $VERSION"
         
         # Copy .npmrc to build context (will be removed in Dockerfile)
-        cp ~/.npmrc .
-              
+        if [ -f ~/.npmrc ]; then
+          echo "📁 Found ~/.npmrc, copying to build context"
+          cp ~/.npmrc .
+        else
+          echo "⚠️ WARNING: ~/.npmrc not found in $HOME"
+          echo "📍 Checking if JFrog Fly created it elsewhere..."
+          ls -la $HOME/ | grep npmrc || echo "No .npmrc files found"
+        fi              
         docker build -t ascii-frog .
         
         # Tag for both version and latest
