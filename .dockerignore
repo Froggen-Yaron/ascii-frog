@@ -1,5 +1,5 @@
-# Dependencies
-node_modules
+# Dependencies (node_modules now copied from workflow)
+# node_modules  
 npm-debug.log*
 
 # Development files
