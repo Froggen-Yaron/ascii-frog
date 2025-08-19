@@ -86,6 +86,10 @@ jobs:
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
         
+        # Verify credentials are still valid before push
+        echo "🔍 Testing registry connectivity..."
+        docker pull p1-flylnp1.jfrogdev.org/docker/hello-world:latest || echo "Registry test failed but continuing..."
+        
         # Push both tags
         echo "🔍 DEBUG: About to push with VERSION='$VERSION'"
         echo "🔍 DEBUG: Full tag: p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION"
