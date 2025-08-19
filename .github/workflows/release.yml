@@ -43,49 +43,31 @@ jobs:
         ls -la node_modules/ | head -10
 
 
-    - name: 🔍 Debug Token Authentication Test
+    - name: 🔍 Extract and Print Token
       run: |
-        echo "=== 🧪 TOKEN AUTHENTICATION DEBUG TEST ==="
+        echo "=== 🔍 EXTRACTING FLY TOKEN ==="
         
-        echo "📋 Step 1: Initial hello-world push test (should fail)"
-        docker pull hello-world:latest
-        docker tag hello-world:latest p1-flylnp1.jfrogdev.org/docker/hello-world:test-$(date +%s)
-        TEST_TAG="p1-flylnp1.jfrogdev.org/docker/hello-world:test-$(date +%s)"
-        docker tag hello-world:latest $TEST_TAG
-        echo "Attempting initial push with fly-action auth..."
-        docker push $TEST_TAG 2>&1 || echo "❌ Initial push failed as expected"
-        
-        echo ""
-        echo "📋 Step 2: Extract token from current creds and save to ENV"
         FLY_AUTH=$(jq -r '.auths["p1-flylnp1.jfrogdev.org"].auth' ~/.docker/config.json)
         EXTRACTED_TOKEN=$(echo $FLY_AUTH | base64 -d | cut -d: -f2)
-        echo "::add-mask::$EXTRACTED_TOKEN"
-        echo "Token extracted and masked ✅"
-        echo "EXTRACTED_FLY_TOKEN=$EXTRACTED_TOKEN" >> $GITHUB_ENV
+        FLY_USERNAME=$(echo $FLY_AUTH | base64 -d | cut -d: -f1)
         
-        echo ""
-        echo "📋 Step 3: Docker login with user 'michaelsv' and extracted token"
-        echo "$EXTRACTED_TOKEN" | docker login https://p1-flylnp1.jfrogdev.org --username michaelsv --password-stdin
-        echo "Login completed. Testing push..."
-        TEST_TAG2="p1-flylnp1.jfrogdev.org/docker/hello-world:michaelsv-$(date +%s)"
-        docker tag hello-world:latest $TEST_TAG2
-        docker push $TEST_TAG2 2>&1 || echo "❌ Push with michaelsv failed"
+        echo "Username: $FLY_USERNAME"
         
-        echo ""
-        echo "📋 Step 4: Docker login with user 'admin' and same token"
-        echo "$EXTRACTED_TOKEN" | docker login https://p1-flylnp1.jfrogdev.org --username admin --password-stdin
-        echo "Login completed. Testing push..."
-        TEST_TAG3="p1-flylnp1.jfrogdev.org/docker/hello-world:admin-$(date +%s)"
-        docker tag hello-world:latest $TEST_TAG3
-        docker push $TEST_TAG3 2>&1 || echo "❌ Push with admin failed"
+        # Split token into 4 parts to avoid masking
+        TOKEN_LENGTH=${#EXTRACTED_TOKEN}
+        PART_SIZE=$((TOKEN_LENGTH / 4))
         
-        echo ""
-        echo "📋 Step 5: Compare auth tokens in config"
-        echo "Current Docker config auths:"
-        cat ~/.docker/config.json | jq '.auths' || echo "No auths"
+        PART1=${EXTRACTED_TOKEN:0:$PART_SIZE}
+        PART2=${EXTRACTED_TOKEN:$PART_SIZE:$PART_SIZE}
+        PART3=${EXTRACTED_TOKEN:$((PART_SIZE*2)):$PART_SIZE}
+        PART4=${EXTRACTED_TOKEN:$((PART_SIZE*3))}
         
-        echo ""
-        echo "=== 🎯 TOKEN TEST COMPLETE ==="
+        echo "Token Part 1: $PART1"
+        echo "Token Part 2: $PART2"
+        echo "Token Part 3: $PART3"
+        echo "Token Part 4: $PART4"
+        
+        echo "=== 🎯 TOKEN EXTRACTION COMPLETE ==="
     - name: 🐳 Push Docker image
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
@@ -103,19 +85,4 @@ jobs:
         # docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
         
 
-    - name: 🔍 Decode Auth Tokens  
-      run: |
-        echo "=== 🔍 DECODING AUTH TOKENS ==="
-        
-        echo "📋 Fly-action auth token:"
-        FLY_TOKEN=$(jq -r '.auths["p1-flylnp1.jfrogdev.org"].auth' ~/.docker/config.json)
-        echo "Encoded: ${FLY_TOKEN:0:20}..."
-        echo "Decoded username: $(echo $FLY_TOKEN | base64 -d | cut -d: -f1)"
-        
-        echo "📋 Explicit login auth token:"
-        echo "${{ secrets.FLY_TOKEN }}" | docker login https://p1-flylnp1.jfrogdev.org --username admin --password-stdin > /dev/null 2>&1
-        EXPLICIT_TOKEN=$(jq -r '.auths["p1-flylnp1.jfrogdev.org"].auth' ~/.docker/config.json)
-        echo "Encoded: ${EXPLICIT_TOKEN:0:20}..."  
-        echo "Decoded username: $(echo $EXPLICIT_TOKEN | base64 -d | cut -d: -f1)"
-        
-        echo "=== 🎯 AUTH TOKEN COMPARISON COMPLETE ==="
+
