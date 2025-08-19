@@ -27,3 +27,13 @@ When user says "release":
 ## Auto-fix suggestions
 - When I have missing imports, suggest adding them at the top of the file
 - When I ask to "fix imports" or "add missing imports", scan the file for undefined variables and suggest appropriate import statements
+
+## 🚫 GIT COMMAND RULES - NEVER REQUIRE USER INPUT
+- **NEVER run git commands that require user interaction**
+- **ALWAYS use non-interactive flags:**
+  - `git merge --no-edit` (never prompt for merge message)
+  - `git pull --no-rebase` or `git pull --rebase` (specify strategy)
+  - `git commit -m "message"` (always provide message)
+  - `git push` (only use if no conflicts expected)
+- **AVOID**: `git merge`, `git pull` without strategy, `git rebase` without flags
+- **USER IS NOT AVAILABLE** to provide input during commands
