@@ -43,39 +43,49 @@ jobs:
         ls -la node_modules/ | head -10
 
 
-    - name: 🔍 Debug Authentication State
+    - name: 🔍 Debug Token Authentication Test
       run: |
-        echo "=== �� DEBUGGING FLY-ACTION AUTH VS EXPLICIT LOGIN ==="
+        echo "=== 🧪 TOKEN AUTHENTICATION DEBUG TEST ==="
         
-        echo "📋 1. Current Docker config after fly-action:"
-        cat ~/.docker/config.json | jq '.' || echo "No config.json"
+        echo "📋 Step 1: Initial hello-world push test (should fail)"
+        docker pull hello-world:latest
+        docker tag hello-world:latest p1-flylnp1.jfrogdev.org/docker/hello-world:test-$(date +%s)
+        TEST_TAG="p1-flylnp1.jfrogdev.org/docker/hello-world:test-$(date +%s)"
+        docker tag hello-world:latest $TEST_TAG
+        echo "Attempting initial push with fly-action auth..."
+        docker push $TEST_TAG 2>&1 || echo "❌ Initial push failed as expected"
         
-        echo "📋 2. Registry URLs in auth:"
-        jq -r '.auths | keys[]' ~/.docker/config.json 2>/dev/null || echo "No auths"
+        echo ""
+        echo "📋 Step 2: Extract token from current creds and save to ENV"
+        FLY_AUTH=$(jq -r '.auths["p1-flylnp1.jfrogdev.org"].auth' ~/.docker/config.json)
+        EXTRACTED_TOKEN=$(echo $FLY_AUTH | base64 -d | cut -d: -f2)
+        echo "::add-mask::$EXTRACTED_TOKEN"
+        echo "Token extracted and masked ✅"
+        echo "EXTRACTED_FLY_TOKEN=$EXTRACTED_TOKEN" >> $GITHUB_ENV
         
-        echo "📋 3. Test registry connectivity with fly-action auth:"
-        docker pull p1-flylnp1.jfrogdev.org/docker/hello-world:latest 2>&1 || echo "Pull test failed"
+        echo ""
+        echo "📋 Step 3: Docker login with user 'michaelsv' and extracted token"
+        echo "$EXTRACTED_TOKEN" | docker login https://p1-flylnp1.jfrogdev.org --username michaelsv --password-stdin
+        echo "Login completed. Testing push..."
+        TEST_TAG2="p1-flylnp1.jfrogdev.org/docker/hello-world:michaelsv-$(date +%s)"
+        docker tag hello-world:latest $TEST_TAG2
+        docker push $TEST_TAG2 2>&1 || echo "❌ Push with michaelsv failed"
         
-        echo "📋 4. Test push capability with fly-action auth:"
-        # Create a tiny test image
-        echo "FROM alpine:latest" > Dockerfile.test
-        docker build -f Dockerfile.test -t test-image .
-        docker tag test-image p1-flylnp1.jfrogdev.org/docker/test-auth:$(date +%s)
-        docker push p1-flylnp1.jfrogdev.org/docker/test-auth:$(date +%s) 2>&1 || echo "❌ Fly-action push failed"
+        echo ""
+        echo "📋 Step 4: Docker login with user 'admin' and same token"
+        echo "$EXTRACTED_TOKEN" | docker login https://p1-flylnp1.jfrogdev.org --username admin --password-stdin
+        echo "Login completed. Testing push..."
+        TEST_TAG3="p1-flylnp1.jfrogdev.org/docker/hello-world:admin-$(date +%s)"
+        docker tag hello-world:latest $TEST_TAG3
+        docker push $TEST_TAG3 2>&1 || echo "❌ Push with admin failed"
         
-        echo "📋 5. Compare with explicit login:"
-        echo "${{ secrets.FLY_TOKEN }}" | docker login https://p1-flylnp1.jfrogdev.org --username admin --password-stdin
+        echo ""
+        echo "📋 Step 5: Compare auth tokens in config"
+        echo "Current Docker config auths:"
+        cat ~/.docker/config.json | jq '.auths' || echo "No auths"
         
-        echo "📋 6. Docker config after explicit login:"
-        cat ~/.docker/config.json | jq '.auths' || echo "No auths after explicit login"
-        
-        echo "📋 7. Test push with explicit login:"
-        docker push p1-flylnp1.jfrogdev.org/docker/test-auth:$(date +%s) 2>&1 || echo "❌ Explicit login push failed"
-        
-        # Cleanup
-        rm -f Dockerfile.test
-        
-        echo "=== 🎯 END DEBUGGING ==="
+        echo ""
+        echo "=== 🎯 TOKEN TEST COMPLETE ==="
     - name: 🐳 Push Docker image
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
@@ -92,3 +102,20 @@ jobs:
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
         # docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
         
+
+    - name: 🔍 Decode Auth Tokens  
+      run: |
+        echo "=== 🔍 DECODING AUTH TOKENS ==="
+        
+        echo "📋 Fly-action auth token:"
+        FLY_TOKEN=$(jq -r '.auths["p1-flylnp1.jfrogdev.org"].auth' ~/.docker/config.json)
+        echo "Encoded: ${FLY_TOKEN:0:20}..."
+        echo "Decoded username: $(echo $FLY_TOKEN | base64 -d | cut -d: -f1)"
+        
+        echo "📋 Explicit login auth token:"
+        echo "${{ secrets.FLY_TOKEN }}" | docker login https://p1-flylnp1.jfrogdev.org --username admin --password-stdin > /dev/null 2>&1
+        EXPLICIT_TOKEN=$(jq -r '.auths["p1-flylnp1.jfrogdev.org"].auth' ~/.docker/config.json)
+        echo "Encoded: ${EXPLICIT_TOKEN:0:20}..."  
+        echo "Decoded username: $(echo $EXPLICIT_TOKEN | base64 -d | cut -d: -f1)"
+        
+        echo "=== 🎯 AUTH TOKEN COMPARISON COMPLETE ==="
