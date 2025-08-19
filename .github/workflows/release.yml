@@ -35,8 +35,12 @@ jobs:
         npm test
         npm publish
         
-        # Install production dependencies for Docker
+    - name: 📦 Prepare production dependencies for Docker
+      run: |
+        echo "🔍 Installing production dependencies..."
         npm ci --only=production
+        echo "📁 Verifying node_modules exists:"
+        ls -la node_modules/ | head -10
 
     - name: 🐳 Push Docker image
       run: |
