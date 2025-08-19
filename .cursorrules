@@ -37,3 +37,17 @@ When user says "release":
   - `git push` (only use if no conflicts expected)
 - **AVOID**: `git merge`, `git pull` without strategy, `git rebase` without flags
 - **USER IS NOT AVAILABLE** to provide input during commands
+
+## 🚨 CRITICAL GIT RULES - UPDATED FOR ABSOLUTE SAFETY
+- **NEVER EVER use `git pull` without `--no-edit`** - IT WILL HANG!
+- **NEVER EVER use `git merge` without `--no-edit`** - IT WILL HANG!
+- **SAFE SYNC METHOD ONLY:**
+  - `git fetch origin branch-name`
+  - `git merge --no-edit origin/branch-name`
+- **SAFE PULL METHOD ONLY:**
+  - `git pull --no-rebase --no-edit origin branch-name`
+- **FORBIDDEN COMMANDS:**
+  - `git pull` (without --no-edit)
+  - `git merge` (without --no-edit)
+  - `git rebase` (without strategy)
+- **REMEMBER: USER CANNOT PROVIDE INPUT - COMMANDS WILL HANG FOREVER**
