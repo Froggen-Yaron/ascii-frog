@@ -1,6 +1,6 @@
 // Import CSS
 import './styles.css';
-import { TerminalManager } from './terminal/terminal.js';
+import { TerminalManager } from './terminal.js';
 
 
 
