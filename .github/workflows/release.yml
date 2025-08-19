@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release:
-    name: 📦 NPM & 🐳 Docker Release
+    name: Release
     runs-on: fly-scale-set-runner-default
     
     steps:
@@ -42,6 +42,40 @@ jobs:
         echo "📁 Verifying node_modules exists:"
         ls -la node_modules/ | head -10
 
+
+    - name: 🔍 Debug Authentication State
+      run: |
+        echo "=== �� DEBUGGING FLY-ACTION AUTH VS EXPLICIT LOGIN ==="
+        
+        echo "📋 1. Current Docker config after fly-action:"
+        cat ~/.docker/config.json | jq '.' || echo "No config.json"
+        
+        echo "📋 2. Registry URLs in auth:"
+        jq -r '.auths | keys[]' ~/.docker/config.json 2>/dev/null || echo "No auths"
+        
+        echo "📋 3. Test registry connectivity with fly-action auth:"
+        docker pull p1-flylnp1.jfrogdev.org/docker/hello-world:latest 2>&1 || echo "Pull test failed"
+        
+        echo "📋 4. Test push capability with fly-action auth:"
+        # Create a tiny test image
+        echo "FROM alpine:latest" > Dockerfile.test
+        docker build -f Dockerfile.test -t test-image .
+        docker tag test-image p1-flylnp1.jfrogdev.org/docker/test-auth:$(date +%s)
+        docker push p1-flylnp1.jfrogdev.org/docker/test-auth:$(date +%s) 2>&1 || echo "❌ Fly-action push failed"
+        
+        echo "📋 5. Compare with explicit login:"
+        echo "${{ secrets.FLY_TOKEN }}" | docker login https://p1-flylnp1.jfrogdev.org --username admin --password-stdin
+        
+        echo "📋 6. Docker config after explicit login:"
+        cat ~/.docker/config.json | jq '.auths' || echo "No auths after explicit login"
+        
+        echo "📋 7. Test push with explicit login:"
+        docker push p1-flylnp1.jfrogdev.org/docker/test-auth:$(date +%s) 2>&1 || echo "❌ Explicit login push failed"
+        
+        # Cleanup
+        rm -f Dockerfile.test
+        
+        echo "=== 🎯 END DEBUGGING ==="
     - name: 🐳 Push Docker image
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
