@@ -30,8 +30,10 @@ jobs:
     - name: 🔍 Docker Configuration Diagnostics
       run: |
         echo "🔍 Checking Docker configuration after JFrog Fly setup..."
-        echo "📋 Docker config.json contents:"
-        cat ~/.docker/config.json || echo "No config.json found"
+        echo "📋 Docker config.json registry URLs:"
+        jq -r '.auths | keys[]' ~/.docker/config.json 2>/dev/null || echo "No auths found"
+        echo "🔑 Auth tokens (masked):"
+        jq -r '.auths | to_entries[] | .key + ": " + (.value.auth[:15] + "...")' ~/.docker/config.json 2>/dev/null || echo "No auth found"
         echo ""
         echo "🌐 Testing docker info:"
         docker info | grep -A10 -B10 "Registry" || echo "No registry info found"
