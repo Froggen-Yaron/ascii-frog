@@ -46,14 +46,8 @@ jobs:
         echo "📦 Building and pushing version: $VERSION"
         
         # Copy .npmrc to build context (will be removed in Dockerfile)
-        if [ -f ~/.npmrc ]; then
-          echo "📁 Found ~/.npmrc, copying to build context"
-          cp ~/.npmrc .
-        else
-          echo "⚠️ WARNING: ~/.npmrc not found in $HOME"
-          echo "📍 Checking if JFrog Fly created it elsewhere..."
-          ls -la $HOME/ | grep npmrc || echo "No .npmrc files found"
-        fi              
+        cp ~/.npmrc .
+
         docker build -t ascii-frog .
         
         # Tag for both version and latest
