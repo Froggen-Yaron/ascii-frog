@@ -26,6 +26,39 @@ jobs:
       uses: FrogGen/fly-action@v1
       with:
         url: https://p1-flylnp1.jfrogdev.org
+        
+    - name: 📦 NPM version ready
+      run: |
+        NPM_VERSION=$(jq -r .version < package.json)
+        echo "📦 Publishing NPM version: $NPM_VERSION"
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🧪 Run tests
+      run: npm test
+      
+    - name: 🚀 Publish to NPM
+      run: npm publish
+
+  docker-release:
+    name: 🐳 Docker Release
+    runs-on: fly-scale-set-runner-default
+    needs: npm-release
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup JFrog Fly
+      uses: FrogGen/fly-action@v1
+      with:
+        url: https://p1-flylnp1.jfrogdev.org
 
     - name: 🔍 Docker Configuration Diagnostics
       run: |
