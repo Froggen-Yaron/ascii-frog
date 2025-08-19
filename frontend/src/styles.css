@@ -1,6 +1,3 @@
-/* Import xterm.js CSS */
-@import '@xterm/xterm/css/xterm.css';
-
 /* Reset and base styles */
 * {
     margin: 0;
