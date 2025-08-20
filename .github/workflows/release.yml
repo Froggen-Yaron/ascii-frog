@@ -27,62 +27,36 @@ jobs:
       with:
         url: https://p1-flylnp1.jfrogdev.org
         
+    - name: 🐳 Docker Login with FLY_TOKEN
+      run: |
+        echo "🔐 Logging into Docker registry with FLY_TOKEN..."
+        echo "$FLY_TOKEN" | docker login p1-flylnp1.jfrogdev.org -u auto --password-stdin
+        echo "✅ Docker login successful"
+        
     - name: 🚀 Publish NPM package
       run: |
         NPM_VERSION=$(jq -r .version < package.json)
         echo "📦 Publishing NPM version: $NPM_VERSION"
         npm ci
-        npm test
         npm publish
         
-    - name: 📦 Prepare production dependencies for Docker
-      run: |
-        echo "🔍 Installing production dependencies..."
-        npm ci --only=production
-        echo "📁 Verifying node_modules exists:"
-        ls -la node_modules/ | head -10
-
-
-    - name: 🔍 Extract and Print Token
-      run: |
-        echo "=== 🔍 EXTRACTING FLY TOKEN ==="
-        
-        FLY_AUTH=$(jq -r '.auths["p1-flylnp1.jfrogdev.org"].auth' ~/.docker/config.json)
-        EXTRACTED_TOKEN=$(echo $FLY_AUTH | base64 -d | cut -d: -f2)
-        FLY_USERNAME=$(echo $FLY_AUTH | base64 -d | cut -d: -f1)
-        
-        echo "Username: $FLY_USERNAME"
-        
-        # Split token into 4 parts to avoid masking
-        TOKEN_LENGTH=${#EXTRACTED_TOKEN}
-        PART_SIZE=$((TOKEN_LENGTH / 4))
-        
-        PART1=${EXTRACTED_TOKEN:0:$PART_SIZE}
-        PART2=${EXTRACTED_TOKEN:$PART_SIZE:$PART_SIZE}
-        PART3=${EXTRACTED_TOKEN:$((PART_SIZE*2)):$PART_SIZE}
-        PART4=${EXTRACTED_TOKEN:$((PART_SIZE*3))}
-        
-        echo "Token Part 1: $PART1"
-        echo "Token Part 2: $PART2"
-        echo "Token Part 3: $PART3"
-        echo "Token Part 4: $PART4"
-        
-        echo "=== 🎯 TOKEN EXTRACTION COMPLETE ==="
-    - name: 🐳 Push Docker image
+    - name: 🐳 Build and Push Docker image
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
         echo "📦 Building and pushing Docker version: $VERSION"
         
-        # Build Docker image (uses local build files)
-        docker build -t ascii-frog .
+        echo "🔧 Docker version:"
+        docker --version
         
-        # Tag for both version and latest
-        docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
-        # docker tag ascii-frog p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+        # Build the Docker image
+        echo "🏗️ Building Docker image..."
+        docker build -t p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION .
         
-        # Push both tags
+        # Push the Docker image
+        echo "📤 Pushing Docker image..."
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
-        # docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:latest
+          
+        echo "✅ Docker image pushed successfully"
         
 
 
