@@ -49,10 +49,13 @@ export class TerminalManager {
         asciiLines.forEach(line => {
             this.writeCenter(line);
         });
+
     }
 
     displayFrogName(frogName) {
-        this.writeCenter(randomColor(frogName));
+        this.writeCenter(frogName);
+        // change to:
+        // this.writeCenter(randomColor(frogName));
     }
 
     centerText(text) {
