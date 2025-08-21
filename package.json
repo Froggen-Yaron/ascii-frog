@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node backend/server.js",
+    "predev": "npm install",
     "dev": "concurrently \"PORT=3001 nodemon backend/server.js\" \"npm run frontend:dev\"",
     "test": "node backend/test/health-check.js",
     "frontend:dev": "cd frontend && vite --port 3000",
