@@ -26,11 +26,6 @@ jobs:
     - name: 🐳 Docker Login with FLY_TOKEN
       run: |
         echo "🔐 Logging into Docker registry with FLY_TOKEN..."
-        if [ -z "$FLY_TOKEN" ]; then
-          echo "❌ ERROR: FLY_TOKEN environment variable is empty or not set"
-          echo "💡 Admin action required: Add FLY_TOKEN as a repository secret"
-          exit 1
-        fi
         echo "$FLY_TOKEN" | docker login p1-flylnp1.jfrogdev.org -u auto --password-stdin
         echo "✅ Docker login successful"
         
