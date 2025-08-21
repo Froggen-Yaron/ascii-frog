@@ -3,7 +3,7 @@ name: 🔖 Auto Version Bump on PR
 on:
   pull_request:
     branches: [ main ]
-    types: [opened, synchronize]
+    types: [opened]
 
 permissions:
   contents: write
