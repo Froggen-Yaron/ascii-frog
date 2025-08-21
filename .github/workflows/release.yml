@@ -23,13 +23,7 @@ jobs:
       with:
         url: https://p1-flylnp1.jfrogdev.org
         
-    - name: 🐳 Docker Login
-      run: |
-        echo "🔐 Logging into Docker registry..."
-        echo ${{ secrets.FLY_TOKEN }} | docker login -u admin p1-flylnp1.jfrogdev.org --password-stdin
-        echo "✅ Docker login successful"
-        
-    - name: 🚀 Publish NPM package
+    - name: 🚀 Build and Publish NPM package
       run: |
         NPM_VERSION=$(jq -r .version < package.json)
         echo "📦 Publishing NPM version: $NPM_VERSION"
@@ -40,6 +34,8 @@ jobs:
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
         echo "📦 Building and pushing Docker version: $VERSION"
+        
+        echo ${{ secrets.FLY_TOKEN }} | docker login -u admin p1-flylnp1.jfrogdev.org --password-stdin
         
         # Build the Docker image
         echo "🏗️ Building Docker image..."
