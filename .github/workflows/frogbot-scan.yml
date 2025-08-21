@@ -7,7 +7,7 @@ on:
 
 jobs:
   frogbot-scan:
-    runs-on: ubuntu-latest
+    runs-on: linux-amd64
     
     steps:
     - name: 🐸 FrogBot Scan

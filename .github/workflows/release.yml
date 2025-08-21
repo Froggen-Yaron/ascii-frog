@@ -11,7 +11,7 @@ permissions:
 jobs:
   release:
     name: Release
-    runs-on: fly-scale-set-runner-default
+    runs-on: linux-arm64
     
     steps:
     - name: 📥 Checkout code

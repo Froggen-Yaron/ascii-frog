@@ -12,7 +12,7 @@ permissions:
 jobs:
   unit-tests:
     name: 🔬 Unit Tests
-    runs-on: fly-scale-set-runner-default
+    runs-on: linux-arm64
     
     steps:
     - name: 📥 Checkout code
