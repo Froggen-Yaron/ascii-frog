@@ -8,7 +8,6 @@
   },
   "scripts": {
     "start": "node backend/server.js",
-    "predev": "npm install",
     "dev": "concurrently \"PORT=3001 nodemon backend/server.js\" \"npm run frontend:dev\"",
     "test": "node backend/test/health-check.js",
     "frontend:dev": "cd frontend && vite --port 3000",
@@ -22,7 +21,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git@github.com:Frog-Gen/ascii-frog-temp.git"
+    "url": "git@github-playground.jfrogdev.org:FrogGen/ascii-frog.git"
   },
   "type": "module",
   "dependencies": {
