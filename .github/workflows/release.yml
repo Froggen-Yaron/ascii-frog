@@ -44,6 +44,9 @@ jobs:
         echo "🔧 Docker version:"
         docker --version
         
+        echo "🧪 Testing Docker registry connection with hello-world..."
+        docker pull p1-flylnp1.jfrogdev.org/docker/hello-world:latest || echo "Hello-world test completed"
+        
         # Build the Docker image
         echo "🏗️ Building Docker image..."
         docker build -t p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION .
