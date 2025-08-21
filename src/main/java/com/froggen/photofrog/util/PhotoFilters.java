@@ -85,6 +85,17 @@ public class PhotoFilters {
     }
 
     /**
+     * Optimized filter application with caching.
+     */
+    private final java.util.Map<String, BufferedImage> filterCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public BufferedImage applyExpressionFilterOptimized(BufferedImage image, String expression) {
+        String cacheKey = expression + "_" + image.getWidth() + "x" + image.getHeight();
+        
+        return filterCache.computeIfAbsent(cacheKey, k -> applyExpressionFilter(image, expression));
+    }
+
+    /**
      * Apply happy expression filter (brighter, warmer colors).
      */
     private BufferedImage applyHappyFilter(BufferedImage image) {

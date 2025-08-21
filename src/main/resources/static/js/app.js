@@ -34,11 +34,30 @@ class PhotoFrogApp {
             this.downloadImage();
         });
 
+        // Touch events for mobile
+        this.bindTouchEvents();
+
         // Real-time preview on control changes
         const controls = ['template', 'size', 'expression'];
         controls.forEach(controlId => {
             document.getElementById(controlId).addEventListener('change', () => {
                 this.updatePreview();
+            });
+        });
+    }
+
+    bindTouchEvents() {
+        // Add touch event handling for mobile devices
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                button.style.transform = 'scale(0.95)';
+            });
+            
+            button.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                button.style.transform = '';
             });
         });
     }

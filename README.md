@@ -127,6 +127,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - OpenCV community for image processing capabilities
 - All contributors and maintainers
 
-
 ## PNG Support Enhancement
 Added PNG format support and improved image quality options.
+
