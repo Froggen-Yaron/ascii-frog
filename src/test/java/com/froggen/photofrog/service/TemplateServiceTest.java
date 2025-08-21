@@ -109,3 +109,4 @@ public class TemplateServiceTest {
         assertTrue(frog.getAvailableExpressions().length > 0);
     }
 }
+

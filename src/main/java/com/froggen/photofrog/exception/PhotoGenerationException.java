@@ -17,3 +17,4 @@ public class PhotoGenerationException extends RuntimeException {
         super(cause);
     }
 }
+

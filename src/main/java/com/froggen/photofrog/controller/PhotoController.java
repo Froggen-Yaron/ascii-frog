@@ -97,11 +97,4 @@ public class PhotoController {
         return ResponseEntity.ok(formats);
     }
 
-    /**
-     * Health check endpoint.
-     */
-    @GetMapping("/health")
-    public ResponseEntity<String> health() {
-        return ResponseEntity.ok("Photo Frog Generator is running!");
-    }
 }

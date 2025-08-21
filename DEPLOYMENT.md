@@ -319,3 +319,4 @@ For issues and support:
 - GitHub Issues: https://github.com/your-org/photo-frog/issues
 - Documentation: https://github.com/your-org/photo-frog/docs
 - Email: team@froggen.com
+
