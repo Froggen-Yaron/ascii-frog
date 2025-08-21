@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["🔖 Auto Version Bump on PR"]
+    types: [completed]
+    branches: [ main ]
 
 permissions:
   contents: read
