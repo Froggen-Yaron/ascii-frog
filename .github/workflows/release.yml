@@ -23,10 +23,10 @@ jobs:
       with:
         url: https://p1-flylnp1.jfrogdev.org
         
-    - name: 🐳 Docker Login with FLY_TOKEN
+    - name: 🐳 Docker Login
       run: |
-        echo "🔐 Logging into Docker registry with FLY_TOKEN..."
-        echo "$FLY_TOKEN" | docker login p1-flylnp1.jfrogdev.org -u auto --password-stdin
+        echo "🔐 Logging into Docker registry..."
+        echo ${{ secrets.FLY_PASSWORD }} | docker login -u admin p1-flylnp1.jfrogdev.org --password-stdin
         echo "✅ Docker login successful"
         
     - name: 🚀 Publish NPM package
