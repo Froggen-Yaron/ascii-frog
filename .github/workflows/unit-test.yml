@@ -18,14 +18,9 @@ jobs:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
       
-    - name: 🟢 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
         
     - name: Setup JFrog Fly
-      uses: FrogGen/fly-action@v1
+      uses: Frog-Gen/fly-action@v1
       with:
         url: https://p1-flylnp1.jfrogdev.org
         
