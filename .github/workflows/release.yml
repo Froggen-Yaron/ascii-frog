@@ -26,7 +26,7 @@ jobs:
     - name: 🐳 Docker Login
       run: |
         echo "🔐 Logging into Docker registry..."
-        echo ${{ secrets.FLY_PASSWORD }} | docker login -u admin p1-flylnp1.jfrogdev.org --password-stdin
+        echo ${{ secrets.FLY_TOKEN }} | docker login -u admin p1-flylnp1.jfrogdev.org --password-stdin
         echo "✅ Docker login successful"
         
     - name: 🚀 Publish NPM package
