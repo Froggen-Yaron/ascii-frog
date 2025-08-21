@@ -54,7 +54,7 @@ export class TerminalManager {
 
     displayFrogName(frogName) {
         this.writeCenter(frogName);
-        // To add Random Color change to:
+        // To add Random Color To the FROG NAME CHANGE HERE:
         // this.writeCenter(randomColor(frogName));
     }
 
