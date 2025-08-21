@@ -27,3 +27,4 @@ public class HealthController {
         return ResponseEntity.ok(healthStatus);
     }
 }
+

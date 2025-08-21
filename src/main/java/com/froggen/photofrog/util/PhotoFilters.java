@@ -128,7 +128,7 @@ public class PhotoFilters {
      * Apply determined expression filter (sharp, focused).
      */
     private BufferedImage applyDeterminedFilter(BufferedImage image) {
-        BufferedImage result = adjustContrast(result, 1.25f);
+        BufferedImage result = adjustContrast(image, 1.25f);
         result = adjustSharpness(result, 1.1f);
         return result;
     }

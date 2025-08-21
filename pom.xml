@@ -24,7 +24,6 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <opencv.version>4.7.0-0</opencv.version>
-        <imageio.version>1.4.2</imageio.version>
     </properties>
 
     <dependencies>
@@ -48,12 +47,7 @@
             <version>${opencv.version}</version>
         </dependency>
         
-        <!-- ImageIO for image handling -->
-        <dependency>
-            <groupId>javax.imageio</groupId>
-            <artifactId>imageio</artifactId>
-            <version>${imageio.version}</version>
-        </dependency>
+
         
         <!-- Jackson for JSON processing -->
         <dependency>
@@ -118,4 +112,18 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>artifactory-mirror</id>
+            <name>Artifactory Mirror</name>
+            <url>https://p1-flylnp1.jfrogdev.org/artifactory/maven</url>
+        </repository>
+        <snapshotRepository>
+            <id>artifactory-mirror</id>
+            <name>Artifactory Mirror Snapshots</name>
+            <url>https://p1-flylnp1.jfrogdev.org/artifactory/maven</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
+

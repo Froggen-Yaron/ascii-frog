@@ -84,3 +84,4 @@ public class PhotoControllerTest {
                 .andExpect(jsonPath("$.message").value("Template not found"));
     }
 }
+
