@@ -3,7 +3,6 @@ name: 🐸 FrogBot Security Scan
 on:
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   frogbot-scan:
