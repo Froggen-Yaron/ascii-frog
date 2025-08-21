@@ -22,7 +22,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git@github-playground.jfrogdev.org:FrogGen/ascii-frog.git"
+    "url": "git@github.com:FrogGen/ascii-frog.git"
   },
   "type": "module",
   "dependencies": {
