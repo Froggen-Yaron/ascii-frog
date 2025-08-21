@@ -208,3 +208,4 @@ MIT License - Feel free to use this code for your own ASCII art projects!
 ---
 
 Made with ❤️ for ASCII art enthusiasts
+# Testing credentials restored
