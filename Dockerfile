@@ -1,25 +1,23 @@
 # Multi-stage build for production optimization
-FROM openjdk:17-jdk-slim as builder
+FROM maven:3.9-eclipse-temurin-17 as builder
 
 # Set working directory
 WORKDIR /app
 
 # Copy Maven files
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
 
 # Download dependencies
-RUN ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY src src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Production stage
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 
 # Create non-root user for security
 RUN groupadd -r froggen && useradd -r -g froggen froggen
