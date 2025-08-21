@@ -1,6 +1,6 @@
 {
   "name": "ascii-frog",
-  "version": "3.0.28",
+  "version": "3.0.29",
   "description": "ASCII Frog Generator - A fun web service to generate colorful ASCII art frogs",
   "main": "backend/server.js",
   "bin": {
