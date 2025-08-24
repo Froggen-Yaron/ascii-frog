@@ -47,11 +47,11 @@ jobs:
         echo "🚀 Force pushing reset to main branch..."
         git push --force origin HEAD:main
         
-        # Reset other branches to main
-        BRANCHES=$(git branch -r --no-merged main | grep -v 'origin/main' | sed 's/origin\///' || true)
+        # Delete other branches (keep only main)
+        BRANCHES=$(git branch -r | grep -v 'origin/main' | grep -v 'origin/HEAD' | sed 's/origin\///' || true)
         for branch in $BRANCHES; do
-          echo "🔄 Resetting branch: $branch"
-          git push --force origin main:$branch || echo "⚠️ Could not reset $branch"
+          echo "🗑️ Deleting branch: $branch"
+          git push origin --delete $branch || echo "⚠️ Could not delete $branch"
         done
         
         echo "✅ Repository reset to state zero complete"
@@ -91,6 +91,6 @@ jobs:
         echo ""
         echo "✅ Repository reset to commit: 10520645c78e0d952481ec1c65ea0476c03a12b2"
         echo "✅ Workflow runs cleaned (kept first 3)"
-        echo "✅ All branches synchronized"
+        echo "✅ All branches deleted (kept only main)"
         echo ""
         echo "🚀 Repository is ready for demo!"
