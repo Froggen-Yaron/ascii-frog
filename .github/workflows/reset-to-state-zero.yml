@@ -1,0 +1,96 @@
+name: 🔄 Reset to State Zero
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "RESET" to confirm the reset operation'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  reset-repository:
+    name: Reset Repository to State Zero
+    runs-on: linux-arm64
+    
+    steps:
+    - name: 🛡️ Validate confirmation
+      if: ${{ github.event.inputs.confirm != 'RESET' }}
+      run: |
+        echo "❌ Reset operation cancelled - confirmation not provided"
+        echo "Please type 'RESET' in the confirmation field to proceed"
+        exit 1
+    
+    - name: 📥 Checkout code with full history
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: 🔄 Reset to State Zero
+      run: |
+        echo "🎯 Resetting repository to state zero..."
+        echo "Target commit: 10520645c78e0d952481ec1c65ea0476c03a12b2"
+        
+        # Configure git
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        
+        # Reset to the specific commit (state zero)
+        git reset --hard 10520645c78e0d952481ec1c65ea0476c03a12b2
+        
+        # Force push to all branches to reset them
+        echo "🚀 Force pushing reset to main branch..."
+        git push --force origin HEAD:main
+        
+        # Reset other branches to main
+        BRANCHES=$(git branch -r --no-merged main | grep -v 'origin/main' | sed 's/origin\///' || true)
+        for branch in $BRANCHES; do
+          echo "🔄 Resetting branch: $branch"
+          git push --force origin main:$branch || echo "⚠️ Could not reset $branch"
+        done
+        
+        echo "✅ Repository reset to state zero complete"
+        
+    - name: 🧹 Clean up workflow runs
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "🧹 Cleaning up old workflow runs..."
+        
+        # Get repository info
+        REPO="${{ github.repository }}"
+        
+        # Get all workflow runs (keeping first 3)
+        echo "📊 Fetching workflow runs..."
+        RUNS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO/actions/runs?per_page=100" | \
+          jq -r '.workflow_runs[3:] | .[].id')
+        
+        # Delete old workflow runs
+        echo "🗑️ Deleting old workflow runs (keeping first 3)..."
+        COUNT=0
+        for run_id in $RUNS; do
+          echo "Deleting run: $run_id"
+          curl -s -X DELETE \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$REPO/actions/runs/$run_id" || echo "⚠️ Could not delete run $run_id"
+          COUNT=$((COUNT + 1))
+        done
+        
+        echo "✅ Cleaned up $COUNT workflow runs"
+        echo "💡 Repository is now in state zero - ready for demo!"
+        
+    - name: 🎉 State Zero Complete
+      run: |
+        echo "🎯 State Zero Reset Complete!"
+        echo ""
+        echo "✅ Repository reset to commit: 10520645c78e0d952481ec1c65ea0476c03a12b2"
+        echo "✅ Workflow runs cleaned (kept first 3)"
+        echo "✅ All branches synchronized"
+        echo ""
+        echo "🚀 Repository is ready for demo!"
