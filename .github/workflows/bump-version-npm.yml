@@ -1,24 +1,25 @@
-name: 🔖 Auto Version Bump on PR
+name: 🔖 Auto Version Bump on Merge
 
 on:
   pull_request:
     branches: [ main ]
-    types: [opened, synchronize]
+    types: [closed]
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   version-bump:
-    runs-on: linux-arm64
+    runs-on: linux-amd64
+    # Only run if PR was actually merged (not just closed)
+    if: github.event.pull_request.merged == true
     
     steps:
-    - name: 📥 Checkout PR branch
+    - name: 📥 Checkout main branch
       uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        ref: ${{ github.event.pull_request.head.ref }}
+        ref: main
         fetch-depth: 0
 
     - name: 🔧 Configure Git
@@ -26,14 +27,12 @@ jobs:
         git config --global user.name "npm-version-bump"
         git config --global user.email "npm-version-bump@users.noreply.github.com"
 
-    - name: 📈 Bump version if needed
+    - name: 📈 Auto patch version bump
       run: |
-        # Check if any commit in THIS PR is from npm-version-bump
-        if git log origin/main..HEAD --pretty=%an | grep "npm-version-bump"; then
-          echo "⏭️ PR already has version bump commit - skipping"
-        else
-          echo "🔖 Running npm version patch..."
-          npm version patch
-          echo "📤 Pushing version bump to PR branch..."
-          git push origin ${{ github.event.pull_request.head.ref }}
-        fi
+        echo "🔀 PR #${{ github.event.pull_request.number }} was merged - bumping patch version"
+        
+        echo "🔖 Running npm run version:patch..."
+        npm run version:patch
+        
+        echo "📤 Pushing version bump to main..."
+        git push origin main --follow-tags
