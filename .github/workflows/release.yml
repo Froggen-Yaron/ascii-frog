@@ -32,10 +32,6 @@ jobs:
     - name: 📦 Install workspace dependencies
       run: |
         echo "📦 Installing workspace dependencies..."
-        npm cache clean --force
-        rm -rf node_modules package-lock.json
-        rm -rf frontend/node_modules frontend/package-lock.json
-        rm -rf backend/node_modules backend/package-lock.json
         npm install
         
     - name: 🏗️ Build frontend

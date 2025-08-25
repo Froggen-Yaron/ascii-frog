@@ -31,12 +31,7 @@ jobs:
     #############################################
         
     - name: 📦 Install dependencies
-      run: |
-        npm cache clean --force
-        rm -rf node_modules package-lock.json
-        rm -rf frontend/node_modules frontend/package-lock.json  
-        rm -rf backend/node_modules backend/package-lock.json
-        npm install
+      run: npm install
       
     - name: 🧪 Run unit tests
       run: |
