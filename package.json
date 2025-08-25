@@ -3,7 +3,6 @@
   "version": "3.0.35",
   "description": "ASCII Frog Generator - A fun web service to generate colorful ASCII art frogs",
   "type": "module",
-
   "scripts": {
     "predev": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ..",
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
