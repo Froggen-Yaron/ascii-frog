@@ -32,7 +32,18 @@ jobs:
     - name: 📦 Install workspace dependencies
       run: |
         echo "📦 Installing workspace dependencies..."
-        npm ci
+        npm cache clean --force
+        rm -rf node_modules package-lock.json
+        rm -rf frontend/node_modules frontend/package-lock.json
+        rm -rf backend/node_modules backend/package-lock.json
+        npm install
+        
+    - name: 🔧 Fix Rollup platform dependencies
+      run: |
+        echo "🔧 Ensuring Rollup platform dependencies..."
+        cd frontend
+        npm install @rollup/rollup-linux-x64-gnu --save-optional
+        cd ..
         
     - name: 🏗️ Build frontend
       run: |
