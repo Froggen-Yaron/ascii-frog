@@ -3,15 +3,12 @@
   "version": "3.0.35",
   "description": "ASCII Frog Generator - A fun web service to generate colorful ASCII art frogs",
   "type": "module",
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
+
   "scripts": {
-    "predev": "npm install",
-    "dev": "concurrently \"npm run -w backend dev\" \"npm run -w frontend dev\"",
-    "build": "npm run -w frontend build",
-    "test": "npm run -w backend test",
+    "predev": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ..",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "build": "cd frontend && npm run build",
+    "test": "cd backend && npm run test",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:build": "docker-compose build"
