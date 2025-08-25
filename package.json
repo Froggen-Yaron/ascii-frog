@@ -11,8 +11,9 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:build": "docker-compose build",
-    "version:patch": "npm version patch --no-git-tag-version && npm run sync-versions && git add . && git commit -m \"chore: bump version to $(node -p \"require('./package.json').version\")\"",
-    "sync-versions": "node -e \"const v=require('./package.json').version; const fs=require('fs'); ['frontend','backend'].forEach(d=>{const p=require('./' + d + '/package.json'); p.version=v; fs.writeFileSync(d + '/package.json', JSON.stringify(p,null,2))})\""
+    "version:patch": "npm version patch",
+    "version:frontend": "cd frontend && npm version patch",
+    "version:backend": "cd backend && npm version patch"
   },
   "keywords": [
     "ascii-art",
