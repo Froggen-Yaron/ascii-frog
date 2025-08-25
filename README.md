@@ -4,6 +4,7 @@ A fun web service that generates beautiful colored ASCII art frogs with a termin
 
 **Also check out our other cool apps: lineart-frog and photo-frog!**
 
+
 ## Features
 
 - 🎨 **Professional ASCII Art**: Templates from legendary ASCII artists like Joan Stark
