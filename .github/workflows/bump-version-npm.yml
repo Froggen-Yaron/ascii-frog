@@ -31,8 +31,23 @@ jobs:
       run: |
         echo "🔀 PR #${{ github.event.pull_request.number }} was merged - bumping patch version"
         
-        echo "🔖 Running npm run version:patch..."
-        npm run version:patch
+        echo "🔖 Bumping frontend version..."
+        cd frontend
+        npm version patch --no-git-tag-version
+        FRONTEND_VERSION=$(jq -r .version package.json)
+        echo "📊 Frontend version: $FRONTEND_VERSION"
+        cd ..
+        
+        echo "🔖 Bumping backend version..."
+        cd backend
+        npm version patch --no-git-tag-version
+        BACKEND_VERSION=$(jq -r .version package.json)
+        echo "📊 Backend version: $BACKEND_VERSION"
+        cd ..
+        
+        echo "📝 Committing version changes..."
+        git add frontend/package.json backend/package.json
+        git commit -m "chore: bump versions - frontend: $FRONTEND_VERSION, backend: $BACKEND_VERSION"
         
         echo "📤 Pushing version bump to main..."
-        git push origin main --follow-tags
+        git push origin main
