@@ -33,6 +33,10 @@ jobs:
       run: |
         echo "📦 Installing workspace dependencies..."
         npm install
+        echo "📦 Installing frontend dependencies locally..."
+        cd frontend && npm install
+        echo "📦 Installing backend dependencies locally..."
+        cd ../backend && npm install
         
     - name: 🏗️ Build frontend
       run: |
