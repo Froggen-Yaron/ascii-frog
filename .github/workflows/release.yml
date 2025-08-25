@@ -1,8 +1,9 @@
 name: 🚀 ASCII-Frog Release
 
 on:
-  push:
+  pull_request:
     branches: [ main ]
+    types: [closed]
 
 permissions:
   contents: write
@@ -12,12 +13,43 @@ jobs:
   release:
     name: Release
     runs-on: linux-amd64
-    # Only run if this push is from the version bump bot
-    if: contains(github.event.head_commit.author.name, 'npm-version-bump')
+    # Only run if PR was actually merged (not just closed)
+    if: github.event.pull_request.merged == true
     
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: main
+        fetch-depth: 0
+
+    - name: 🔧 Configure Git
+      run: |
+        git config --global user.name "npm-version-bump"
+        git config --global user.email "npm-version-bump@users.noreply.github.com"
+
+    - name: 📈 Prepare version bump
+      run: |
+        echo "🔀 PR #${{ github.event.pull_request.number }} was merged - preparing version bump"
+        
+        echo "🔖 Bumping frontend version..."
+        cd frontend
+        npm version patch --no-git-tag-version
+        FRONTEND_VERSION=$(jq -r .version package.json)
+        echo "📊 Frontend version: $FRONTEND_VERSION"
+        echo "FRONTEND_VERSION=$FRONTEND_VERSION" >> $GITHUB_ENV
+        cd ..
+        
+        echo "🔖 Bumping backend version..."
+        cd backend
+        npm version patch --no-git-tag-version
+        BACKEND_VERSION=$(jq -r .version package.json)
+        echo "📊 Backend version: $BACKEND_VERSION"
+        echo "BACKEND_VERSION=$BACKEND_VERSION" >> $GITHUB_ENV
+        cd ..
+        
+        echo "⚠️ Version changes prepared but not committed yet (waiting for successful publish)"
       
         
     #############################################
@@ -73,6 +105,17 @@ jobs:
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION
           
         echo "✅ Docker image pushed successfully"
-        
 
+    - name: 📝 Commit version changes after successful publish
+      run: |
+        echo "✅ All publishing successful - now committing version changes"
+        
+        echo "📝 Committing version changes..."
+        git add frontend/package.json backend/package.json
+        git commit -m "chore: bump versions - frontend: $FRONTEND_VERSION, backend: $BACKEND_VERSION"
+        
+        echo "📤 Pushing version bump to main..."
+        git push origin main
+        
+        echo "🎉 Release complete with version bump committed!"
 
