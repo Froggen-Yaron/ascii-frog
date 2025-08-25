@@ -5,11 +5,10 @@ A fun web service that generates beautiful colored ASCII art frogs with a termin
 **Also check out our other cool apps: lineart-frog and photo-frog!**
 
 ## Features
-
 - 🎨 **Professional ASCII Art**: Templates from legendary ASCII artists like Joan Stark
 - 🐸 **6 Authentic Frog Designs**: Traditional, recognizable ASCII frog artwork
 - 🌈 **Clean Display**: Monochrome ASCII art with colorful frog names
-- 💻 **Terminal UI**: Embedded terminal-like display for authentic CLI feel
+- 💻 **Terminal UI**: Embedded terminal-like display for an authentic CLI feel
 - 📋 **Copy to Clipboard**: Easy copying of generated ASCII art with frog names
 - 🎲 **Random Generation**: Get surprise professional frog combinations
 - 📱 **Responsive Design**: Works on desktop and mobile devices
