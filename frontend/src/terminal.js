@@ -49,7 +49,27 @@ export class TerminalManager {
         asciiLines.forEach(line => {
             this.writeCenter(line);
         });
+    }
 
+    displayAsciiWithFixedHeight(ascii) {
+        const asciiLines = ascii.split('\n').filter(line => line.trim() !== '');
+        const minHeight = 12; // Fixed height for ASCII area (lines)
+
+        // Display the ASCII art
+        asciiLines.forEach(line => {
+            this.writeCenter(line);
+        });
+
+        // Add padding to reach minimum height
+        const linesUsed = asciiLines.length;
+        const paddingNeeded = Math.max(0, minHeight - linesUsed);
+
+        for (let i = 0; i < paddingNeeded; i++) {
+            this.writeln('');
+        }
+
+        // Add a separator line before frog name
+        this.writeln('');
     }
 
     displayFrogName(frogName) {

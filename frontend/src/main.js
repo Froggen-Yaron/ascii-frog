@@ -16,7 +16,6 @@ export class AsciiFrogGenerator {
     initializeElements() {
         this.frogSelect = document.getElementById('template-select'); // Keep same ID for compatibility
         this.randomBtn = document.getElementById('random-btn');
-        this.copyBtn = document.getElementById('copy-btn');
         this.terminalContainer = document.getElementById('terminal');
     }
 
@@ -26,7 +25,6 @@ export class AsciiFrogGenerator {
 
     bindEvents() {
         this.randomBtn.addEventListener('click', () => this.generateRandomFrog());
-        this.copyBtn.addEventListener('click', () => this.copyToClipboard());
 
         // Auto-generate on frog selection change
         this.frogSelect.addEventListener('change', () => this.generateFrog());
@@ -58,13 +56,20 @@ export class AsciiFrogGenerator {
 
     populateFrogSelect(frogs) {
         this.frogSelect.innerHTML = '';
+
+        // Add placeholder option
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = 'Select a frog species to generate...';
+        placeholderOption.disabled = true;
+        placeholderOption.selected = true;
+        this.frogSelect.appendChild(placeholderOption);
+
+        // Add frog options
         frogs.forEach(frog => {
             const option = document.createElement('option');
             option.value = frog.id;
             option.textContent = frog.name;
-            if (frog.id === 'classic') {
-                option.selected = true;
-            }
             this.frogSelect.appendChild(option);
         });
     }
@@ -87,7 +92,6 @@ export class AsciiFrogGenerator {
 
             if (data.success) {
                 this.displayAscii(data.ascii, data.frogName);
-                this.copyBtn.disabled = false;
                 console.log(`🤖 AI Generated ${data.frogName} frog!`);
             } else {
                 throw new Error(data.error || 'Failed to generate frog');
@@ -104,7 +108,6 @@ export class AsciiFrogGenerator {
 
             if (data.success) {
                 this.displayAscii(data.ascii, data.frogName);
-                this.copyBtn.disabled = false;
                 console.log(`🎲 AI Generated random frog: ${data.frogName}!`);
             } else {
                 throw new Error(data.error || 'Failed to generate random frog');
@@ -134,37 +137,7 @@ export class AsciiFrogGenerator {
 
 
 
-    async copyToClipboard() {
-        if (!this.currentAscii) {
-            console.warn('No ASCII art to copy!');
-            return;
-        }
 
-        try {
-            // Use backend API to format clipboard text
-            const response = await fetch('/api/format-clipboard', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ascii: this.currentAscii,
-                    frogName: this.currentFrogName
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                await navigator.clipboard.writeText(data.formattedText);
-                console.log('📋 AI-generated ASCII frog copied to clipboard!');
-            } else {
-                throw new Error(data.error || 'Failed to format clipboard text');
-            }
-        } catch (error) {
-            console.error('Error copying to clipboard:', error);
-        }
-    }
 
 
 

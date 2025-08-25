@@ -130,9 +130,9 @@ body {
 .main-content {
     flex: 1;
     display: grid;
-    grid-template-columns: 300px 1fr 250px;
+    grid-template-columns: 300px 1fr;
     gap: 30px;
-    align-items: start;
+    align-items: stretch;
 }
 
 /* Controls panel */
@@ -142,6 +142,8 @@ body {
     border-radius: 12px;
     padding: 24px;
     backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
 }
 
 .control-group {
@@ -227,11 +229,7 @@ body {
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
 }
 
-.copy-app {
-    background: linear-gradient(135deg, #10b981, #059669) !important;
-    background-image: linear-gradient(135deg, #10b981, #059669) !important;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
-}
+
 
 .lineart-app {
     background: rgba(59, 130, 246, 0.1) !important;
@@ -360,31 +358,54 @@ body {
     height: fit-content;
 }
 
-.froggen-branding {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    border: 2px solid #333;
-    border-radius: 12px;
-    padding: 20px;
+/* Old app styling removed since section was moved to bottom */
+
+/* Other apps section - bottom and subtle */
+.other-apps-bottom {
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    margin-top: 10px;
+    margin-bottom: 5px;
+    padding: 6px;
+    font-size: 12px;
 }
 
-.other-apps {
-    margin-top: 20px;
+.other-apps-text-small {
+    margin-right: 8px;
+    color: #94a3b8;
+    font-size: 12px;
+    opacity: 0.8;
 }
 
-.other-apps-text {
-    color: #ccc;
-    font-size: 14px;
-    margin-bottom: 15px;
-    font-weight: 500;
+.app-link {
+    color: #60a5fa;
+    text-decoration: underline;
+    margin: 0 6px;
+    font-size: 12px;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
-.app-buttons {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
+.app-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+.lineart-link {
+    color: #60a5fa;
+}
+
+.lineart-link:hover {
+    color: #93c5fd;
+}
+
+.photo-link {
+    color: #22d3ee;
+}
+
+.photo-link:hover {
+    color: #67e8f9;
 }
 
 /* Footer */
@@ -433,6 +454,7 @@ body {
     .main-content {
         grid-template-columns: 1fr;
         gap: 20px;
+        align-items: start;
     }
 
     .controls-panel {
@@ -442,10 +464,6 @@ body {
     .terminal-container {
         order: 2;
         min-height: 400px;
-    }
-
-    .info-panel {
-        order: 3;
     }
 }
 
