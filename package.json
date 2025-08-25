@@ -1,7 +1,6 @@
 {
   "name": "ascii-frog",
-  "version": "3.0.38",
-  "description": "ASCII Frog Generator - A fun web service to generate colorful ASCII art frogs",
+  "description": "ASCII Frog Generator - Orchestrator package for frontend and backend",
   "type": "module",
   "scripts": {
     "predev": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ..",
@@ -11,7 +10,7 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:build": "docker-compose build",
-    "version:patch": "npm version patch && npm run version:frontend && npm run version:backend",
+    "version:patch": "npm run version:frontend && npm run version:backend",
     "version:frontend": "cd frontend && npm version patch",
     "version:backend": "cd backend && npm version patch"
   },

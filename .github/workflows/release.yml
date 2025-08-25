@@ -43,15 +43,15 @@ jobs:
         
     - name: 📤 Publish Backend NPM package
       run: |
-        NPM_VERSION=$(jq -r .version < package.json)
-        echo "📦 Publishing backend package version: $NPM_VERSION"
+        BACKEND_VERSION=$(jq -r .version < backend/package.json)
+        echo "📦 Publishing backend package version: $BACKEND_VERSION"
         cd backend && npm publish
         echo "✅ Backend package published successfully"
         
     - name: 📤 Publish Frontend NPM package
       run: |
-        NPM_VERSION=$(jq -r .version < package.json)
-        echo "📦 Publishing frontend package version: $NPM_VERSION"
+        FRONTEND_VERSION=$(jq -r .version < frontend/package.json)
+        echo "📦 Publishing frontend package version: $FRONTEND_VERSION"
         cd frontend && npm publish
         echo "✅ Frontend package published successfully"
         
