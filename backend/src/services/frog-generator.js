@@ -10,7 +10,8 @@ function generateSpecificFrog(frogId) {
     const frogData = generateFrog(frogId);
     return {
         ascii: frogData.ascii,
-        frogName: frogData.name
+        frogName: frogData.name,
+        templateId: frogId
     };
 }
 
