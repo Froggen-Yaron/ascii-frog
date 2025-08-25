@@ -10,7 +10,9 @@
     "test": "cd backend && npm run test",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:build": "docker-compose build"
+    "docker:build": "docker-compose build",
+    "version:patch": "npm version patch --no-git-tag-version && npm run sync-versions && git add . && git commit -m \"chore: bump version to $(node -p \"require('./package.json').version\")\"",
+    "sync-versions": "node -e \"const v=require('./package.json').version; const fs=require('fs'); ['frontend','backend'].forEach(d=>{const p=require('./' + d + '/package.json'); p.version=v; fs.writeFileSync(d + '/package.json', JSON.stringify(p,null,2))})\""
   },
   "keywords": [
     "ascii-art",
