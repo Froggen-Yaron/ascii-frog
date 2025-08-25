@@ -38,13 +38,6 @@ jobs:
         rm -rf backend/node_modules backend/package-lock.json
         npm install
         
-    - name: 🔧 Fix Rollup platform dependencies
-      run: |
-        echo "🔧 Ensuring Rollup platform dependencies..."
-        cd frontend
-        npm install @rollup/rollup-linux-x64-gnu --save-optional
-        cd ..
-        
     - name: 🏗️ Build frontend
       run: |
         echo "🏗️ Building frontend..."
