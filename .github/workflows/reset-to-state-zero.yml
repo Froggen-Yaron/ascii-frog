@@ -15,7 +15,7 @@ permissions:
 jobs:
   reset-repository:
     name: Reset Repository to State Zero
-    runs-on: linux-arm64
+    runs-on: linux-amd64
     
     steps:
     - name: 🛡️ Validate confirmation

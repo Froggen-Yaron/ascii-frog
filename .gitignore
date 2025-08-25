@@ -47,6 +47,14 @@ Thumbs.db
 # Build outputs (keep frontend/dist for npm package)
 build/
 
+# App-specific build outputs and dependencies
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+backend/node_modules/
+backend/dist/
+backend/build/
+
 # Temporary files
 tmp/
 temp/

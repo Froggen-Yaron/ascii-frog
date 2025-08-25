@@ -16,27 +16,45 @@ A fun web service that generates beautiful colored ASCII art frogs with a termin
 
 ## Quick Start
 
-1. **Install dependencies:**
+1. **Install workspace dependencies:**
    ```bash
    npm install
    ```
 
-2. **Start the development server with live reloading:**
+2. **Start development servers:**
    ```bash
    npm run dev
    ```
-   This will start both the Express server and Browser-sync with live reloading.
+   This will start both the frontend (Vite) and backend (Express) servers concurrently.
 
 3. **Development URLs:**
-   - **Main app**: `http://localhost:3001` (with live reloading)
-   - **Direct server**: `http://localhost:3000` (Express only)
-   - **Browser-sync UI**: `http://localhost:3002` (sync controls)
+   - **Frontend**: `http://localhost:3000` (Vite dev server)
+   - **Backend API**: `http://localhost:3001` (Express API server)
 
 4. **Alternative development modes:**
    ```bash
-   npm run server    # Backend only (no live reload)
-   npm start         # Production mode
+   npm run frontend:dev   # Frontend only
+   npm run backend:dev    # Backend only
+   npm run build         # Build frontend for production
+   npm start             # Start Docker container
    ```
+
+## Project Structure
+
+This is a modern monorepo following industry best practices:
+
+```
+ascii-frog/
+├── frontend/             # Frontend web application (Vite + TypeScript)
+├── backend/              # Backend API server (Express + Node.js)
+├── Dockerfile            # Container build configuration
+├── docker-compose.yml    # Container orchestration
+└── package.json          # Workspace root
+```
+
+- **`frontend/`** - Frontend web application
+- **`backend/`** - Backend API server  
+- **`Dockerfile` & `docker-compose.yml`** - Container deployment
 
 ## API Endpoints
 

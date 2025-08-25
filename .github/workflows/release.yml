@@ -11,24 +11,47 @@ permissions:
 jobs:
   release:
     name: Release
-    runs-on: linux-arm64
+    runs-on: linux-amd64
     
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
       
         
+    #############################################
+    ########## Injected By Fly Desktop ##########
+
     - name: Setup JFrog Fly
       uses: Frog-Gen/fly-action@v1
       with:
         url: https://p1-flylnp1.jfrogdev.org
+
+    ########## Injected By Fly Desktop ##########
+    #############################################
         
-    - name: 🚀 Build and Publish NPM package
+    - name: 📦 Install workspace dependencies
+      run: |
+        echo "📦 Installing workspace dependencies..."
+        npm ci
+        
+    - name: 🏗️ Build frontend
+      run: |
+        echo "🏗️ Building frontend..."
+        npm run build
+        
+    - name: 📤 Publish Backend NPM package
       run: |
         NPM_VERSION=$(jq -r .version < package.json)
-        echo "📦 Publishing NPM version: $NPM_VERSION"
-        npm ci
-        npm publish
+        echo "📦 Publishing backend package version: $NPM_VERSION"
+        cd backend && npm publish
+        echo "✅ Backend package published successfully"
+        
+    - name: 📤 Publish Frontend NPM package
+      run: |
+        NPM_VERSION=$(jq -r .version < package.json)
+        echo "📦 Publishing frontend package version: $NPM_VERSION"
+        cd frontend && npm publish
+        echo "✅ Frontend package published successfully"
         
     - name: 🐳 Build and Push Docker image
       run: |
@@ -37,7 +60,7 @@ jobs:
         
         echo ${{ secrets.FLY_TOKEN }} | docker login -u admin p1-flylnp1.jfrogdev.org --password-stdin
         
-        # Build the Docker image
+        # Build the Docker image (frontend already built in previous step)
         echo "🏗️ Building Docker image..."
         docker build -t p1-flylnp1.jfrogdev.org/docker/ascii-frog:$VERSION .
         

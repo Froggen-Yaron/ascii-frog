@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Security middleware
 app.use(helmet({
@@ -29,11 +29,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files (built frontend or fallback to public)
-const frontendPath = process.env.NODE_ENV === 'production'
-    ? path.join(__dirname, '../frontend/dist')
-    : path.join(__dirname, '../frontend/public');
-app.use(express.static(frontendPath));
+// Conditional static file serving for production (Docker deployment)
+if (process.env.NODE_ENV === 'production') {
+    const frontendPath = path.join(__dirname, '../frontend/dist');
+    app.use(express.static(frontendPath));
+    console.log('🐳 Production mode: Serving static files from', frontendPath);
+}
 
 // Health check route (before API routes for priority)
 app.use('/health', healthRoutes);
@@ -41,12 +42,23 @@ app.use('/health', healthRoutes);
 // API routes
 app.use('/api', apiRoutes);
 
-// Root route
+// Root route - conditional behavior
 app.get('/', (req, res) => {
-    const htmlPath = process.env.NODE_ENV === 'production'
-        ? path.join(__dirname, '../frontend/dist', 'index.html')
-        : path.join(__dirname, '../frontend', 'index.html');
-    res.sendFile(htmlPath);
+    if (process.env.NODE_ENV === 'production') {
+        // Serve frontend HTML in production
+        const htmlPath = path.join(__dirname, '../frontend/dist', 'index.html');
+        res.sendFile(htmlPath);
+    } else {
+        // API info for development
+        res.json({
+            message: 'ASCII Frog Generator API',
+            version: '1.0.0',
+            endpoints: {
+                health: '/health',
+                api: '/api'
+            }
+        });
+    }
 });
 
 // Error handling middleware
@@ -62,8 +74,12 @@ app.use('*', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`🐸 ASCII Frog Generator API server running on port ${PORT}`.green.bold);
-    console.log(`🌐 Frontend available at http://localhost:3000`.cyan);
+    if (process.env.NODE_ENV === 'production') {
+        console.log(`🐸 ASCII Frog Generator running at http://localhost:${PORT}`.green.bold);
+    } else {
+        console.log(`🔗 API server ready on port ${PORT}`.green);
+        console.log(`🐸 Visit the app at http://localhost:3000`.cyan.bold);
+    }
 });
 
 export default app;
