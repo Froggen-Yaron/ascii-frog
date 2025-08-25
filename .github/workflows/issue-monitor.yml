@@ -1,0 +1,37 @@
+name: 🔄 Issue Monitor
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  recreate-perpetual-issue:
+    runs-on: ubuntu-latest
+    # Only run if the closed issue has the specific perpetual title
+    if: github.event.issue.title == 'Add Random Color to Frog Name Display'
+    
+    steps:
+    - name: 🔄 Recreate Perpetual Issue
+      run: |
+        ISSUE_NUMBER="${{ github.event.issue.number }}"
+        echo "🚨 Perpetual issue #$ISSUE_NUMBER was closed - recreating it..."
+        
+        # Get issue details using GitHub CLI
+        TITLE=$(gh issue view $ISSUE_NUMBER --json title --jq '.title')
+        BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
+        
+        echo "📝 Recreating: $TITLE"
+        
+        # Create new issue with original content
+        gh issue create \
+          --title "$TITLE" \
+          --body "$BODY" \
+          --label "enhancement"
+        
+        echo "✅ Perpetual issue recreated successfully!"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
