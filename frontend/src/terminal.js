@@ -39,9 +39,7 @@ export class TerminalManager {
     displayCompleteFrog(ascii, frogName) {
         this.clear();
         this.showWelcome();
-        this.displayAscii(ascii);
-        this.writeln('');
-        this.displayFrogName(frogName);
+        this.displayFrogAsUnit(ascii, frogName);
     }
 
     displayAscii(ascii) {
@@ -76,6 +74,34 @@ export class TerminalManager {
         // this.writeCenter(frogName);
         // To add Random Color To the FROG NAME CHANGE HERE:
         this.writeCenter(randomColor(frogName));
+    }
+
+    displayFrogAsUnit(ascii, frogName) {
+        const asciiLines = ascii.split('\n').filter(line => line.trim() !== '');
+
+        // Find the widest ASCII line
+        let maxAsciiWidth = 0;
+        asciiLines.forEach(line => {
+            maxAsciiWidth = Math.max(maxAsciiWidth, line.length);
+        });
+
+        const nameWidth = frogName.length;
+        const totalWidth = Math.max(maxAsciiWidth, nameWidth);
+
+        // Center ASCII lines within the total width
+        asciiLines.forEach(line => {
+            const padding = Math.floor((totalWidth - line.length) / 2);
+            const centeredLine = ' '.repeat(padding) + line + ' '.repeat(totalWidth - line.length - padding);
+            this.writeCenter(centeredLine);
+        });
+
+        // Add spacing between frog and name
+        this.writeln('');
+
+        // Center name within the same total width
+        const namePadding = Math.floor((totalWidth - nameWidth) / 2);
+        const centeredName = ' '.repeat(namePadding) + frogName + ' '.repeat(totalWidth - nameWidth - namePadding);
+        this.writeCenter(randomColor(centeredName));
     }
 
     centerText(text) {

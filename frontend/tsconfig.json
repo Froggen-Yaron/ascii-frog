@@ -14,8 +14,10 @@
         "resolveJsonModule": true
     },
     "include": [
-        "backend/**/*",
-        "frontend/**/*"
+        "src/**/*",
+        "*.js",
+        "*.ts",
+        "*.mjs"
     ],
     "exclude": [
         "node_modules",

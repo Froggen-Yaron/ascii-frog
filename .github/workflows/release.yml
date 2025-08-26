@@ -23,32 +23,15 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: main
         fetch-depth: 0
+        
+    - name: Install Latest Docker Version
+      uses: docker/setup-docker-action@v4
 
-    - name: 📈 Version bump
+    - name: 🔧 Configure Git
       run: |
         git config --global user.name "npm-version-bump"
         git config --global user.email "npm-version-bump@users.noreply.github.com"
-
-        echo "🔀 PR #${{ github.event.pull_request.number }} was merged - preparing version bump"
-        
-        echo "🔖 Bumping frontend version..."
-        cd frontend
-        npm version patch --no-git-tag-version
-        FRONTEND_VERSION=$(jq -r .version package.json)
-        echo "📊 Frontend version: $FRONTEND_VERSION"
-        echo "FRONTEND_VERSION=$FRONTEND_VERSION" >> $GITHUB_ENV
-        cd ..
-        
-        echo "🔖 Bumping backend version..."
-        cd backend
-        npm version patch --no-git-tag-version
-        BACKEND_VERSION=$(jq -r .version package.json)
-        echo "📊 Backend version: $BACKEND_VERSION"
-        echo "BACKEND_VERSION=$BACKEND_VERSION" >> $GITHUB_ENV
-        cd ..
-        
-        echo "⚠️ Version changes prepared but not committed yet (waiting for successful publish)"
-      
+        echo "🔀 PR #${{ github.event.pull_request.number }} was merged - preparing release"
         
     #############################################
     ########## Injected By Fly Desktop ##########
@@ -63,51 +46,41 @@ jobs:
         
     - name: 📤 NPM Release - @ascii-frog/backend
       run: |
-        echo "📦 Installing backend dependencies and publishing..."
         cd backend
         npm install
+        npm version patch --no-git-tag-version
         BACKEND_VERSION=$(jq -r .version package.json)
-        echo "📦 Publishing backend package version: $BACKEND_VERSION"
+        echo "BACKEND_VERSION=$BACKEND_VERSION" >> $GITHUB_ENV
         npm publish
         echo "✅ Backend package published successfully"
         
     - name: 📤 NPM Release - @ascii-frog/frontend  
       run: |
-        echo "📦 Installing frontend dependencies, building and publishing..."
         cd frontend
         npm install
+        npm version patch --no-git-tag-version
         npm run build
         FRONTEND_VERSION=$(jq -r .version package.json)
-        echo "📦 Publishing frontend package version: $FRONTEND_VERSION"
+        echo "FRONTEND_VERSION=$FRONTEND_VERSION" >> $GITHUB_ENV
         npm publish
         echo "✅ Frontend package published successfully"
-        
+               
     - name: 🐳 Docker Release - ascii-frog-app
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
         echo "📦 Building and pushing Docker version: $VERSION"
-        
-        echo ${{ secrets.FLY_TOKEN }} | docker login -u admin p1-flylnp1.jfrogdev.org --password-stdin
-        
-        # Build the Docker image (frontend already built in previous step)
-        echo "🏗️ Building Docker image..."
         docker build -t p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION .
         
         # Push the Docker image
-        echo "📤 Pushing Docker image..."
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION
-          
         echo "✅ Docker image pushed successfully"
 
     - name: 📝 Commit version changes after successful publish
       run: |
         echo "✅ All publishing successful - now committing version changes"
-        
-        echo "📝 Committing version changes..."
         git add frontend/package.json backend/package.json
         git commit -m "chore: bump versions - frontend: $FRONTEND_VERSION, backend: $BACKEND_VERSION"
         
-        echo "📤 Pushing version bump to main..."
         git push origin main
         
         echo "🎉 Release complete with version bump committed!"

@@ -27,8 +27,8 @@ A fun web service that generates beautiful colored ASCII art frogs with a termin
    This will start both the frontend (Vite) and backend (Express) servers concurrently.
 
 3. **Development URLs:**
-   - **Frontend**: `http://localhost:3000` (Vite dev server)
-   - **Backend API**: `http://localhost:3001` (Express API server)
+   - **Frontend**: `http://localhost:8000` (Vite dev server)
+   - **Backend API**: `http://localhost:8001` (Express API server)
 
 4. **Alternative development modes:**
    ```bash
@@ -155,7 +155,7 @@ docker-compose down
 docker build -t ascii-frog .
 
 # Run the container
-docker run -p 3000:3000 ascii-frog
+docker run -p 8000:8000 ascii-frog
 ```
 
 ### 🔄 Simple CI/CD Pipeline
@@ -180,7 +180,7 @@ The project includes a streamlined GitHub Actions workflow:
 #### Environment Variables
 ```bash
 NODE_ENV=production
-PORT=3000
+PORT=8000
 ```
 
 #### Health Checks
@@ -200,7 +200,7 @@ Try entering the Konami Code on the webpage: ↑↑↓↓←→←→BA
 
 ## Demo
 
-Visit the live demo at: `http://localhost:3000`
+Visit the live demo at: `http://localhost:8000`
 
 ## Screenshots
 

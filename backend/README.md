@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-The API server will be available at `http://localhost:3001`.
+The API server will be available at `http://localhost:8001`.
 
 ## Production
 
@@ -33,5 +33,5 @@ NODE_ENV=production npm start
 
 ## Environment Variables
 
-- `PORT` - Server port (default: 3001)
+- `PORT` - Server port (default: 8001)
 - `NODE_ENV` - Environment mode (development/production)
