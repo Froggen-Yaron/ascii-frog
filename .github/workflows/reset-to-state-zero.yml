@@ -78,11 +78,11 @@ jobs:
         echo "🧹 Cleaning up Artifactory artifacts..."
         
         # Make the script executable
-        chmod +x .github/workflows/simple_cleanup.sh
+        chmod +x .github/scripts/simple_cleanup.sh
         
         # Run the cleanup script in execution mode
         echo "🚀 Running Artifactory cleanup..."
-        ./.github/workflows/simple_cleanup.sh true
+        ./.github/scripts/simple_cleanup.sh true
         
         echo "✅ Artifactory cleanup complete"
         
