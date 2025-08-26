@@ -17,19 +17,7 @@ jobs:
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
-      
-        
-    #############################################
-    ########## Injected By Fly Desktop ##########
-
-    - name: Setup JFrog Fly
-      uses: Frog-Gen/fly-action@v1
-      with:
-        url: https://p1-flylnp1.jfrogdev.org
-
-    ########## Injected By Fly Desktop ##########
-    #############################################
-        
+              
     - name: 📦 Install dependencies
       run: npm install
       
