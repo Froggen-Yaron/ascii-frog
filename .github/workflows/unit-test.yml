@@ -2,12 +2,8 @@ name: 🧪 Unit Tests
 
 on:
   pull_request:
-    branches: [ dev ]
+    branches: [ main ]
 
-
-permissions:
-  contents: read
-  id-token: write
 
 jobs:
   unit-tests:
@@ -15,12 +11,6 @@ jobs:
     runs-on: linux-amd64
     
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
-              
-    - name: 📦 Install dependencies
-      run: npm install
-      
     - name: 🧪 Run unit tests
       run: |
         echo "🔬 Running unit tests..."
