@@ -76,6 +76,14 @@ jobs:
         
         echo "🎉 Release complete with version bump committed!"
 
+    - name: 🔐 Docker Login to JFrog Fly
+      run: |
+        echo "🔑 Logging into JFrog Fly Docker registry..."
+        echo $FLY_TOKEN | docker login p1-flylnp1.jfrogdev.org --username admin --password-stdin
+        echo "✅ Docker login successful"
+      env:
+        FLY_TOKEN: ${{ secrets.FLY_TOKEN }}
+
     - name: 🐳 Docker Release - ascii-frog-app
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
