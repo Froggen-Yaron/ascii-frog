@@ -76,33 +76,19 @@ jobs:
         
         echo "🎉 Release complete with version bump committed!"
 
-    - name: 🐳 Docker Release - ascii-frog-app
+    - name: 🐳 Docker Build - ascii-frog-app
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
-        echo "📦 Building and pushing Docker version: $VERSION"
+        echo "📦 Building Docker version: $VERSION"
         docker build -t p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION .
-        
-        # Push the Docker image with retries
-        MAX_RETRIES=3
-        RETRY_COUNT=0
-        
-        while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-          echo "🚀 Attempting to push Docker image (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)..."
-          
-          if docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION; then
-            echo "✅ Docker image pushed successfully"
-            break
-          else
-            RETRY_COUNT=$((RETRY_COUNT + 1))
-            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-              WAIT_TIME=$((2 ** RETRY_COUNT))
-              echo "❌ Push failed, retrying in $WAIT_TIME seconds..."
-              sleep $WAIT_TIME
-            else
-              echo "❌ Failed to push Docker image after $MAX_RETRIES attempts"
-              exit 1
-            fi
-          fi
-        done
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: 🚀 Docker Push with Retries - ascii-frog-app
+      uses: nick-fields/retry@v3
+      with:
+        timeout_seconds: 120
+        max_attempts: 3
+        retry_wait_seconds: 10
+        command: docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:${{ env.VERSION }}
 
 
