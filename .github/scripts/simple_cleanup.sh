@@ -47,171 +47,91 @@ safe_api_call() {
     return 1
 }
 
-# Step 1: Clean up build info first
+# Step 1: Clean up build info using Build API (much more efficient)
 echo -e "\n=== STEP 1: BUILD INFO CLEANUP ==="
-builds_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/")
+
+# Build name to clean up (keeping only 3 oldest builds)
+BUILD_NAME="1041291360-🚀 ASCII-Frog Release"
+echo "Cleaning up build: $BUILD_NAME"
+
+# 1. Fetch all build numbers using Build API
+echo "Fetching build numbers..."
+builds_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/build/$BUILD_NAME")
 if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
-    # Filter for ASCII-Frog Release build directories (any build containing "ASCII-Frog Release")
-    ascii_frog_builds=$(echo "$builds_response" | jq -r '.children[] | select(.folder == true and (.uri | contains("ASCII-Frog Release"))) | .uri' 2>/dev/null | sed 's|^/||')
-    echo "ASCII-Frog Release build directories:"
-    echo $ascii_frog_builds
-    ascii_frog_count=$(echo "$ascii_frog_builds" | wc -l)
-    echo "Found $ascii_frog_count ASCII-Frog Release build directories"
+    # Extract build numbers and sort them (oldest first by build number)
+    build_numbers=$(echo "$builds_response" | jq -r '.builds[].uri' 2>/dev/null | sed 's|/||g' | sort -n)
+    build_count=$(echo "$build_numbers" | wc -w)
     
-    if [[ $ascii_frog_count -gt 0 ]]; then
-        echo "Getting timestamps for ASCII-Frog Release builds (this may take a while)..."
-        temp_builds=$(mktemp)
+    echo "Found $build_count builds for '$BUILD_NAME'"
+    
+    if [[ $build_count -gt 3 ]]; then
+        echo "Build numbers (sorted oldest first):"
+        echo "$build_numbers"
         
-        echo "$ascii_frog_builds" | while read build_path; do
-            if [[ -n "$build_path" ]]; then
-                # Try to get build info from the build API first
-                build_api_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/build/$build_path")
-                echo "Build API response:"
-                echo $build_api_response
+        # 2. Keep 3 oldest builds
+        keep_builds=$(echo "$build_numbers" | head -n 3)
+        echo -e "\nKeeping 3 oldest builds:"
+        echo "$keep_builds"
+        
+        # 3. Get builds to delete (everything except the 3 oldest)
+        delete_builds=$(echo "$build_numbers" | tail -n +4)
+        delete_count=$(echo "$delete_builds" | wc -w)
+        
+        if [[ $delete_count -gt 0 ]]; then
+            echo -e "\nBuilds to delete ($delete_count):"
+            echo "$delete_builds"
+            
+            if [[ "$EXECUTE" == "true" ]]; then
+                echo -e "\n🗑️ Deleting builds using bulk delete API..."
                 
-                # Also try to get storage info - encode the emoji and spaces properly
-                encoded_build_path=$(echo "$build_path" | sed 's/🚀/%F0%9F%9A%80/g' | sed 's/ /%20/g')
-                build_storage_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path")
-                storage_exit_code=$?
-                echo "Build storage response:"
-                echo "$build_storage_response"
+                # 4. Create JSON payload for bulk delete
+                delete_array=$(printf '%s\n' $delete_builds | jq -R . | jq -s .)
+                payload=$(jq -n \
+                    --arg bn "$BUILD_NAME" \
+                    --argjson nums "$delete_array" \
+                    '{builds: [{buildName: $bn, buildNumbers: $nums}]}')
                 
-                # Try to get timestamp from build API first, then storage
-                timestamp=""
-                if [[ $? -eq 0 ]] && [[ -n "$build_api_response" ]]; then
-                    timestamp=$(echo "$build_api_response" | jq -r '.started // .created // empty' 2>/dev/null)
-                    echo "Timestamp from build API: $timestamp"
-                fi
+                echo "Bulk delete payload:"
+                echo "$payload" | jq .
                 
-                if [[ -z "$timestamp" || "$timestamp" == "null" ]]; then
-                    if [[ $storage_exit_code -eq 0 ]] && [[ -n "$build_storage_response" ]]; then
-                        timestamp=$(echo "$build_storage_response" | jq -r '.created // empty' 2>/dev/null)
-                        echo "Timestamp from storage: $timestamp"
-                    fi
-                fi
+                # 5. Call bulk delete API
+                echo "Calling bulk delete API..."
+                delete_response=$(curl -s -w "%{http_code}" \
+                    -H "Authorization: Bearer $TOKEN" \
+                    -H "Content-Type: application/json" \
+                    -X POST \
+                    -d "$payload" \
+                    "$ARTIFACTORY_URL/artifactory/api/build/delete" 2>/dev/null)
                 
-                if [[ -n "$timestamp" && "$timestamp" != "null" ]]; then
-                    echo "$timestamp $build_path" >> "$temp_builds"
+                http_code="${delete_response: -3}"
+                response_body="${delete_response%???}"
+                
+                echo "Delete API response code: $http_code"
+                echo "Delete API response: $response_body"
+                
+                if [[ "$http_code" =~ ^[23] ]]; then
+                    echo "✅ Successfully deleted $delete_count builds"
                 else
-                    echo "Could not get timestamp for $build_path, using current time"
-                    echo "$(date -u +%Y-%m-%dT%H:%M:%S.000Z) $build_path" >> "$temp_builds"
+                    echo "❌ Failed to delete builds (HTTP $http_code)"
                 fi
-                sleep 1
+            else
+                echo -e "\n📋 PREVIEW MODE: Would delete $delete_count builds"
+                echo "$delete_builds" | while read build_num; do
+                    echo "  Would delete: $BUILD_NAME #$build_num"
+                done
             fi
-        done
-        
-        if [[ -f "$temp_builds" ]]; then
-            sort "$temp_builds" > "${temp_builds}_sorted"
-            
-            echo -e "\nProcessing each build directory to clean up JSON files..."
-            
-            # Process each build directory
-            while read timestamp build_path; do
-                if [[ -n "$build_path" ]]; then
-                    echo -e "\nProcessing build: $build_path"
-                    
-                    # Get the contents of this build directory - encode the emoji and spaces properly
-                    encoded_build_path=$(echo "$build_path" | sed 's/🚀/%F0%9F%9A%80/g' | sed 's/ /%20/g')
-                    echo "    Encoded path: $encoded_build_path"
-                    echo "    Full URL: $ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path"
-                    
-                    # Try direct curl first for debugging
-                    direct_response=$(curl -s -H "Authorization: Bearer $TOKEN" "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path" 2>/dev/null)
-                    echo "    Direct curl response length: ${#direct_response}"
-                    echo "    Direct curl response preview: ${direct_response:0:200}..."
-                    
-                    build_contents_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path")
-                    contents_exit_code=$?
-                    echo "    Safe API call exit code: $contents_exit_code"
-                    echo "    Safe API call response length: ${#build_contents_response}"
-                    
-                    if [[ $contents_exit_code -eq 0 ]] && [[ -n "$build_contents_response" ]]; then
-                        # Get all JSON files in this build
-                        json_files=$(echo "$build_contents_response" | jq -r '.children[] | select(.folder == false and (.uri | endswith(".json"))) | .uri' 2>/dev/null | sed 's|^/||')
-                        json_count=$(echo "$json_files" | wc -l)
-                        echo "  Found $json_count JSON files in $build_path"
-                        echo "  JSON files found: $json_files"
-                        
-                        if [[ $json_count -gt 3 ]]; then
-                            echo "  Getting timestamps for JSON files..."
-                            temp_json=$(mktemp)
-                            
-                            echo "$json_files" | while read json_file; do
-                                if [[ -n "$json_file" ]]; then
-                                    echo "    Checking timestamp for: $json_file"
-                                    json_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path/$json_file")
-                                    if [[ $? -eq 0 ]]; then
-                                        json_timestamp=$(echo "$json_response" | jq -r '.created // empty' 2>/dev/null)
-                                        echo "      Timestamp: $json_timestamp"
-                                        if [[ -n "$json_timestamp" && "$json_timestamp" != "null" ]]; then
-                                            echo "$json_timestamp $json_file" >> "$temp_json"
-                                        fi
-                                    else
-                                        echo "      Error getting timestamp for $json_file"
-                                    fi
-                                    sleep 1
-                                fi
-                            done
-                            
-                            if [[ -f "$temp_json" ]]; then
-                                echo "    Timestamps collected:"
-                                cat "$temp_json"
-                                sort "$temp_json" > "${temp_json}_sorted"
-                                
-                                echo "    Sorted timestamps:"
-                                cat "${temp_json}_sorted"
-                                
-                                echo "    Keeping 3 oldest JSON files:"
-                                head -3 "${temp_json}_sorted" | while read ts file; do
-                                    echo "      - $file"
-                                done
-                                
-                                echo "    Deleting newer JSON files:"
-                                tail -n +4 "${temp_json}_sorted" | while read ts json_file; do
-                                    if [[ "$EXECUTE" == "true" ]]; then
-                                        echo "      🗑️ Deleting: $json_file"
-                                        delete_url="$ARTIFACTORY_URL/artifactory/p1-build-info/$encoded_build_path/$json_file"
-                                        echo "      Delete URL: $delete_url"
-                                        delete_response=$(safe_api_call "$delete_url" "DELETE")
-                                        echo "      Delete response: $delete_response"
-                                        sleep 1
-                                    else
-                                        echo "      Would delete: $json_file"
-                                    fi
-                                done
-                                
-                                rm -f "$temp_json" "${temp_json}_sorted"
-                            else
-                                echo "    No timestamps collected, temp file not created"
-                            fi
-                        else
-                            echo "  Only $json_count JSON files found. Not deleting any (≤3)."
-                        fi
-                    else
-                        echo "  Error accessing contents of $build_path"
-                    fi
-                fi
-            done < "${temp_builds}_sorted"
-            
-            rm -f "$temp_builds" "${temp_builds}_sorted"
+        else
+            echo "No builds to delete"
         fi
     else
-        echo "No ASCII-Frog Release build directories found."
-    fi
-    
-    # Show other build directories (non-ASCII-Frog) for reference
-    other_builds=$(echo "$builds_response" | jq -r '.children[] | select(.folder == true and (.uri | contains("ASCII-Frog Release") | not)) | .uri' 2>/dev/null | sed 's|^/||')
-    other_count=$(echo "$other_builds" | wc -l)
-    if [[ $other_count -gt 0 ]]; then
-        echo -e "\nOther build directories (not deleting):"
-        echo "$other_builds" | while read build_path; do
-            if [[ -n "$build_path" ]]; then
-                echo "  - $build_path"
-            fi
-        done
+        echo "Only $build_count builds found. Not deleting any (≤3)."
+        if [[ $build_count -gt 0 ]]; then
+            echo "Existing builds:"
+            echo "$build_numbers"
+        fi
     fi
 else
-    echo "No build directories found or error accessing build storage"
+    echo "No builds found for '$BUILD_NAME' or error accessing build API"
 fi
 
 # Step 2: Clean up NPM packages
