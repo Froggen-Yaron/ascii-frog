@@ -18,13 +18,13 @@ RUN apk add --no-cache curl && \
 USER froggen
 
 # Expose port
-EXPOSE 3000
+EXPOSE 8000
 
 # Health check using proper endpoint  
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
 # Environment
-ENV NODE_ENV=production PORT=3000
+ENV NODE_ENV=production PORT=8000
 
 CMD ["node", "backend/server.js"]

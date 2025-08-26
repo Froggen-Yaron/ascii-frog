@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:3000` and will proxy API requests to the backend at `http://localhost:3001`.
+The frontend will be available at `http://localhost:8000` and will proxy API requests to the backend at `http://localhost:8001`.
 
 ## Build
 
