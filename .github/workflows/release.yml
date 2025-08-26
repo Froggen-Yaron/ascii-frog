@@ -71,24 +71,27 @@ jobs:
         echo "✅ All publishing successful - now committing version changes"
         git add frontend/package.json backend/package.json
         git commit -m "chore: bump versions - frontend: $FRONTEND_VERSION, backend: $BACKEND_VERSION"
-        
         git push origin main
-        
         echo "🎉 Release complete with version bump committed!"
 
-    - name: 🐳 Docker Build - ascii-frog-app
+    - name: 🐳 Docker Build and Push - ascii-frog-app
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
         echo "📦 Building Docker version: $VERSION"
         docker build -t p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION .
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-    - name: 🚀 Docker Push with Retries - ascii-frog-app
-      uses: nick-fields/retry@v3
-      with:
-        timeout_seconds: 120
-        max_attempts: 3
-        retry_wait_seconds: 10
-        command: docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:${{ env.VERSION }}
+        
+        # Push with retries
+        echo "🚀 Pushing Docker image with retries..."
+        for i in {1..5}; do
+          docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION && break
+          echo "❌ Push failed, retry $i..." && sleep $((i*5))
+        done
+        
+        if [ $i -eq 5 ]; then
+          echo "❌ Failed to push after 5 attempts"
+          exit 1
+        fi
+        
+        echo "✅ Docker image pushed successfully"
 
 
