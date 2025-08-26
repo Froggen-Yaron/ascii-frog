@@ -106,10 +106,8 @@ export class AsciiFrogGenerator {
 
             if (data.success) {
                 this.displayAscii(data.ascii, data.frogName);
-
                 // Update the select dropdown to show which frog was randomly chosen
                 this.frogSelect.value = data.templateId;
-
                 console.log(`🎲 AI Generated random frog: ${data.frogName}!`);
             } else {
                 throw new Error(data.error || 'Failed to generate random frog');
