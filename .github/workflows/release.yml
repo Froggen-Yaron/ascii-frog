@@ -23,9 +23,6 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: main
         fetch-depth: 0
-        
-    - name: Install Latest Docker Version
-      uses: docker/setup-docker-action@v4
 
     - name: 🔧 Configure Git
       run: |
