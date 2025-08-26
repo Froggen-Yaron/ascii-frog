@@ -2,7 +2,7 @@ name: 🐸 FrogBot Security Scan
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
     types: [opened, synchronize]
 
 jobs:

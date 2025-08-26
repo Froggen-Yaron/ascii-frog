@@ -10,7 +10,6 @@ export class AsciiFrogGenerator {
         this.initializeTerminal();
         this.bindEvents();
         this.loadInitialData();
-        this.currentAscii = '';
     }
 
     initializeElements() {
@@ -45,9 +44,8 @@ export class AsciiFrogGenerator {
 
             if (configResponse.ok) {
                 const configData = await configResponse.json();
-                this.terminalConfig = configData.config;
                 // Update terminal with backend config
-                this.terminalManager.updateConfig(this.terminalConfig);
+                this.terminalManager.updateConfig(configData.config);
             }
         } catch (error) {
             console.error('Error loading initial data:', error);
@@ -60,7 +58,7 @@ export class AsciiFrogGenerator {
         // Add placeholder option
         const placeholderOption = document.createElement('option');
         placeholderOption.value = '';
-        placeholderOption.textContent = 'Select a frog species to generate...';
+        placeholderOption.textContent = 'Select a frog species';
         placeholderOption.disabled = true;
         placeholderOption.selected = true;
         this.frogSelect.appendChild(placeholderOption);
@@ -122,44 +120,9 @@ export class AsciiFrogGenerator {
     }
 
     displayAscii(ascii, frogName) {
-        this.currentAscii = ascii;
-        this.currentFrogName = frogName;
-
         // Use terminal manager to display complete AI-generated frog
         this.terminalManager.displayCompleteFrog(ascii, frogName);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    showToast(message, type = 'success') {
-        this.toastMessage.textContent = message;
-
-        // Remove any existing type classes
-        this.toast.classList.remove('success', 'error');
-
-        // Add the appropriate type class
-        this.toast.classList.add(type);
-        this.toast.classList.add('show');
-
-        setTimeout(() => {
-            this.toast.classList.remove('show');
-        }, 3000);
-    }
-
 
 }
 
@@ -170,6 +133,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for ES6 modules
 export default AsciiFrogGenerator;
-
-
-

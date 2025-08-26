@@ -29,10 +29,10 @@
         </header>
 
         <main class="main-content">
-            <div class="controls-panel">
-                <div class="control-group">
+            <div class="controls-bar">
+                <div class="control-group-inline">
                     <label for="template-select">AI Frog Generator:</label>
-                    <select id="template-select" class="control-input">
+                    <select id="template-select" class="control-input-inline">
                         <option value="" disabled selected>Select a frog species to generate...</option>
                         <option value="tiny">🐸 Strawberry Poison Frog</option>
                         <option value="classic">🎨 American Bullfrog</option>
@@ -43,24 +43,26 @@
                     </select>
                 </div>
 
-
-
-                <div class="button-group">
-                    <button id="random-btn" class="app-button random-app">
-                        <span class="app-icon">🎲</span>
-                        <span class="app-name">Random Frog</span>
-                    </button>
-                </div>
+                <button id="random-btn" class="app-button random-app">
+                    <span class="app-icon">🎲</span>
+                    <span class="app-name">Random Frog</span>
+                </button>
             </div>
 
             <div class="terminal-container">
                 <div class="terminal-header">
-                    <div class="terminal-controls">
-                        <span class="terminal-dot red"></span>
-                        <span class="terminal-dot yellow"></span>
-                        <span class="terminal-dot green"></span>
+                    <div class="terminal-header-left">
+                        <div class="terminal-controls">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                        </div>
+                        <div class="terminal-title">ascii-frog-terminal</div>
                     </div>
-                    <div class="terminal-title">ascii-frog-terminal</div>
+                    <button class="terminal-copy-btn" title="Copy ASCII art">
+                        <span class="copy-text">Copy</span>
+                        <span class="copy-icon">📋</span>
+                    </button>
                 </div>
 
                 <div class="terminal-content">
