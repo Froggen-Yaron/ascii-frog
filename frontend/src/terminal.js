@@ -71,9 +71,9 @@ export class TerminalManager {
     }
 
     displayFrogName(frogName) {
-        // this.writeCenter(frogName);
+        this.writeCenter(frogName);
         // To add Random Color To the FROG NAME CHANGE HERE:
-        this.writeCenter(randomColor(frogName));
+        //this.writeCenter(randomColor(frogName));
     }
 
     displayFrogAsUnit(ascii, frogName) {
@@ -102,6 +102,7 @@ export class TerminalManager {
         const namePadding = Math.floor((totalWidth - nameWidth) / 2);
         const centeredName = ' '.repeat(namePadding) + frogName + ' '.repeat(totalWidth - nameWidth - namePadding);
         this.writeCenter(randomColor(centeredName));
+        //this.writeCenter(centeredName);
     }
 
     centerText(text) {
