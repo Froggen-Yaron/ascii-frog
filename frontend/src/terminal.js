@@ -59,7 +59,6 @@ export class TerminalManager {
         for (let i = 0; i < paddingNeeded; i++) {
             this.writeln('');
         }
-
         // Add a separator line before frog name
         this.writeln('');
     }
