@@ -1,4 +1,5 @@
 name: 🔄 Issue Monitor
+run-name: "Perpetual Issue Monitor"
 
 on:
   issues:
