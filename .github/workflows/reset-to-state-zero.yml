@@ -71,6 +71,21 @@ jobs:
         echo "✅ Cleaned up $COUNT workflow runs"
         echo "💡 Repository is now in state zero - ready for demo!"
         
+    - name: 🧹 Clean up Artifactory artifacts
+      env:
+        FLY_TOKEN: ${{ secrets.FLY_TOKEN }}
+      run: |
+        echo "🧹 Cleaning up Artifactory artifacts..."
+        
+        # Make the script executable
+        chmod +x .github/scripts/simple_cleanup.sh
+        
+        # Run the cleanup script in execution mode
+        echo "🚀 Running Artifactory cleanup..."
+        ./.github/scripts/simple_cleanup.sh true
+        
+        echo "✅ Artifactory cleanup complete"
+        
     - name: 🎉 State Zero Complete
       run: |
         echo "🎯 State Zero Reset Complete!"
@@ -78,5 +93,6 @@ jobs:
         echo "✅ Repository reset to main-backup branch state"
         echo "✅ Workflow runs cleaned (kept first 3)"
         echo "✅ All branches deleted (kept only main and main-backup)"
+        echo "✅ Artifactory artifacts cleaned up"
         echo ""
         echo "🚀 Repository is ready for demo!"
