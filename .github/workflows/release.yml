@@ -64,7 +64,26 @@ jobs:
         echo "FRONTEND_VERSION=$FRONTEND_VERSION" >> $GITHUB_ENV
         npm publish
         echo "✅ Frontend package published successfully"
-               
+
+    
+    - name: 📝 Commit version changes after successful npm publish
+      run: |
+        echo "✅ All publishing successful - now committing version changes"
+        git add frontend/package.json backend/package.json
+        git commit -m "chore: bump versions - frontend: $FRONTEND_VERSION, backend: $BACKEND_VERSION"
+        
+        git push origin main
+        
+        echo "🎉 Release complete with version bump committed!"
+
+    - name: 🔐 Docker Login to JFrog Fly
+      run: |
+        echo "🔑 Logging into JFrog Fly Docker registry..."
+        echo $FLY_TOKEN | docker login p1-flylnp1.jfrogdev.org --username admin --password-stdin
+        echo "✅ Docker login successful"
+      env:
+        FLY_TOKEN: ${{ secrets.FLY_TOKEN }}
+
     - name: 🐳 Docker Release - ascii-frog-app
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
@@ -75,13 +94,4 @@ jobs:
         docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION
         echo "✅ Docker image pushed successfully"
 
-    - name: 📝 Commit version changes after successful publish
-      run: |
-        echo "✅ All publishing successful - now committing version changes"
-        git add frontend/package.json backend/package.json
-        git commit -m "chore: bump versions - frontend: $FRONTEND_VERSION, backend: $BACKEND_VERSION"
-        
-        git push origin main
-        
-        echo "🎉 Release complete with version bump committed!"
 
