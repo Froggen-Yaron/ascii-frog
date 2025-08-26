@@ -1,13 +1,29 @@
-# Production image for pre-built ASCII Frog Generator
+# Multi-stage build for ASCII Frog Generator
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
+
+FROM node:20-alpine AS backend-builder
+
+WORKDIR /app/backend
+COPY backend/package*.json ./
+RUN npm install --omit=dev
+COPY backend/ ./
+
+# Production image
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy pre-built backend (from CI/CD pipeline)
-COPY backend/ ./backend/
+# Copy built frontend from builder stage
+COPY --from=frontend-builder /app/frontend/dist/ ./frontend/dist/
 
-# Copy pre-built frontend (from CI/CD pipeline)  
-COPY frontend/dist/ ./frontend/dist/
+# Copy backend with dependencies from builder stage
+COPY --from=backend-builder /app/backend/ ./backend/
 
 # Setup security: curl + non-root user
 RUN apk add --no-cache curl && \
