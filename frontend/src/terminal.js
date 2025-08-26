@@ -65,10 +65,11 @@ export class TerminalManager {
     }
 
     displayFrogName(frogName) {
-        // this.writeCenter(frogName);
+        this.writeCenter(frogName);
         // To add Random Color To the FROG NAME CHANGE HERE:
-        this.writeCenter(randomColor(frogName));
+        //this.writeCenter(randomColor(frogName));
     }
+
 
     writeln(content) {
         const line = document.createElement('div');
