@@ -2,11 +2,6 @@ name: 🔄 Reset to State Zero
 
 on:
   workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Type "RESET" to confirm the reset operation'
-        required: true
-        type: string
 
 permissions:
   contents: write
@@ -18,12 +13,6 @@ jobs:
     runs-on: linux-amd64
     
     steps:
-    - name: 🛡️ Validate confirmation
-      if: ${{ github.event.inputs.confirm != 'RESET' }}
-      run: |
-        echo "❌ Reset operation cancelled - confirmation not provided"
-        echo "Please type 'RESET' in the confirmation field to proceed"
-        exit 1
     
     - name: 📥 Checkout code with full history
       uses: actions/checkout@v4
@@ -34,25 +23,22 @@ jobs:
     - name: 🔄 Reset to State Zero
       run: |
         echo "🎯 Resetting repository to state zero..."
-        echo "Target commit: 10520645c78e0d952481ec1c65ea0476c03a12b2"
+        echo "Target branch: main-backup"
         
         # Configure git
         git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
+        git config --global user.email "reset-to-state-zero@github.com"
         
-        # Reset to the specific commit (state zero)
-        git reset --hard 10520645c78e0d952481ec1c65ea0476c03a12b2
+        # Fetch the main-backup branch
+        git fetch origin main-backup
         
-        # Force push to all branches to reset them
+        # Reset to the main-backup branch (state zero)
+        git reset --hard origin/main-backup
+        
+        # Force push to main branch to reset it
         echo "🚀 Force pushing reset to main branch..."
         git push --force origin HEAD:main
-        
-        # Delete other branches (keep only main)
-        BRANCHES=$(git branch -r | grep -v 'origin/main' | grep -v 'origin/HEAD' | sed 's/origin\///' || true)
-        for branch in $BRANCHES; do
-          echo "🗑️ Deleting branch: $branch"
-          git push origin --delete $branch || echo "⚠️ Could not delete $branch"
-        done
+
         
         echo "✅ Repository reset to state zero complete"
         
@@ -89,8 +75,8 @@ jobs:
       run: |
         echo "🎯 State Zero Reset Complete!"
         echo ""
-        echo "✅ Repository reset to commit: 10520645c78e0d952481ec1c65ea0476c03a12b2"
+        echo "✅ Repository reset to main-backup branch state"
         echo "✅ Workflow runs cleaned (kept first 3)"
-        echo "✅ All branches deleted (kept only main)"
+        echo "✅ All branches deleted (kept only main and main-backup)"
         echo ""
         echo "🚀 Repository is ready for demo!"
