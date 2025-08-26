@@ -12,7 +12,7 @@ permissions:
 jobs:
   recreate-perpetual-issue:
     name: Recreate Perpetual Issue
-    runs-on: ubuntu-latest
+    runs-on: linux-amd64
     # Only run if the closed issue has the specific perpetual title
     if: github.event.issue.title == 'Add Random Color to Frog Name Display'
     
