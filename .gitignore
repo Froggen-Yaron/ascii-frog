@@ -58,3 +58,6 @@ backend/build/
 # Temporary files
 tmp/
 temp/
+
+# Kubernetes manifests (local development only)
+k8s/
