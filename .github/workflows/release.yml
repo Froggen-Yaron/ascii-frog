@@ -82,13 +82,17 @@ jobs:
         
         # Push with retries
         echo "🚀 Pushing Docker image with retries..."
-        for i in {1..5}; do
-          docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION && break
-          echo "❌ Push failed, retry $i..." && sleep $((i*5))
+        SUCCESS=false
+        for i in {1..3}; do
+          if docker push p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION; then
+            SUCCESS=true
+            break
+          fi
+          echo "❌ Push failed, retry $i..." && sleep $((i*3))
         done
         
-        if [ $i -eq 5 ]; then
-          echo "❌ Failed to push after 5 attempts"
+        if [ "$SUCCESS" != "true" ]; then
+          echo "❌ Failed to push after 3 attempts"
           exit 1
         fi
         
