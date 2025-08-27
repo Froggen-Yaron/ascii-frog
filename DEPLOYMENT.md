@@ -320,3 +320,4 @@ For issues and support:
 - Documentation: https://github.com/your-org/photo-frog/docs
 - Email: team@froggen.com
 
+

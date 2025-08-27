@@ -76,3 +76,4 @@ jobs:
           name: photo-frog-jar
           path: target/photo-frog-*.jar
 
+
