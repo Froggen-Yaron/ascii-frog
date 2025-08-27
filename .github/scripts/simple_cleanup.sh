@@ -13,6 +13,23 @@ else
     echo "📋 PREVIEW MODE (use: ./simple_cleanup.sh true)"
 fi
 
+# Environment check
+echo -e "\n=== ENVIRONMENT CHECK ==="
+echo "🌐 Artifactory URL: $ARTIFACTORY_URL"
+echo "🔑 Token length: ${#TOKEN} characters"
+echo "🛠️ Curl version: $(curl --version | head -1)"
+echo "🔧 JQ version: $(jq --version)"
+
+# Connectivity test
+echo -e "\n=== CONNECTIVITY TEST ==="
+echo "🔍 Testing basic connectivity to Artifactory..."
+ping_response=$(curl -s -w "%{http_code}" -H "Authorization: Bearer $TOKEN" "$ARTIFACTORY_URL/artifactory/api/system/ping" -o /dev/null)
+echo "📡 Ping response: $ping_response"
+if [[ "$ping_response" != "200" ]]; then
+    echo "⚠️ WARNING: Cannot reach Artifactory (HTTP $ping_response)"
+    echo "This may be why no artifacts are found in CI"
+fi
+
 # Function to safely call API with retries
 safe_api_call() {
     local url="$1"
@@ -49,14 +66,25 @@ safe_api_call() {
 
 # Step 1: Clean up build info first
 echo -e "\n=== STEP 1: BUILD INFO CLEANUP ==="
+echo "🔗 Calling: $ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/"
 builds_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/")
+echo "📊 API Response length: ${#builds_response}"
+echo "📋 API Response preview: ${builds_response:0:200}..."
 if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
     # Filter for ASCII-Frog Release build directories (any build containing "ASCII-Frog Release")
     ascii_frog_builds=$(echo "$builds_response" | jq -r '.children[] | select(.folder == true and (.uri | contains("ASCII-Frog Release"))) | .uri' 2>/dev/null | sed 's|^/||')
-    echo "ASCII-Frog Release build directories:"
-    echo $ascii_frog_builds
+    echo "ASCII-Frog Release build directories found:"
+    if [[ -n "$ascii_frog_builds" ]]; then
+        echo "$ascii_frog_builds" | while read build; do
+            if [[ -n "$build" ]]; then
+                echo "  📁 $build"
+            fi
+        done
+    else
+        echo "  (none found)"
+    fi
     ascii_frog_count=$(echo "$ascii_frog_builds" | wc -l)
-    echo "Found $ascii_frog_count ASCII-Frog Release build directories"
+    echo "📊 Total ASCII-Frog Release build directories: $ascii_frog_count"
     
     if [[ $ascii_frog_count -gt 0 ]]; then
         echo "Getting timestamps for ASCII-Frog Release builds (this may take a while)..."
@@ -129,8 +157,17 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
                         # Get all JSON files in this build
                         json_files=$(echo "$build_contents_response" | jq -r '.children[] | select(.folder == false and (.uri | endswith(".json"))) | .uri' 2>/dev/null | sed 's|^/||')
                         json_count=$(echo "$json_files" | wc -l)
-                        echo "  Found $json_count JSON files in $build_path"
-                        echo "  JSON files found: $json_files"
+                        echo "  📊 Found $json_count JSON files in $build_path"
+                        if [[ -n "$json_files" ]]; then
+                            echo "  📄 JSON files found:"
+                            echo "$json_files" | while read json_file; do
+                                if [[ -n "$json_file" ]]; then
+                                    echo "    - $json_file"
+                                fi
+                            done
+                        else
+                            echo "  📄 No JSON files found in this build"
+                        fi
                         
                         if [[ $json_count -gt 3 ]]; then
                             echo "  Getting timestamps for JSON files..."
@@ -200,18 +237,27 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
     fi
     
     # Show other build directories (non-ASCII-Frog) for reference
+    echo -e "\n=== ALL OTHER BUILD DIRECTORIES ==="
     other_builds=$(echo "$builds_response" | jq -r '.children[] | select(.folder == true and (.uri | contains("ASCII-Frog Release") | not)) | .uri' 2>/dev/null | sed 's|^/||')
     other_count=$(echo "$other_builds" | wc -l)
+    echo "📊 Found $other_count other build directories (non-ASCII-Frog)"
     if [[ $other_count -gt 0 ]]; then
-        echo -e "\nOther build directories (not deleting):"
+        echo "📁 Other build directories (not processing):"
         echo "$other_builds" | while read build_path; do
             if [[ -n "$build_path" ]]; then
                 echo "  - $build_path"
             fi
         done
+    else
+        echo "📁 No other build directories found"
     fi
 else
-    echo "No build directories found or error accessing build storage"
+    echo "❌ No build directories found or error accessing build storage"
+    echo "🔍 This could indicate:"
+    echo "  - No artifacts in p1-build-info repository"
+    echo "  - Network connectivity issues"
+    echo "  - Authentication problems"
+    echo "  - Repository doesn't exist"
 fi
 
 # Step 2: Clean up NPM packages
@@ -219,11 +265,24 @@ echo -e "\n=== STEP 2: NPM CLEANUP ==="
 
 # Clean up backend packages
 echo "Cleaning up backend packages..."
+echo "🔗 Calling: $ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/"
 npm_backend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/")
+echo "📊 Backend NPM Response length: ${#npm_backend_response}"
+echo "📋 Backend NPM Response preview: ${npm_backend_response:0:200}..."
 if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
     npm_backend_packages=$(echo "$npm_backend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
     npm_backend_count=$(echo "$npm_backend_packages" | wc -l)
-    echo "Found $npm_backend_count backend NPM packages"
+    echo "📊 Found $npm_backend_count backend NPM packages"
+    if [[ -n "$npm_backend_packages" ]]; then
+        echo "📦 Backend NPM packages found:"
+        echo "$npm_backend_packages" | while read package; do
+            if [[ -n "$package" ]]; then
+                echo "  - $package"
+            fi
+        done
+    else
+        echo "📦 No backend NPM packages found"
+    fi
     
     if [[ $npm_backend_count -gt 3 ]]; then
         echo "Getting timestamps for backend packages (this may take a while)..."
@@ -265,16 +324,34 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
         echo "Only $npm_backend_count backend packages found. Not deleting any (≤3)."
     fi
 else
-    echo "No backend NPM packages found or error accessing packages"
+    echo "❌ No backend NPM packages found or error accessing packages"
+    echo "🔍 This could indicate:"
+    echo "  - No @ascii-frog/backend packages in p1-npm-local"
+    echo "  - Network connectivity issues"
+    echo "  - Authentication problems"
+    echo "  - Repository path doesn't exist"
 fi
 
 # Clean up frontend packages
 echo "Cleaning up frontend packages..."
+echo "🔗 Calling: $ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/"
 npm_frontend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/")
+echo "📊 Frontend NPM Response length: ${#npm_frontend_response}"
+echo "📋 Frontend NPM Response preview: ${npm_frontend_response:0:200}..."
 if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
     npm_frontend_packages=$(echo "$npm_frontend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
     npm_frontend_count=$(echo "$npm_frontend_packages" | wc -l)
-    echo "Found $npm_frontend_count frontend NPM packages"
+    echo "📊 Found $npm_frontend_count frontend NPM packages"
+    if [[ -n "$npm_frontend_packages" ]]; then
+        echo "📦 Frontend NPM packages found:"
+        echo "$npm_frontend_packages" | while read package; do
+            if [[ -n "$package" ]]; then
+                echo "  - $package"
+            fi
+        done
+    else
+        echo "📦 No frontend NPM packages found"
+    fi
     
     if [[ $npm_frontend_count -gt 3 ]]; then
         echo "Getting timestamps for frontend packages (this may take a while)..."
@@ -316,16 +393,34 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
         echo "Only $npm_frontend_count frontend packages found. Not deleting any (≤3)."
     fi
 else
-    echo "No frontend NPM packages found or error accessing packages"
+    echo "❌ No frontend NPM packages found or error accessing packages"
+    echo "🔍 This could indicate:"
+    echo "  - No @ascii-frog/frontend packages in p1-npm-local"
+    echo "  - Network connectivity issues"
+    echo "  - Authentication problems"
+    echo "  - Repository path doesn't exist"
 fi
 
 # Step 3: Clean up Docker images
 echo -e "\n=== STEP 3: DOCKER CLEANUP ==="
+echo "🔗 Calling: $ARTIFACTORY_URL/artifactory/api/storage/p1-docker-local/ascii-frog-app/"
 docker_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-docker-local/ascii-frog-app/")
+echo "📊 Docker Response length: ${#docker_response}"
+echo "📋 Docker Response preview: ${docker_response:0:200}..."
 if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
     docker_tags=$(echo "$docker_response" | jq -r '.children[] | select(.folder == true) | .uri' 2>/dev/null | sed 's|^/||' | grep -v '^_' | grep -v '^yahav$')
     docker_count=$(echo "$docker_tags" | wc -l)
-    echo "Found $docker_count Docker images"
+    echo "📊 Found $docker_count Docker images"
+    if [[ -n "$docker_tags" ]]; then
+        echo "🐳 Docker image tags found:"
+        echo "$docker_tags" | while read tag; do
+            if [[ -n "$tag" ]]; then
+                echo "  - $tag"
+            fi
+        done
+    else
+        echo "🐳 No Docker image tags found"
+    fi
     
     if [[ $docker_count -gt 3 ]]; then
         echo "Getting timestamps (this may take a while)..."
@@ -367,7 +462,24 @@ if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
         echo "Only $docker_count images found. Not deleting any (≤3)."
     fi
 else
-    echo "No Docker images found or error accessing images"
+    echo "❌ No Docker images found or error accessing images"
+    echo "🔍 This could indicate:"
+    echo "  - No ascii-frog-app images in p1-docker-local"
+    echo "  - Network connectivity issues"
+    echo "  - Authentication problems"
+    echo "  - Repository path doesn't exist"
 fi
 
 echo -e "\n=== CLEANUP COMPLETE ==="
+echo "📊 SUMMARY:"
+echo "  🏗️ ASCII-Frog Release builds: ${ascii_frog_count:-0}"
+echo "  📦 Backend NPM packages: ${npm_backend_count:-0}"
+echo "  📦 Frontend NPM packages: ${npm_frontend_count:-0}"
+echo "  🐳 Docker images: ${docker_count:-0}"
+echo "  📁 Other builds: ${other_count:-0}"
+echo ""
+if [[ "$EXECUTE" == "true" ]]; then
+    echo "🔥 EXECUTION MODE: Artifacts were actually deleted (if > 3)"
+else
+    echo "📋 PREVIEW MODE: No artifacts were deleted"
+fi

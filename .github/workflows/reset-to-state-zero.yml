@@ -97,15 +97,16 @@ jobs:
     - name: 🧹 Clean up Artifactory artifacts
       env:
         FLY_TOKEN: ${{ secrets.FLY_TOKEN }}
+      shell: bash
       run: |
         echo "🧹 Cleaning up Artifactory artifacts..."
         
         # Make the script executable
         chmod +x .github/scripts/simple_cleanup.sh
         
-        # Run the cleanup script in execution mode
-        echo "🚀 Running Artifactory cleanup..."
-        ./.github/scripts/simple_cleanup.sh true
+        # Run the cleanup script in execution mode with bash
+        echo "🚀 Running Artifactory cleanup with bash..."
+        bash ./.github/scripts/simple_cleanup.sh true
         
         echo "✅ Artifactory cleanup complete"
         
