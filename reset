@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Reset to State Zero - Launcher Script
+# This is a simple launcher that calls the main script in the scripts directory
+
+set -euo pipefail
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MAIN_SCRIPT="$SCRIPT_DIR/scripts/reset.sh"
+
+# Check if main script exists
+if [[ ! -f "$MAIN_SCRIPT" ]]; then
+    echo "ERROR: Main reset script not found: $MAIN_SCRIPT"
+    exit 1
+fi
+
+# Make it executable
+chmod +x "$MAIN_SCRIPT"
+
+# Call the main script with all arguments
+exec bash "$MAIN_SCRIPT" "$@"

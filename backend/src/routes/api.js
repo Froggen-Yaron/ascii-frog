@@ -117,7 +117,7 @@ router.get('/terminal-config', (req, res) => {
                 disableStdin: true
             },
             messages: {
-                welcome: '🤖🐸 Welcome to AI Frog Generator Terminal!',
+                welcome: '',
                 prompt: 'ai-frog@terminal:~$ '
             }
         };

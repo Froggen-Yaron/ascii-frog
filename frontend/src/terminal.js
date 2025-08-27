@@ -13,14 +13,14 @@ export class TerminalManager {
             background: #0d1117;
             color: #e6edf3;
             font-family: 'Fira Code', monospace;
-            font-size: 14px;
+            font-size: 16px;
             padding: 20px;
-            overflow-y: auto;
+            overflow: hidden;
             white-space: pre-wrap;
             line-height: 1.4;
             text-align: left;
         `;
-        this.showWelcome();
+        // Removed showWelcome() call
     }
 
     updateConfig(config) {
@@ -28,17 +28,18 @@ export class TerminalManager {
     }
 
     showWelcome() {
-        const welcome = this.config?.messages?.welcome || '🐸  Welcome to ascii-frog Terminal!';
-        const prompt = this.config?.messages?.prompt || 'frog@terminal:~$ ';
-        this.writeln(welcome);
-        this.writeln('');
-        this.writeln(prompt);
-        this.writeln('');
+        // Welcome message removed - no longer displaying welcome text
+        // const welcome = this.config?.messages?.welcome || '🐸  Welcome to ascii-frog Terminal!';
+        // const prompt = this.config?.messages?.prompt || 'frog@terminal:~$ ';
+        // this.writeln(welcome);
+        // this.writeln('');
+        // this.writeln(prompt);
+        // this.writeln('');
     }
 
     displayCompleteFrog(ascii, frogName) {
         this.clear();
-        this.showWelcome();
+        // Removed showWelcome() call to not show welcome message
         this.displayAsciiWithFixedHeight(ascii);
         this.displayFrogName(frogName);
     }
@@ -66,7 +67,7 @@ export class TerminalManager {
     displayFrogName(frogName) {
         // this.writeCenter(frogName);
         // To add Random Color To the FROG NAME CHANGE HERE:
-        this.writeCenter(randomColor(frogName));
+        this.writeCenterLarge(randomColor(frogName));
     }
 
 
@@ -84,6 +85,22 @@ export class TerminalManager {
     writeCenter(content) {
         const div = document.createElement('div');
         div.style.textAlign = 'center';
+        if (typeof content === 'string') {
+            div.textContent = content;
+        } else {
+            div.appendChild(content);
+        }
+        this.container.appendChild(div);
+        return div;
+    }
+
+    writeCenterLarge(content) {
+        const div = document.createElement('div');
+        div.style.textAlign = 'center';
+        div.style.fontSize = '20px';
+        div.style.fontWeight = 'bold';
+        div.style.marginTop = '8px';
+        div.style.marginBottom = '8px';
         if (typeof content === 'string') {
             div.textContent = content;
         } else {
