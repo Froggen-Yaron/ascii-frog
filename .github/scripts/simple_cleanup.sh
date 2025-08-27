@@ -52,8 +52,21 @@ fi
 echo -e "\n=== ENVIRONMENT CHECK ==="
 echo "🌐 Artifactory URL: $ARTIFACTORY_URL"
 echo "🔑 Token length: ${#TOKEN} characters"
+echo "🔑 Token preview: ${TOKEN:0:30}...${TOKEN: -20}"
 echo "🛠️ Curl version: $(curl --version | head -1)"
 echo "🔧 JQ version: $(jq --version)"
+echo "⚙️ CURL_OPTS: '$CURL_OPTS'"
+echo "⚙️ JQ_OPTS: '$JQ_OPTS'"
+echo "🐚 Shell: $0 (PID: $$)"
+echo "🔧 Bash version: $BASH_VERSION"
+
+# Variable expansion test
+echo -e "\n=== VARIABLE EXPANSION TEST ==="
+echo "🔍 Testing if shell variable expansion works correctly:"
+echo "Raw TOKEN variable: \$TOKEN"
+echo "Expanded TOKEN (first 50 chars): ${TOKEN:0:50}..."
+echo "Authorization header will be: 'Authorization: Bearer ${TOKEN:0:20}...${TOKEN: -10}'"
+echo "CURL_OPTS expanded: '$CURL_OPTS'"
 
 # Connectivity test with Linux AMD64 optimizations
 echo -e "\n=== CONNECTIVITY TEST ==="
@@ -65,6 +78,14 @@ echo "  Platform: $(uname -a)"
 echo "  DNS resolution: $(getent hosts $(echo "$ARTIFACTORY_URL" | sed 's|https://||' | sed 's|/.*||') 2>/dev/null | head -1 || echo 'DNS lookup failed')"
 
 # Test ping endpoint with detailed response
+echo "🔍 FULL CURL COMMAND FOR PING:"
+echo "curl -s -w \"HTTP:%{http_code} Time:%{time_total}s Size:%{size_download}\" $CURL_OPTS \\"
+echo "    -H \"Authorization: Bearer ${TOKEN:0:20}...${TOKEN: -10}\" \\"
+echo "    -H \"Accept: application/json\" \\"
+echo "    -H \"User-Agent: ascii-frog-cleanup/1.0\" \\"
+echo "    \"$ARTIFACTORY_URL/artifactory/api/system/ping\" -o /dev/null"
+echo ""
+
 ping_response=$(curl -s -w "HTTP:%{http_code} Time:%{time_total}s Size:%{size_download}" $CURL_OPTS \
     -H "Authorization: Bearer $TOKEN" \
     -H "Accept: application/json" \
@@ -98,6 +119,14 @@ safe_api_call() {
     while [[ $retry -lt $max_retries ]]; do
         if [[ "$method" == "DELETE" ]]; then
             # Use platform-specific curl options
+            echo "🔍 FULL CURL DELETE COMMAND:" >&2
+            echo "curl -s -w \"%{http_code}\" $CURL_OPTS \\" >&2
+            echo "    -H \"Authorization: Bearer ${TOKEN:0:20}...${TOKEN: -10}\" \\" >&2
+            echo "    -H \"Accept: application/json\" \\" >&2
+            echo "    -H \"User-Agent: ascii-frog-cleanup/1.0\" \\" >&2
+            echo "    -X DELETE \"$url\"" >&2
+            echo "" >&2
+            
             response=$(curl -s -w "%{http_code}" $CURL_OPTS \
                 -H "Authorization: Bearer $TOKEN" \
                 -H "Accept: application/json" \
@@ -110,6 +139,15 @@ safe_api_call() {
             echo "DELETE failed with HTTP $http_code for $url" >&2
         else
             # GET request with Linux AMD64 optimizations
+            echo "🔍 FULL CURL GET COMMAND:" >&2
+            echo "curl -s $CURL_OPTS \\" >&2
+            echo "    -H \"Authorization: Bearer ${TOKEN:0:20}...${TOKEN: -10}\" \\" >&2
+            echo "    -H \"Accept: application/json\" \\" >&2
+            echo "    -H \"User-Agent: ascii-frog-cleanup/1.0\" \\" >&2
+            echo "    -H \"Cache-Control: no-cache\" \\" >&2
+            echo "    \"$url\"" >&2
+            echo "" >&2
+            
             response=$(curl -s $CURL_OPTS \
                 -H "Authorization: Bearer $TOKEN" \
                 -H "Accept: application/json" \
@@ -232,6 +270,11 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
                     echo "    Full URL: $ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path"
                     
                     # Try direct curl first for debugging
+                    echo "    🔍 FULL DIRECT CURL COMMAND:"
+                    echo "    curl -s -H \"Authorization: Bearer ${TOKEN:0:20}...${TOKEN: -10}\" \\"
+                    echo "         \"$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path\""
+                    echo ""
+                    
                     direct_response=$(curl -s -H "Authorization: Bearer $TOKEN" "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path" 2>/dev/null)
                     echo "    Direct curl response length: ${#direct_response}"
                     echo "    Direct curl response preview: ${direct_response:0:200}..."
