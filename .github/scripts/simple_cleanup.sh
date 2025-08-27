@@ -142,7 +142,7 @@ echo -e "\n=== STEP 2: NPM CLEANUP ==="
 
 # Clean up backend packages
 echo "Cleaning up backend packages..."
-npm_backend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/")
+npm_backend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/%40ascii-frog/backend/-/%40ascii-frog/")
 if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
     npm_backend_packages=$(echo "$npm_backend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
     npm_backend_count=$(echo "$npm_backend_packages" | wc -l)
@@ -175,7 +175,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
             head -n -1 "${temp_npm_backend}_sorted" | while read timestamp package; do
                 if [[ "$EXECUTE" == "true" ]]; then
                     echo "   🗑️ Deleting: $package"
-                    if safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/$package" "DELETE"; then
+                    if safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/%40ascii-frog/backend/-/%40ascii-frog/$package" "DELETE"; then
                         echo "   ✅ Successfully deleted: $package"
                     else
                         echo "   ❌ Failed to delete: $package"
@@ -197,7 +197,7 @@ fi
 
 # Clean up frontend packages
 echo "Cleaning up frontend packages..."
-npm_frontend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/")
+npm_frontend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/%40ascii-frog/frontend/-/%40ascii-frog/")
 if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
     npm_frontend_packages=$(echo "$npm_frontend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
     npm_frontend_count=$(echo "$npm_frontend_packages" | wc -l)
@@ -230,7 +230,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
             head -n -1 "${temp_npm_frontend}_sorted" | while read timestamp package; do
                 if [[ "$EXECUTE" == "true" ]]; then
                     echo "   🗑️ Deleting: $package"
-                    if safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/$package" "DELETE"; then
+                    if safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/%40ascii-frog/frontend/-/%40ascii-frog/$package" "DELETE"; then
                         echo "   ✅ Successfully deleted: $package"
                     else
                         echo "   ❌ Failed to delete: $package"
