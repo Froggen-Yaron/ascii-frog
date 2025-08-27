@@ -51,7 +51,7 @@ safe_api_call() {
 echo -e "\n=== STEP 1: BUILD INFO CLEANUP ==="
 
 # Build name to clean up (keeping only 3 oldest builds)
-BUILD_NAME="1041291360-🚀 ASCII-Frog Release"
+BUILD_NAME="🚀 ASCII-Frog Release"
 echo "Cleaning up build: $BUILD_NAME"
 
 # 1. Fetch all build numbers using Build API
