@@ -206,7 +206,7 @@ Visit the live demo at: `http://localhost:8000`
 ## Screenshots
 
 The interface features:
-- Beautiful terminal-like ASCII art display
+- Beautiful terminal like ASCII art display
 - Intuitive controls for template and color selection
 - Real-time generation and preview
 - Modern dark theme with syntax highlighting
