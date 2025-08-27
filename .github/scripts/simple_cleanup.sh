@@ -1,10 +1,45 @@
 #!/bin/bash
 
+# Linux AMD64 compatibility settings
+set -euo pipefail  # Exit on error, undefined vars, pipe failures
+export LC_ALL=C.UTF-8  # Consistent Unicode handling
+export LANG=C.UTF-8
+
 # Artifactory configuration
 ARTIFACTORY_URL="https://z0flylnp1.jfrogdev.org"
 TOKEN="eyJ2ZXIiOiIyIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiJmbzgxOEZDVl9ELWVUbnFsdHlIZndiYnNuSzVETXF3NTZobmFuNnJ4Sk1jIn0.eyJpc3MiOiJqZmZlQDAxazA0NDR6cGp2ZGY5MHZrZ3dramswOWYzIiwic3ViIjoiamZhY0AwMWswNDQ0enBqdmRmOTB2a2d3a2prMDlmMy91c2Vycy9hZG1pbiIsInNjcCI6ImFwcGxpZWQtcGVybWlzc2lvbnMvYWRtaW4iLCJhdWQiOiIqQCoiLCJpYXQiOjE3NTYxMDU0NDUsImp0aSI6IjFiZjRjMDBlLTA4YmEtNDg4My04NTYxLWU2ZWY3ZjA2YmIzMSJ9.oOVO8dYv7ja6h6imdgAO4r97P_PftXLZxUPeJtJ4yjB9rpRHFPj_ozZ53FUJ2dpyZ_mJWGGha7pwQoj4Jsad6kgoVVQCtGUKsjl7zp5qs-ruV1BE__3C7lPERrJsQkgOBg7DSbJFCLmDAsQsouyKCTO7sI2m51yL_moJzSFtnIb5YwdwWXJh9KI_RHjT3BgIWmWubqtqvJRgJVzrFlmgi2gRjGqVPmW-zvxG60DVfZ8j-YkFkbXKjr0e1CGMg-1sT5eODEIz-MMtwItCRJUrG8jmy_BQWB8OdtCvZRfuRLrV2L8WzrDH9sMUhG55gNrZQYGEklK3JMMVAks1dDBw2w"
 
 EXECUTE="${1:-false}"
+
+# Linux AMD64 tool detection and compatibility
+detect_tools() {
+    echo "🔧 Detecting Linux AMD64 tools..."
+    
+    # Check for required tools
+    for tool in curl jq sed grep awk; do
+        if ! command -v "$tool" >/dev/null 2>&1; then
+            echo "❌ Missing required tool: $tool"
+            exit 1
+        fi
+    done
+    
+    # Platform-specific tool configuration
+    if [[ "$(uname)" == "Linux" ]]; then
+        # Linux AMD64 (GitHub runners)
+        echo "✅ Detected Linux AMD64 - using GNU tools"
+        export CURL_OPTS="--connect-timeout 30 --max-time 300 --retry 3 --retry-delay 2"
+        export JQ_OPTS="-r"
+        # Ensure we handle large responses properly on Linux
+        ulimit -n 4096 2>/dev/null || true
+    else
+        # macOS compatibility
+        echo "✅ Detected macOS - using BSD tools"
+        export CURL_OPTS="--connect-timeout 30 --max-time 300"
+        export JQ_OPTS="-r"
+    fi
+}
+
+detect_tools
 
 echo "=== SIMPLE ARTIFACTORY CLEANUP ==="
 if [[ "$EXECUTE" == "true" ]]; then
@@ -20,17 +55,40 @@ echo "🔑 Token length: ${#TOKEN} characters"
 echo "🛠️ Curl version: $(curl --version | head -1)"
 echo "🔧 JQ version: $(jq --version)"
 
-# Connectivity test
+# Connectivity test with Linux AMD64 optimizations
 echo -e "\n=== CONNECTIVITY TEST ==="
 echo "🔍 Testing basic connectivity to Artifactory..."
-ping_response=$(curl -s -w "%{http_code}" -H "Authorization: Bearer $TOKEN" "$ARTIFACTORY_URL/artifactory/api/system/ping" -o /dev/null)
+
+# Enhanced connectivity test
+echo "🌐 Network diagnostics:"
+echo "  Platform: $(uname -a)"
+echo "  DNS resolution: $(getent hosts $(echo "$ARTIFACTORY_URL" | sed 's|https://||' | sed 's|/.*||') 2>/dev/null | head -1 || echo 'DNS lookup failed')"
+
+# Test ping endpoint with detailed response
+ping_response=$(curl -s -w "HTTP:%{http_code} Time:%{time_total}s Size:%{size_download}" $CURL_OPTS \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Accept: application/json" \
+    -H "User-Agent: ascii-frog-cleanup/1.0" \
+    "$ARTIFACTORY_URL/artifactory/api/system/ping" -o /dev/null 2>/dev/null || echo "CURL_FAILED")
+
 echo "📡 Ping response: $ping_response"
-if [[ "$ping_response" != "200" ]]; then
-    echo "⚠️ WARNING: Cannot reach Artifactory (HTTP $ping_response)"
+
+# Extract HTTP code for validation
+if [[ "$ping_response" == *"HTTP:200"* ]]; then
+    echo "✅ Successfully connected to Artifactory"
+elif [[ "$ping_response" == "CURL_FAILED" ]]; then
+    echo "❌ CRITICAL: curl command failed completely"
+    echo "  This indicates network connectivity issues on Linux AMD64"
+elif [[ "$ping_response" == *"HTTP:403"* ]]; then
+    echo "⚠️ Authentication issue (HTTP 403)"
+elif [[ "$ping_response" == *"HTTP:404"* ]]; then
+    echo "⚠️ Ping endpoint not found (HTTP 404)"
+else
+    echo "⚠️ WARNING: Cannot reach Artifactory ($ping_response)"
     echo "This may be why no artifacts are found in CI"
 fi
 
-# Function to safely call API with retries
+# Linux AMD64 optimized API call function
 safe_api_call() {
     local url="$1"
     local method="${2:-GET}"
@@ -39,28 +97,56 @@ safe_api_call() {
     
     while [[ $retry -lt $max_retries ]]; do
         if [[ "$method" == "DELETE" ]]; then
-            response=$(curl -s -w "%{http_code}" -H "Authorization: Bearer $TOKEN" -X DELETE "$url" 2>/dev/null)
+            # Use platform-specific curl options
+            response=$(curl -s -w "%{http_code}" $CURL_OPTS \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Accept: application/json" \
+                -H "User-Agent: ascii-frog-cleanup/1.0" \
+                -X DELETE "$url" 2>/dev/null)
             http_code="${response: -3}"
             if [[ "$http_code" =~ ^[23] ]]; then
                 return 0
             fi
+            echo "DELETE failed with HTTP $http_code for $url" >&2
         else
-            response=$(curl -s -H "Authorization: Bearer $TOKEN" "$url" 2>/dev/null)
-            # Check if response is valid JSON, but be more lenient
-            if echo "$response" | jq . >/dev/null 2>&1; then
-                echo "$response"
-                return 0
-            elif [[ -n "$response" ]]; then
-                # If we have a response but it's not valid JSON, still return it
-                echo "$response"
-                return 0
+            # GET request with Linux AMD64 optimizations
+            response=$(curl -s $CURL_OPTS \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Accept: application/json" \
+                -H "User-Agent: ascii-frog-cleanup/1.0" \
+                -H "Cache-Control: no-cache" \
+                "$url" 2>/dev/null)
+            
+            # Enhanced response validation for Linux
+            if [[ -n "$response" ]]; then
+                # Check if response is valid JSON
+                if echo "$response" | jq empty >/dev/null 2>&1; then
+                    echo "$response"
+                    return 0
+                elif [[ "$response" == *"<html"* ]] || [[ "$response" == *"<HTML"* ]]; then
+                    echo "HTML response received instead of JSON from $url" >&2
+                elif [[ "$response" == *"Access Denied"* ]] || [[ "$response" == *"403"* ]]; then
+                    echo "Access denied from $url" >&2
+                elif [[ "$response" == *"404"* ]] || [[ "$response" == *"Not Found"* ]]; then
+                    echo "Resource not found: $url" >&2
+                else
+                    # Non-JSON but valid response
+                    echo "$response"
+                    return 0
+                fi
+            else
+                echo "Empty response from $url" >&2
             fi
         fi
         
         ((retry++))
-        echo "Retry $retry/$max_retries for $url" >&2
-        sleep 2
+        if [[ $retry -lt $max_retries ]]; then
+            echo "Retry $retry/$max_retries for $url (waiting ${retry}s...)" >&2
+            sleep $retry  # Progressive backoff
+        fi
     done
+    
+    echo "All retries failed for $url" >&2
     return 1
 }
 
@@ -72,18 +158,20 @@ echo "📊 API Response length: ${#builds_response}"
 echo "📋 API Response preview: ${builds_response:0:200}..."
 if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
     # Filter for ASCII-Frog Release build directories (any build containing "ASCII-Frog Release")
-    ascii_frog_builds=$(echo "$builds_response" | jq -r '.children[] | select(.folder == true and (.uri | contains("ASCII-Frog Release"))) | .uri' 2>/dev/null | sed 's|^/||')
+    ascii_frog_builds=$(echo "$builds_response" | jq $JQ_OPTS '.children[] | select(.folder == true and (.uri | contains("ASCII-Frog Release"))) | .uri' 2>/dev/null | sed 's|^/||')
     echo "ASCII-Frog Release build directories found:"
-    if [[ -n "$ascii_frog_builds" ]]; then
-        echo "$ascii_frog_builds" | while read build; do
-            if [[ -n "$build" ]]; then
+    if [[ -n "$ascii_frog_builds" && "$ascii_frog_builds" != "" ]]; then
+        echo "$ascii_frog_builds" | while IFS= read -r build; do
+            if [[ -n "$build" && "$build" != "" ]]; then
                 echo "  📁 $build"
             fi
         done
+        # Linux AMD64 robust counting - filter empty lines
+        ascii_frog_count=$(echo "$ascii_frog_builds" | grep -c '^..*$' 2>/dev/null || echo "0")
     else
         echo "  (none found)"
+        ascii_frog_count=0
     fi
-    ascii_frog_count=$(echo "$ascii_frog_builds" | wc -l)
     echo "📊 Total ASCII-Frog Release build directories: $ascii_frog_count"
     
     if [[ $ascii_frog_count -gt 0 ]]; then
@@ -155,17 +243,20 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
                     
                     if [[ $contents_exit_code -eq 0 ]] && [[ -n "$build_contents_response" ]]; then
                         # Get all JSON files in this build
-                        json_files=$(echo "$build_contents_response" | jq -r '.children[] | select(.folder == false and (.uri | endswith(".json"))) | .uri' 2>/dev/null | sed 's|^/||')
-                        json_count=$(echo "$json_files" | wc -l)
-                        echo "  📊 Found $json_count JSON files in $build_path"
-                        if [[ -n "$json_files" ]]; then
+                        json_files=$(echo "$build_contents_response" | jq $JQ_OPTS '.children[] | select(.folder == false and (.uri | endswith(".json"))) | .uri' 2>/dev/null | sed 's|^/||')
+                        if [[ -n "$json_files" && "$json_files" != "" ]]; then
+                            # Linux AMD64 robust counting
+                            json_count=$(echo "$json_files" | grep -c '^..*$' 2>/dev/null || echo "0")
+                            echo "  📊 Found $json_count JSON files in $build_path"
                             echo "  📄 JSON files found:"
-                            echo "$json_files" | while read json_file; do
-                                if [[ -n "$json_file" ]]; then
+                            echo "$json_files" | while IFS= read -r json_file; do
+                                if [[ -n "$json_file" && "$json_file" != "" ]]; then
                                     echo "    - $json_file"
                                 fi
                             done
                         else
+                            json_count=0
+                            echo "  📊 Found $json_count JSON files in $build_path"
                             echo "  📄 No JSON files found in this build"
                         fi
                         
@@ -238,17 +329,20 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
     
     # Show other build directories (non-ASCII-Frog) for reference
     echo -e "\n=== ALL OTHER BUILD DIRECTORIES ==="
-    other_builds=$(echo "$builds_response" | jq -r '.children[] | select(.folder == true and (.uri | contains("ASCII-Frog Release") | not)) | .uri' 2>/dev/null | sed 's|^/||')
-    other_count=$(echo "$other_builds" | wc -l)
-    echo "📊 Found $other_count other build directories (non-ASCII-Frog)"
-    if [[ $other_count -gt 0 ]]; then
+    other_builds=$(echo "$builds_response" | jq $JQ_OPTS '.children[] | select(.folder == true and (.uri | contains("ASCII-Frog Release") | not)) | .uri' 2>/dev/null | sed 's|^/||')
+    if [[ -n "$other_builds" && "$other_builds" != "" ]]; then
+        # Linux AMD64 robust counting
+        other_count=$(echo "$other_builds" | grep -c '^..*$' 2>/dev/null || echo "0")
+        echo "📊 Found $other_count other build directories (non-ASCII-Frog)"
         echo "📁 Other build directories (not processing):"
-        echo "$other_builds" | while read build_path; do
-            if [[ -n "$build_path" ]]; then
+        echo "$other_builds" | while IFS= read -r build_path; do
+            if [[ -n "$build_path" && "$build_path" != "" ]]; then
                 echo "  - $build_path"
             fi
         done
     else
+        other_count=0
+        echo "📊 Found $other_count other build directories (non-ASCII-Frog)"
         echo "📁 No other build directories found"
     fi
 else
@@ -270,17 +364,20 @@ npm_backend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p
 echo "📊 Backend NPM Response length: ${#npm_backend_response}"
 echo "📋 Backend NPM Response preview: ${npm_backend_response:0:200}..."
 if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
-    npm_backend_packages=$(echo "$npm_backend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
-    npm_backend_count=$(echo "$npm_backend_packages" | wc -l)
-    echo "📊 Found $npm_backend_count backend NPM packages"
-    if [[ -n "$npm_backend_packages" ]]; then
+    npm_backend_packages=$(echo "$npm_backend_response" | jq $JQ_OPTS '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
+    if [[ -n "$npm_backend_packages" && "$npm_backend_packages" != "" ]]; then
+        # Linux AMD64 robust counting
+        npm_backend_count=$(echo "$npm_backend_packages" | grep -c '^..*$' 2>/dev/null || echo "0")
+        echo "📊 Found $npm_backend_count backend NPM packages"
         echo "📦 Backend NPM packages found:"
-        echo "$npm_backend_packages" | while read package; do
-            if [[ -n "$package" ]]; then
+        echo "$npm_backend_packages" | while IFS= read -r package; do
+            if [[ -n "$package" && "$package" != "" ]]; then
                 echo "  - $package"
             fi
         done
     else
+        npm_backend_count=0
+        echo "📊 Found $npm_backend_count backend NPM packages"
         echo "📦 No backend NPM packages found"
     fi
     
@@ -339,17 +436,20 @@ npm_frontend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/
 echo "📊 Frontend NPM Response length: ${#npm_frontend_response}"
 echo "📋 Frontend NPM Response preview: ${npm_frontend_response:0:200}..."
 if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
-    npm_frontend_packages=$(echo "$npm_frontend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
-    npm_frontend_count=$(echo "$npm_frontend_packages" | wc -l)
-    echo "📊 Found $npm_frontend_count frontend NPM packages"
-    if [[ -n "$npm_frontend_packages" ]]; then
+    npm_frontend_packages=$(echo "$npm_frontend_response" | jq $JQ_OPTS '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
+    if [[ -n "$npm_frontend_packages" && "$npm_frontend_packages" != "" ]]; then
+        # Linux AMD64 robust counting
+        npm_frontend_count=$(echo "$npm_frontend_packages" | grep -c '^..*$' 2>/dev/null || echo "0")
+        echo "📊 Found $npm_frontend_count frontend NPM packages"
         echo "📦 Frontend NPM packages found:"
-        echo "$npm_frontend_packages" | while read package; do
-            if [[ -n "$package" ]]; then
+        echo "$npm_frontend_packages" | while IFS= read -r package; do
+            if [[ -n "$package" && "$package" != "" ]]; then
                 echo "  - $package"
             fi
         done
     else
+        npm_frontend_count=0
+        echo "📊 Found $npm_frontend_count frontend NPM packages"
         echo "📦 No frontend NPM packages found"
     fi
     
@@ -408,17 +508,20 @@ docker_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-doc
 echo "📊 Docker Response length: ${#docker_response}"
 echo "📋 Docker Response preview: ${docker_response:0:200}..."
 if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
-    docker_tags=$(echo "$docker_response" | jq -r '.children[] | select(.folder == true) | .uri' 2>/dev/null | sed 's|^/||' | grep -v '^_' | grep -v '^yahav$')
-    docker_count=$(echo "$docker_tags" | wc -l)
-    echo "📊 Found $docker_count Docker images"
-    if [[ -n "$docker_tags" ]]; then
+    docker_tags=$(echo "$docker_response" | jq $JQ_OPTS '.children[] | select(.folder == true) | .uri' 2>/dev/null | sed 's|^/||' | grep -v '^_' | grep -v '^yahav$' | grep -v '^$')
+    if [[ -n "$docker_tags" && "$docker_tags" != "" ]]; then
+        # Linux AMD64 robust counting
+        docker_count=$(echo "$docker_tags" | grep -c '^..*$' 2>/dev/null || echo "0")
+        echo "📊 Found $docker_count Docker images"
         echo "🐳 Docker image tags found:"
-        echo "$docker_tags" | while read tag; do
-            if [[ -n "$tag" ]]; then
+        echo "$docker_tags" | while IFS= read -r tag; do
+            if [[ -n "$tag" && "$tag" != "" ]]; then
                 echo "  - $tag"
             fi
         done
     else
+        docker_count=0
+        echo "📊 Found $docker_count Docker images"
         echo "🐳 No Docker image tags found"
     fi
     
