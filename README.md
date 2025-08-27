@@ -13,7 +13,6 @@ A fun web service that generates beautiful colored ASCII art frogs with a termin
 - 🎲 **Random Generation**: Get surprise professional frog combinations
 - 📱 **Responsive Design**: Works on desktop and mobile devices
 
-
 ## Quick Start
 
 1. **Install workspace dependencies:**
