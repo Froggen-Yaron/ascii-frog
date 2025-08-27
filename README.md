@@ -1,6 +1,5 @@
 # 🐸 FrogGen - ASCII Frog Generator
 
-
 A fun web service that generates beautiful colored ASCII art frogs with a terminal-like interface.
 
 **Also check out our other cool apps: lineart-frog and photo-frog!**
