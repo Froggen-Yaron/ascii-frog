@@ -1,6 +1,6 @@
 {
     "name": "@ascii-frog/frontend",
-    "version": "1.0.17",
+    "version": "1.0.18",
     "description": "ASCII Frog Generator Frontend - Vite-based web interface",
     "main": "src/main.js",
     "type": "module",
