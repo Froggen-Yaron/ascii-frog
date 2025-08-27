@@ -8,7 +8,7 @@ on:
 jobs:
   unit-tests:
     name: 🔬 Unit Tests
-    runs-on: linux-amd64
+    runs-on: self-hosted
     
     steps:
     - name: 🧪 Run unit tests
