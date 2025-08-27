@@ -8,10 +8,13 @@ EXECUTE="${1:-false}"
 
 echo "=== SIMPLE ARTIFACTORY CLEANUP ==="
 if [[ "$EXECUTE" == "true" ]]; then
-    echo "🔥 EXECUTION MODE"
+    echo "🔥 EXECUTION MODE - Changes will be applied"
 else
-    echo "📋 PREVIEW MODE (use: ./simple_cleanup.sh true)"
+    echo "📋 PREVIEW MODE - No changes will be made (use: ./simple_cleanup.sh true)"
 fi
+echo "📍 Artifactory URL: $ARTIFACTORY_URL"
+echo "⏰ Started at: $(date)"
+echo
 
 # Function to safely call API with retries
 safe_api_call() {
@@ -62,24 +65,24 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
     build_numbers=$(echo "$builds_response" | jq -r '.builds[].uri' 2>/dev/null | sed 's|/||g' | sort -n)
     build_count=$(echo "$build_numbers" | wc -w)
     
-    echo "Found $build_count builds for '$BUILD_NAME'"
+    echo "📊 Found $build_count builds for '$BUILD_NAME'"
     
     if [[ $build_count -gt 1 ]]; then
-        echo "Build numbers (sorted oldest first):"
-        echo "$build_numbers"
+        echo "📋 All build numbers found (sorted oldest first):"
+        printf "   %s\n" $build_numbers
         
         # 2. Keep 1 newest build (last in sorted list)
         keep_builds=$(echo "$build_numbers" | tail -n 1)
-        echo -e "\nKeeping 1 newest build:"
-        echo "$keep_builds"
+        echo -e "\n✅ Keeping 1 newest build:"
+        echo "   ➤ $keep_builds"
         
         # 3. Get builds to delete (everything except the newest)
         delete_builds=$(echo "$build_numbers" | head -n -1)
         delete_count=$(echo "$delete_builds" | wc -w)
         
         if [[ $delete_count -gt 0 ]]; then
-            echo -e "\nBuilds to delete ($delete_count):"
-            echo "$delete_builds"
+            echo -e "\n🗑️ Builds marked for deletion ($delete_count):"
+            printf "   ➤ %s\n" $delete_builds
             
             if [[ "$EXECUTE" == "true" ]]; then
                 echo -e "\n🗑️ Deleting builds using bulk delete API..."
@@ -110,15 +113,15 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
                 echo "Delete API response: $response_body"
                 
                 if [[ "$http_code" =~ ^[23] ]]; then
-                    echo "✅ Successfully deleted $delete_count builds"
+                    echo "✅ Successfully deleted $delete_count builds from '$BUILD_NAME'"
+                    printf "   ✓ Deleted: %s\n" $delete_builds
                 else
                     echo "❌ Failed to delete builds (HTTP $http_code)"
+                    echo "   Response: $response_body"
                 fi
             else
                 echo -e "\n📋 PREVIEW MODE: Would delete $delete_count builds"
-                echo "$delete_builds" | while read build_num; do
-                    echo "  Would delete: $BUILD_NAME #$build_num"
-                done
+                printf "   ➤ Would delete: %s\n" $delete_builds
             fi
         else
             echo "No builds to delete"
@@ -143,7 +146,7 @@ npm_backend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p
 if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
     npm_backend_packages=$(echo "$npm_backend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
     npm_backend_count=$(echo "$npm_backend_packages" | wc -l)
-    echo "Found $npm_backend_count backend NPM packages"
+    echo "📊 Found $npm_backend_count backend NPM packages"
     
     if [[ $npm_backend_count -gt 1 ]]; then
         echo "Getting timestamps for backend packages (this may take a while)..."
@@ -165,16 +168,20 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
         if [[ -f "$temp_npm_backend" ]]; then
             sort "$temp_npm_backend" > "${temp_npm_backend}_sorted"
             
-            echo -e "\nKeeping 1 newest backend NPM package:"
-            tail -1 "${temp_npm_backend}_sorted"
+            echo -e "\n✅ Keeping 1 newest backend NPM package:"
+            echo "   ➤ $(tail -1 "${temp_npm_backend}_sorted" | cut -d' ' -f2-)"
             
-            echo -e "\nDeleting backend NPM packages:"
+            echo -e "\n🗑️ Deleting backend NPM packages:"
             head -n -1 "${temp_npm_backend}_sorted" | while read timestamp package; do
                 if [[ "$EXECUTE" == "true" ]]; then
-                    echo "🗑️ Deleting backend: $package"
-                    safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/$package" "DELETE"
+                    echo "   🗑️ Deleting: $package"
+                    if safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/$package" "DELETE"; then
+                        echo "   ✅ Successfully deleted: $package"
+                    else
+                        echo "   ❌ Failed to delete: $package"
+                    fi
                 else
-                    echo "Would delete backend: $package"
+                    echo "   ➤ Would delete: $package"
                 fi
                 sleep 1
             done
@@ -194,7 +201,7 @@ npm_frontend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/
 if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
     npm_frontend_packages=$(echo "$npm_frontend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
     npm_frontend_count=$(echo "$npm_frontend_packages" | wc -l)
-    echo "Found $npm_frontend_count frontend NPM packages"
+    echo "📊 Found $npm_frontend_count frontend NPM packages"
     
     if [[ $npm_frontend_count -gt 1 ]]; then
         echo "Getting timestamps for frontend packages (this may take a while)..."
@@ -216,16 +223,20 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
         if [[ -f "$temp_npm_frontend" ]]; then
             sort "$temp_npm_frontend" > "${temp_npm_frontend}_sorted"
             
-            echo -e "\nKeeping 1 newest frontend NPM package:"
-            tail -1 "${temp_npm_frontend}_sorted"
+            echo -e "\n✅ Keeping 1 newest frontend NPM package:"
+            echo "   ➤ $(tail -1 "${temp_npm_frontend}_sorted" | cut -d' ' -f2-)"
             
-            echo -e "\nDeleting frontend NPM packages:"
+            echo -e "\n🗑️ Deleting frontend NPM packages:"
             head -n -1 "${temp_npm_frontend}_sorted" | while read timestamp package; do
                 if [[ "$EXECUTE" == "true" ]]; then
-                    echo "🗑️ Deleting frontend: $package"
-                    safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/$package" "DELETE"
+                    echo "   🗑️ Deleting: $package"
+                    if safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/$package" "DELETE"; then
+                        echo "   ✅ Successfully deleted: $package"
+                    else
+                        echo "   ❌ Failed to delete: $package"
+                    fi
                 else
-                    echo "Would delete frontend: $package"
+                    echo "   ➤ Would delete: $package"
                 fi
                 sleep 1
             done
@@ -245,7 +256,7 @@ docker_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-doc
 if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
     docker_tags=$(echo "$docker_response" | jq -r '.children[] | select(.folder == true) | .uri' 2>/dev/null | sed 's|^/||' | grep -v '^_' | grep -v '^yahav$')
     docker_count=$(echo "$docker_tags" | wc -l)
-    echo "Found $docker_count Docker images"
+    echo "📊 Found $docker_count Docker images"
     
     if [[ $docker_count -gt 1 ]]; then
         echo "Getting timestamps (this may take a while)..."
@@ -267,16 +278,20 @@ if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
         if [[ -f "$temp_docker" ]]; then
             sort "$temp_docker" > "${temp_docker}_sorted"
             
-            echo -e "\nKeeping 1 newest Docker image:"
-            tail -1 "${temp_docker}_sorted"
+            echo -e "\n✅ Keeping 1 newest Docker image:"
+            echo "   ➤ $(tail -1 "${temp_docker}_sorted" | cut -d' ' -f2-)"
             
-            echo -e "\nDeleting Docker images:"
+            echo -e "\n🗑️ Deleting Docker images:"
             head -n -1 "${temp_docker}_sorted" | while read timestamp tag; do
                 if [[ "$EXECUTE" == "true" ]]; then
-                    echo "🗑️ Deleting: $tag"
-                    safe_api_call "$ARTIFACTORY_URL/artifactory/p1-docker-local/ascii-frog-app/$tag/" "DELETE"
+                    echo "   🗑️ Deleting: $tag"
+                    if safe_api_call "$ARTIFACTORY_URL/artifactory/p1-docker-local/ascii-frog-app/$tag/" "DELETE"; then
+                        echo "   ✅ Successfully deleted: $tag"
+                    else
+                        echo "   ❌ Failed to delete: $tag"
+                    fi
                 else
-                    echo "Would delete: $tag"
+                    echo "   ➤ Would delete: $tag"
                 fi
                 sleep 1
             done
@@ -291,3 +306,13 @@ else
 fi
 
 echo -e "\n=== CLEANUP COMPLETE ==="
+echo "⏰ Finished at: $(date)"
+echo "🎯 Cleanup summary:"
+echo "   📦 Builds: Kept 1 newest, deleted older ones"
+echo "   📦 NPM packages: Kept 1 newest of each (backend/frontend)"
+echo "   🐳 Docker images: Kept 1 newest, deleted older ones"
+if [[ "$EXECUTE" == "true" ]]; then
+    echo "✅ Artifactory cleanup complete - Changes were applied"
+else
+    echo "📋 Artifactory cleanup scan complete - No changes made (preview mode)"
+fi
