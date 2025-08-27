@@ -3,9 +3,7 @@
   "description": "ASCII Frog Generator - Orchestrator package for frontend and backend",
   "type": "module",
   "scripts": {
-    "postinstall": "cd frontend && npm install --loglevel=http && cd ../backend && npm install --loglevel=http",
-    "install:all": "npm install --loglevel=http && cd frontend && npm install --loglevel=http && cd ../backend && npm install --loglevel=http",
-    "predev": "npm install --loglevel=http && cd frontend && npm install --loglevel=http && cd ../backend && npm install --loglevel=http && cd ..",
+    "predev": "./clean-npm.sh && npm install --loglevel=http && cd frontend && npm install --loglevel=http && cd ../backend && npm install --loglevel=http && cd ..",
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
     "build": "cd frontend && npm run build",
     "test": "cd backend && npm run test",
