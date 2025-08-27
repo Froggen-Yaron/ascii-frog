@@ -1,21 +1,18 @@
 # Multi-stage build for ASCII Frog Generator
-FROM node:20-alpine AS frontend-builder
+FROM p1-flylnp1.jfrogdev.org/docker/node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm install
+# Copy pre-built frontend (already built in CI)
 COPY frontend/ ./
-RUN npm run build
 
-FROM node:20-alpine AS backend-builder
+FROM p1-flylnp1.jfrogdev.org/docker/node:20-alpine AS backend-builder
 
 WORKDIR /app/backend
-COPY backend/package*.json ./
-RUN npm install --omit=dev
+# Copy pre-built backend (already installed in CI)
 COPY backend/ ./
 
 # Production image
-FROM node:20-alpine
+FROM p1-flylnp1.jfrogdev.org/docker/node:20-alpine
 
 WORKDIR /app
 
