@@ -64,17 +64,17 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
     
     echo "Found $build_count builds for '$BUILD_NAME'"
     
-    if [[ $build_count -gt 3 ]]; then
+    if [[ $build_count -gt 1 ]]; then
         echo "Build numbers (sorted oldest first):"
         echo "$build_numbers"
         
-        # 2. Keep 3 oldest builds
-        keep_builds=$(echo "$build_numbers" | head -n 3)
-        echo -e "\nKeeping 3 oldest builds:"
+        # 2. Keep 1 newest build (last in sorted list)
+        keep_builds=$(echo "$build_numbers" | tail -n 1)
+        echo -e "\nKeeping 1 newest build:"
         echo "$keep_builds"
         
-        # 3. Get builds to delete (everything except the 3 oldest)
-        delete_builds=$(echo "$build_numbers" | tail -n +4)
+        # 3. Get builds to delete (everything except the newest)
+        delete_builds=$(echo "$build_numbers" | head -n -1)
         delete_count=$(echo "$delete_builds" | wc -w)
         
         if [[ $delete_count -gt 0 ]]; then
@@ -124,7 +124,7 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
             echo "No builds to delete"
         fi
     else
-        echo "Only $build_count builds found. Not deleting any (≤3)."
+        echo "Only $build_count builds found. Not deleting any (≤1)."
         if [[ $build_count -gt 0 ]]; then
             echo "Existing builds:"
             echo "$build_numbers"
@@ -145,7 +145,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
     npm_backend_count=$(echo "$npm_backend_packages" | wc -l)
     echo "Found $npm_backend_count backend NPM packages"
     
-    if [[ $npm_backend_count -gt 3 ]]; then
+    if [[ $npm_backend_count -gt 1 ]]; then
         echo "Getting timestamps for backend packages (this may take a while)..."
         temp_npm_backend=$(mktemp)
         
@@ -165,11 +165,11 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
         if [[ -f "$temp_npm_backend" ]]; then
             sort "$temp_npm_backend" > "${temp_npm_backend}_sorted"
             
-            echo -e "\nKeeping 3 oldest backend NPM packages:"
-            head -3 "${temp_npm_backend}_sorted"
+            echo -e "\nKeeping 1 newest backend NPM package:"
+            tail -1 "${temp_npm_backend}_sorted"
             
             echo -e "\nDeleting backend NPM packages:"
-            tail -n +4 "${temp_npm_backend}_sorted" | while read timestamp package; do
+            head -n -1 "${temp_npm_backend}_sorted" | while read timestamp package; do
                 if [[ "$EXECUTE" == "true" ]]; then
                     echo "🗑️ Deleting backend: $package"
                     safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/$package" "DELETE"
@@ -182,7 +182,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
             rm -f "$temp_npm_backend" "${temp_npm_backend}_sorted"
         fi
     else
-        echo "Only $npm_backend_count backend packages found. Not deleting any (≤3)."
+        echo "Only $npm_backend_count backend packages found. Not deleting any (≤1)."
     fi
 else
     echo "No backend NPM packages found or error accessing packages"
@@ -196,7 +196,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
     npm_frontend_count=$(echo "$npm_frontend_packages" | wc -l)
     echo "Found $npm_frontend_count frontend NPM packages"
     
-    if [[ $npm_frontend_count -gt 3 ]]; then
+    if [[ $npm_frontend_count -gt 1 ]]; then
         echo "Getting timestamps for frontend packages (this may take a while)..."
         temp_npm_frontend=$(mktemp)
         
@@ -216,11 +216,11 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
         if [[ -f "$temp_npm_frontend" ]]; then
             sort "$temp_npm_frontend" > "${temp_npm_frontend}_sorted"
             
-            echo -e "\nKeeping 3 oldest frontend NPM packages:"
-            head -3 "${temp_npm_frontend}_sorted"
+            echo -e "\nKeeping 1 newest frontend NPM package:"
+            tail -1 "${temp_npm_frontend}_sorted"
             
             echo -e "\nDeleting frontend NPM packages:"
-            tail -n +4 "${temp_npm_frontend}_sorted" | while read timestamp package; do
+            head -n -1 "${temp_npm_frontend}_sorted" | while read timestamp package; do
                 if [[ "$EXECUTE" == "true" ]]; then
                     echo "🗑️ Deleting frontend: $package"
                     safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/$package" "DELETE"
@@ -233,7 +233,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
             rm -f "$temp_npm_frontend" "${temp_npm_frontend}_sorted"
         fi
     else
-        echo "Only $npm_frontend_count frontend packages found. Not deleting any (≤3)."
+        echo "Only $npm_frontend_count frontend packages found. Not deleting any (≤1)."
     fi
 else
     echo "No frontend NPM packages found or error accessing packages"
@@ -247,7 +247,7 @@ if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
     docker_count=$(echo "$docker_tags" | wc -l)
     echo "Found $docker_count Docker images"
     
-    if [[ $docker_count -gt 3 ]]; then
+    if [[ $docker_count -gt 1 ]]; then
         echo "Getting timestamps (this may take a while)..."
         temp_docker=$(mktemp)
         
@@ -267,11 +267,11 @@ if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
         if [[ -f "$temp_docker" ]]; then
             sort "$temp_docker" > "${temp_docker}_sorted"
             
-            echo -e "\nKeeping 3 oldest Docker images:"
-            head -3 "${temp_docker}_sorted"
+            echo -e "\nKeeping 1 newest Docker image:"
+            tail -1 "${temp_docker}_sorted"
             
             echo -e "\nDeleting Docker images:"
-            tail -n +4 "${temp_docker}_sorted" | while read timestamp tag; do
+            head -n -1 "${temp_docker}_sorted" | while read timestamp tag; do
                 if [[ "$EXECUTE" == "true" ]]; then
                     echo "🗑️ Deleting: $tag"
                     safe_api_call "$ARTIFACTORY_URL/artifactory/p1-docker-local/ascii-frog-app/$tag/" "DELETE"
@@ -284,7 +284,7 @@ if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
             rm -f "$temp_docker" "${temp_docker}_sorted"
         fi
     else
-        echo "Only $docker_count images found. Not deleting any (≤3)."
+        echo "Only $docker_count images found. Not deleting any (≤1)."
     fi
 else
     echo "No Docker images found or error accessing images"
