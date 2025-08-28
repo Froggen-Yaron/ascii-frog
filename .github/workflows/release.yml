@@ -69,7 +69,7 @@ jobs:
 
     - name: 🐳 Docker Build and Push - ascii-frog-app
       run: |
-        VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
+        VERSION=$(date +"%Y.%m.%d-%H.%M.%S")-b
         echo "📦 Building Docker version: $VERSION"
         docker build -t p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:$VERSION .
         
