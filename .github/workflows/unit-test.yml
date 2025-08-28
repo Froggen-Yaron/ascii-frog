@@ -33,7 +33,7 @@ jobs:
 
     ########## Injected By Fly Desktop ##########
     #############################################
-      
+
     - name: 📋 Unit test summary
       run: |
         echo "## 🧪 Unit Test Results" >> $GITHUB_STEP_SUMMARY
@@ -45,3 +45,4 @@ jobs:
         echo "- ✅ ASCII art rendering: PASSED" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Total: 6/6 tests passed (100% success rate)**" >> $GITHUB_STEP_SUMMARY
+        touch .fly-job-status
