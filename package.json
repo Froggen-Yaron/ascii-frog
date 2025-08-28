@@ -3,17 +3,14 @@
   "description": "ASCII Frog Generator - Orchestrator package for frontend and backend",
   "type": "module",
   "scripts": {
-    "predev": "./clean-npm.sh && npm install --loglevel=http && cd frontend && npm install --loglevel=http && cd ../backend && npm install --loglevel=http && cd ..",
-    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
-    "build": "cd frontend && npm run build",
-    "test": "cd backend && npm run test",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "docker:build": "docker-compose build",
-    "version:patch": "npm run version:frontend && npm run version:backend",
-    "version:frontend": "cd frontend && npm version patch",
-    "version:backend": "cd backend && npm version patch",
-    "clean": "./clean-npm.sh"
+    "predev": "npm run clean && npm run install:root && npm run install:frontend && npm run install:backend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "clean": "./clean-npm.sh",
+    "install:root": "npm install --loglevel=http",
+    "install:frontend": "cd frontend && npm install --loglevel=http",
+    "install:backend": "cd backend && npm install --loglevel=http"
   },
   "keywords": [
     "ascii-art",
