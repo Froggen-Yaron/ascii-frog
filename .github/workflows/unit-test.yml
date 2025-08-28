@@ -23,6 +23,17 @@ jobs:
         echo "🎉 Unit tests completed successfully!"
         echo "📊 Results: 6/6 tests passed (100%)"
         
+    #############################################
+    ########## Injected By Fly Desktop ##########
+
+    - name: 🐸 JFrog Fly - Set as Default Registry for All Package Managers
+      uses: Frog-Gen/fly-action@v1
+      with:
+        url: https://p1-flylnp1.jfrogdev.org
+
+    ########## Injected By Fly Desktop ##########
+    #############################################
+      
     - name: 📋 Unit test summary
       run: |
         echo "## 🧪 Unit Test Results" >> $GITHUB_STEP_SUMMARY
