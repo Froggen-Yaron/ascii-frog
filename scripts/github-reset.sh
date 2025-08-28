@@ -48,7 +48,7 @@ echo "======================================"
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would reset repository to state zero..."
     echo "Target branch: $TARGET_BRANCH"
-    confirm "Show what resetting main branch to $TARGET_BRANCH would do?"
+    echo "Proceeding with preview..."
 else
     echo "Resetting repository to state zero..."
     echo "Target branch: $TARGET_BRANCH"
@@ -163,15 +163,11 @@ else
         if [[ -n "$RUNS_TO_DELETE" && "$RUNS_TO_DELETE" != "" ]]; then
             if [[ "$DRY_RUN" == "true" ]]; then
                 # Show what would be deleted
-                echo "Would delete old release.yml workflow runs (keeping 3 oldest):"
                 COUNT=0
                 for run_id in $RUNS_TO_DELETE; do
-                    # Get run details for display
-                    run_info=$(echo "$RELEASE_RUNS" | jq -r ".[] | select(.databaseId == $run_id) | \"\(.createdAt) (\(.conclusion // \"unknown\"))\"" 2>/dev/null || echo "unknown")
-                    echo "  - Would delete run: $run_id ($run_info)"
                     COUNT=$((COUNT + 1))
                 done
-                echo "Would clean up $COUNT release.yml workflow runs"
+                echo "Would delete $COUNT workflow runs: $(echo $RUNS_TO_DELETE | tr ' ' ',')"
             else
                 # Delete old release.yml workflow runs
                 echo "Deleting old release.yml workflow runs (keeping 3 oldest)..."

@@ -33,10 +33,9 @@ A fun web service that generates beautiful colored ASCII art frogs with a termin
 
 4. **Alternative development modes:**
    ```bash
-   npm run frontend:dev   # Frontend only
-   npm run backend:dev    # Backend only
-   npm run build         # Build frontend for production
-   npm start             # Start Docker container
+   npm run dev:frontend   # Frontend only
+   npm run dev:backend    # Backend only
+   npm run clean          # Clean npm caches and dependencies
    ```
 
 ## Project Structure
@@ -108,31 +107,26 @@ GET /api/random-frog
 - **Colors**: npm colors package for terminal output
 - **Styling**: Terminal-inspired UI with animations
 
-## Project Structure
-
-```
-ascii-frog/
-├── server.js                 # Main server file
-├── package.json             # Dependencies and scripts
-├── public/                  # Static frontend files
-│   ├── index.html          # Main webpage
-│   ├── css/styles.css      # Styling
-│   └── js/app.js           # Frontend JavaScript
-└── src/                    # Backend source code
-    ├── routes/api.js       # API routes
-    └── templates/          # ASCII art templates
-        └── frogTemplates.js
-```
-
 ## Scripts
 
-- `npm start`: Start production server
-- `npm run dev`: Start development with live reloading (recommended)
-- `npm run server`: Start backend server only (no live reload)
-- `npm run browser-sync`: Start browser-sync proxy only
-- `npm run build`: Build the project (no build step required)
-- `npm test`: Run health check tests
-- `npm run test:api`: Run API integration tests
+### Development
+- `npm run dev`: Start both frontend and backend with live reloading (recommended)
+- `npm run dev:frontend`: Start frontend Vite dev server only  
+- `npm run dev:backend`: Start backend Express server only
+
+### Installation
+- `npm run install:root`: Install root workspace dependencies
+- `npm run install:frontend`: Install frontend dependencies
+- `npm run install:backend`: Install backend dependencies
+
+### Utilities  
+- `npm run clean`: Clean npm caches and node_modules (for dependency testing)
+- `npm run test`: Run backend health check tests
+
+### Docker
+- `npm run docker:up`: Start containerized application
+- `npm run docker:down`: Stop containerized application  
+- `npm run docker:build`: Build Docker images
 
 ## 🚀 Deployment
 
