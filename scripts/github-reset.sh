@@ -163,11 +163,19 @@ else
         if [[ -n "$RUNS_TO_DELETE" && "$RUNS_TO_DELETE" != "" ]]; then
             if [[ "$DRY_RUN" == "true" ]]; then
                 # Show what would be deleted
-                COUNT=0
+                echo "Would delete workflow runs:"
                 for run_id in $RUNS_TO_DELETE; do
-                    COUNT=$((COUNT + 1))
+                    # Get commit message and run number (try different JSON paths)
+                    commit_message=$(echo "$RELEASE_RUNS" | jq -r ".[] | select(.databaseId == $run_id) | (.headCommit.message // .displayTitle // .headSha[0:7] // \"Workflow run\")" 2>/dev/null | head -1)
+                    # Get additional info for better identification
+                    branch_name=$(echo "$RELEASE_RUNS" | jq -r ".[] | select(.databaseId == $run_id) | .headBranch" 2>/dev/null)
+                    
+                    # Fallback if still null/empty
+                    if [[ -z "$commit_message" || "$commit_message" == "null" ]]; then
+                        commit_message="Workflow run from $branch_name"
+                    fi
+                    echo "- $commit_message #$run_id"
                 done
-                echo "Would delete $COUNT workflow runs: $(echo $RUNS_TO_DELETE | tr ' ' ',')"
             else
                 # Delete old release.yml workflow runs
                 echo "Deleting old release.yml workflow runs (keeping 3 oldest)..."
