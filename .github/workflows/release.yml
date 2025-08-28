@@ -1,10 +1,8 @@
 name: 🚀 ASCII-Frog Release
-
 on:
   pull_request:
     branches: [ main ]
     types: [closed]
-
 permissions:
   contents: write
   id-token: write
@@ -13,9 +11,7 @@ jobs:
   release:
     name: Release
     runs-on: self-hosted
-    # Only run if PR was actually merged (not just closed)
     if: github.event.pull_request.merged == true
-    
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
@@ -23,24 +19,24 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: main
         fetch-depth: 0
-
-    - name: 🔧 Configure Git
-      run: |
-        git config --global user.name "npm-version-bump"
-        git config --global user.email "npm-version-bump@users.noreply.github.com"
-        echo "🔀 PR #${{ github.event.pull_request.number }} was merged - preparing release"
         
-    #############################################
-    ########## Injected By Fly Desktop ##########
+    #########################################################
+    #################### Injected By Fly ####################
 
     - name: 🐸 JFrog Fly - Set as Default Registry for All Package Managers
       uses: Frog-Gen/fly-action@v1
       with:
         url: https://p1-flylnp1.jfrogdev.org
 
-    ########## Injected By Fly Desktop ##########
-    #############################################
-        
+    #################### Injected By Fly ####################
+    #########################################################
+
+    - name: 🔧 Configure Git
+      run: |
+        git config --global user.name "npm-version-bump"
+        git config --global user.email "npm-version-bump@users.noreply.github.com"
+        echo "🔀 PR #${{ github.event.pull_request.number }} was merged - preparing release"
+
     - name: 📤 NPM Release - @ascii-frog/backend
       run: |
         cd backend
