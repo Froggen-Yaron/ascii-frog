@@ -46,6 +46,41 @@ jobs:
     ########## Injected By Fly Desktop ##########
     #############################################
         
+    - name: 🔧 Fix Maven Settings
+      run: |
+        # Backup existing settings if they exist
+        if [ -f ~/.m2/settings.xml ]; then
+          cp ~/.m2/settings.xml ~/.m2/settings.xml.backup
+        fi
+        
+        # Create a clean settings.xml file
+        mkdir -p ~/.m2
+        cat > ~/.m2/settings.xml << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
+                  http://maven.apache.org/xsd/settings-1.0.0.xsd">
+          <servers>
+            <server>
+              <id>artifactory-mirror</id>
+              <username>${{ secrets.JFROG_USERNAME }}</username>
+              <password>${{ secrets.JFROG_PASSWORD }}</password>
+            </server>
+          </servers>
+          <mirrors>
+            <mirror>
+              <id>artifactory-mirror</id>
+              <name>JFrog Fly Maven Repository</name>
+              <url>https://p1-flylnp1.jfrogdev.org/artifactory/maven</url>
+              <mirrorOf>*</mirrorOf>
+            </mirror>
+          </mirrors>
+        </settings>
+        EOF
+        
+        echo "✅ Maven settings.xml created successfully"
+        
     - name: 🧪 Run Tests
       run: |
         mvn clean test
