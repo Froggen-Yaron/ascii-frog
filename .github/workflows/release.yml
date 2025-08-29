@@ -14,6 +14,8 @@ jobs:
   release:
     name: Release
     runs-on: self-hosted
+    container:
+      image: maven:3.9.5-openjdk-17
     
     steps:
     - name: 📥 Checkout code
@@ -23,11 +25,7 @@ jobs:
         ref: main
         fetch-depth: 0
 
-    - name: 🔧 Setup Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+
 
     - name: 🔧 Configure Git
       run: |
