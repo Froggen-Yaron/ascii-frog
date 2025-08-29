@@ -39,8 +39,8 @@ public class FrogTemplate {
         this.description = description;
         this.imagePath = imagePath;
         this.category = category;
-        this.availableSizes = availableSizes;
-        this.availableExpressions = availableExpressions;
+        this.availableSizes = availableSizes != null ? availableSizes.clone() : null;
+        this.availableExpressions = availableExpressions != null ? availableExpressions.clone() : null;
     }
 
     // Getters and Setters
@@ -85,19 +85,19 @@ public class FrogTemplate {
     }
 
     public String[] getAvailableSizes() {
-        return availableSizes;
+        return availableSizes != null ? availableSizes.clone() : null;
     }
 
     public void setAvailableSizes(String[] availableSizes) {
-        this.availableSizes = availableSizes;
+        this.availableSizes = availableSizes != null ? availableSizes.clone() : null;
     }
 
     public String[] getAvailableExpressions() {
-        return availableExpressions;
+        return availableExpressions != null ? availableExpressions.clone() : null;
     }
 
     public void setAvailableExpressions(String[] availableExpressions) {
-        this.availableExpressions = availableExpressions;
+        this.availableExpressions = availableExpressions != null ? availableExpressions.clone() : null;
     }
 
     @Override
