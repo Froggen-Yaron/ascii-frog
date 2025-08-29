@@ -131,3 +131,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Added PNG format support and improved image quality options.
 
 
+
+
+
+

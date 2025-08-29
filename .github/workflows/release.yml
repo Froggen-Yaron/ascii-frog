@@ -1,0 +1,113 @@
+name: 🚀 Photo-Frog Release
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [closed]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    # Only run if PR was actually merged (not just closed)
+    if: github.event.pull_request.merged == true
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: main
+        fetch-depth: 0
+
+    - name: 🔧 Setup Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: 🔧 Configure Git
+      run: |
+        git config --global user.name "maven-version-bump"
+        git config --global user.email "maven-version-bump@users.noreply.github.com"
+        echo "🔀 PR #${{ github.event.pull_request.number }} was merged - preparing release"
+        
+    #############################################
+    ########## Injected By Fly Desktop ##########
+
+    - name: 🐸 JFrog Fly - Set as Default Registry for All Package Managers
+      uses: Frog-Gen/fly-action@v1
+      with:
+        url: https://p1-flylnp1.jfrogdev.org
+
+    ########## Injected By Fly Desktop ##########
+    #############################################
+        
+    - name: 🧪 Run Tests
+      run: |
+        mvn clean test
+        echo "✅ Tests completed successfully"
+        
+    - name: 🔍 Run Code Quality Checks
+      run: |
+        mvn checkstyle:check
+        mvn spotbugs:check
+        echo "✅ Code quality checks passed"
+        
+    - name: 📦 Build and Package
+      run: |
+        mvn clean package -DskipTests
+        echo "✅ Build completed successfully"
+        
+    - name: 📤 Maven Deploy to JFrog Fly
+      run: |
+        # Get current version from pom.xml
+        CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        echo "Current version: $CURRENT_VERSION"
+        
+        # Deploy to JFrog Fly Maven repository
+        mvn deploy -DskipTests
+        
+        echo "✅ Maven artifact deployed successfully to JFrog Fly"
+        
+    - name: 📝 Commit and Tag Release
+      run: |
+        # Get the deployed version
+        DEPLOYED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        echo "DEPLOYED_VERSION=$DEPLOYED_VERSION" >> $GITHUB_ENV
+        
+        # Create git tag for the release
+        git tag -a "v$DEPLOYED_VERSION" -m "Release version $DEPLOYED_VERSION"
+        git push origin "v$DEPLOYED_VERSION"
+        
+        echo "🎉 Release v$DEPLOYED_VERSION tagged and pushed!"
+
+    - name: 🐳 Docker Build and Push - photo-frog-app
+      run: |
+        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        echo "📦 Building Docker version: $VERSION"
+        docker build -t p1-flylnp1.jfrogdev.org/docker/photo-frog-app:$VERSION .
+        
+        # Push with retries
+        echo "🚀 Pushing Docker image with retries..."
+        SUCCESS=false
+        for i in {1..3}; do
+          if docker push p1-flylnp1.jfrogdev.org/docker/photo-frog-app:$VERSION; then
+            SUCCESS=true
+            break
+          fi
+          echo "❌ Push failed, retry $i..." && sleep $((i*3))
+        done
+        
+        if [ "$SUCCESS" != "true" ]; then
+          echo "❌ Failed to push after 3 attempts"
+          exit 1
+        fi
+        
+        echo "✅ Docker image pushed successfully"
+
+

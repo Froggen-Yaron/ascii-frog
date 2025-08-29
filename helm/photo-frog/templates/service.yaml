@@ -15,3 +15,7 @@ spec:
     {{- include "photo-frog.selectorLabels" . | nindent 4 }}
 
 
+
+
+
+
