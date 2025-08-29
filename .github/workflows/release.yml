@@ -53,7 +53,7 @@ jobs:
           cp ~/.m2/settings.xml ~/.m2/settings.xml.backup
         fi
         
-        # Create a clean settings.xml file
+        # Create a clean settings.xml file with JFrog Fly credentials only
         mkdir -p ~/.m2
         cat > ~/.m2/settings.xml << 'EOF'
         <?xml version="1.0" encoding="UTF-8"?>
@@ -68,14 +68,6 @@ jobs:
               <password>${{ secrets.JFROG_PASSWORD }}</password>
             </server>
           </servers>
-          <mirrors>
-            <mirror>
-              <id>artifactory-mirror</id>
-              <name>JFrog Fly Maven Repository</name>
-              <url>https://p1-flylnp1.jfrogdev.org/artifactory/maven</url>
-              <mirrorOf>*</mirrorOf>
-            </mirror>
-          </mirrors>
         </settings>
         EOF
         
