@@ -46,59 +46,6 @@ jobs:
     ########## Injected By Fly Desktop ##########
     #############################################
         
-    - name: 🔧 Fix Maven Settings
-      run: |
-        # Backup existing settings if they exist
-        if [ -f ~/.m2/settings.xml ]; then
-          cp ~/.m2/settings.xml ~/.m2/settings.xml.backup
-        fi
-        
-        # Create a clean settings.xml file with JFrog Fly credentials only
-        mkdir -p ~/.m2
-        cat > ~/.m2/settings.xml << 'EOF'
-        <?xml version="1.0" encoding="UTF-8"?>
-        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
-                  http://maven.apache.org/xsd/settings-1.0.0.xsd">
-          <servers>
-            <server>
-              <id>artifactory-mirror</id>
-              <username>${{ secrets.JFROG_USERNAME }}</username>
-              <password>${{ secrets.JFROG_PASSWORD }}</password>
-            </server>
-          </servers>
-        </settings>
-        EOF
-        
-        echo "✅ Maven settings.xml created successfully"
-        
-    - name: 🧪 Run Tests
-      run: |
-        mvn clean test
-        echo "✅ Tests completed successfully"
-        
-    - name: 🔍 Run Code Quality Checks
-      run: |
-        mvn checkstyle:check
-        mvn spotbugs:check
-        echo "✅ Code quality checks passed"
-        
-    - name: 📦 Build and Package
-      run: |
-        mvn clean package -DskipTests
-        echo "✅ Build completed successfully"
-        
-    - name: 📤 Maven Deploy to JFrog Fly
-      run: |
-        # Get current version from pom.xml
-        CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-        echo "Current version: $CURRENT_VERSION"
-        
-        # Deploy to JFrog Fly Maven repository
-        mvn deploy -DskipTests
-        
-        echo "✅ Maven artifact deployed successfully to JFrog Fly"
         
     - name: 📝 Commit and Tag Release
       run: |
