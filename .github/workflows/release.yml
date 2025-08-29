@@ -49,7 +49,7 @@ jobs:
         
     - name: 📝 Commit and Tag Release
       run: |
-        # Get the deployed version
+        # Get the version from pom.xml without building
         DEPLOYED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
         echo "DEPLOYED_VERSION=$DEPLOYED_VERSION" >> $GITHUB_ENV
         
