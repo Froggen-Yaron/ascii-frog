@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Reset to State Zero - Launcher Script
-# This is a simple launcher that calls the main script in the scripts directory
+# Reset to State Zero - Interactive Launcher
+# Simple launcher for the interactive reset script
 
 set -euo pipefail
 
@@ -18,5 +18,5 @@ fi
 # Make it executable
 chmod +x "$MAIN_SCRIPT"
 
-# Call the main script with all arguments
-exec bash "$MAIN_SCRIPT" "$@"
+# Call the interactive main script
+exec bash "$MAIN_SCRIPT"

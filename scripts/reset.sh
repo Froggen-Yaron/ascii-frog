@@ -1,24 +1,66 @@
 #!/bin/bash
 
-# Reset to State Zero - Main Orchestrator Script
-# Calls both GitHub and JFrog reset scripts
+# Reset to State Zero - Interactive Orchestrator Script
+# Interactive selection of components and execution mode
 
 set -euo pipefail
 
-# Parse command line arguments
+# Initialize variables
+RUN_GITHUB=false
+RUN_JFROG=false
+RUN_K8S=false
 DRY_RUN=false
-if [[ "${1:-}" == "--dry-run" ]]; then
-    DRY_RUN=true
-fi
 
-echo "Reset to State Zero - Main Orchestrator"
-echo "======================================"
+# Interactive component selection
+echo "Reset to State Zero"
+echo "=============================================="
+echo ""
+echo "Select what to reset:"
+echo "1. Reset All!"
+echo "2. Fly (releases cleanup)"
+echo "3. Kubernetes (deployment revert)"
+echo "4. GitHub (branches, workflows)"
+echo "5. Dry-run only"
+echo ""
+read -p "Enter your choice (1-5): " choice
 
-if [[ "$DRY_RUN" == "true" ]]; then
-    echo "🔍 DRY RUN MODE: Will show what would happen without making changes"
-else
-    echo "⚡ EXECUTION MODE: Will make actual changes"
-fi
+case $choice in
+    1)
+        RUN_GITHUB=true
+        RUN_JFROG=true
+        RUN_K8S=true
+        DRY_RUN=false
+        echo "✅ Selected: Reset All!"
+        ;;
+    2)
+        RUN_JFROG=true
+        DRY_RUN=false
+        echo "✅ Selected: Fly (releases cleanup)"
+        ;;
+    3)
+        RUN_K8S=true
+        DRY_RUN=false
+        echo "✅ Selected: Kubernetes (deployment revert)"
+        ;;
+    4)
+        RUN_GITHUB=true
+        DRY_RUN=false
+        echo "✅ Selected: GitHub (branches, workflows)"
+        ;;
+    5)
+        RUN_GITHUB=true
+        RUN_JFROG=true
+        RUN_K8S=true
+        DRY_RUN=true
+        echo "✅ Selected: Dry-run only"
+        ;;
+    *)
+        echo "❌ Invalid choice. Exiting."
+        exit 1
+        ;;
+esac
+
+echo ""
 
 # Check if we're in the right directory
 if [[ ! -d ".git" ]]; then
@@ -30,21 +72,34 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GITHUB_SCRIPT="$SCRIPT_DIR/github-reset.sh"
 JFROG_SCRIPT="$SCRIPT_DIR/jfrog-reset.sh"
+K8S_SCRIPT="$SCRIPT_DIR/k8s-reset.sh"
 
-# Check if subscripts exist
-if [[ ! -f "$GITHUB_SCRIPT" ]]; then
+# Check if required subscripts exist based on selection
+if [[ "$RUN_GITHUB" == "true" && ! -f "$GITHUB_SCRIPT" ]]; then
     echo "ERROR: GitHub reset script not found: $GITHUB_SCRIPT"
     exit 1
 fi
 
-if [[ ! -f "$JFROG_SCRIPT" ]]; then
+if [[ "$RUN_JFROG" == "true" && ! -f "$JFROG_SCRIPT" ]]; then
     echo "ERROR: JFrog reset script not found: $JFROG_SCRIPT"
     exit 1
 fi
 
-# Make scripts executable
-chmod +x "$GITHUB_SCRIPT"
-chmod +x "$JFROG_SCRIPT"
+if [[ "$RUN_K8S" == "true" && ! -f "$K8S_SCRIPT" ]]; then
+    echo "ERROR: Kubernetes reset script not found: $K8S_SCRIPT"
+    exit 1
+fi
+
+# Make selected scripts executable
+if [[ "$RUN_GITHUB" == "true" ]]; then
+    chmod +x "$GITHUB_SCRIPT"
+fi
+if [[ "$RUN_JFROG" == "true" ]]; then
+    chmod +x "$JFROG_SCRIPT"
+fi
+if [[ "$RUN_K8S" == "true" ]]; then
+    chmod +x "$K8S_SCRIPT"
+fi
 
 # Function to prompt for confirmation
 confirm() {
@@ -58,61 +113,86 @@ confirm() {
     fi
 }
 
-echo ""
+# Final confirmation
 if [[ "$DRY_RUN" == "true" ]]; then
-    echo "This will show what a complete reset to state zero would do:"
-    echo "1. GitHub reset preview (git operations, branches, workflows)"
-    echo "2. JFrog reset preview (Artifactory cleanup)"
-    echo ""
-    confirm "Show preview of reset operations?"
+    confirm "Proceed with preview of selected operations?"
 else
-    echo "This will execute a complete reset to state zero:"
-    echo "1. GitHub reset (git operations, branches, workflows)"
-    echo "2. JFrog reset (Artifactory cleanup)"
-    echo ""
-    confirm "This is DESTRUCTIVE and will reset your repository. Are you sure?"
+    confirm "This is DESTRUCTIVE and will make changes. Are you sure?"
 fi
 
-# Step 1: Run GitHub reset
-echo -e "\n================================================"
-echo "PHASE 1: GitHub Reset"
-echo "================================================"
+# Execute selected components
+CURRENT_PHASE=1
 
-if [[ "$DRY_RUN" == "true" ]]; then
-    if bash "$GITHUB_SCRIPT" --dry-run; then
-        echo "GitHub reset preview completed successfully"
+# Run GitHub reset if selected
+if [[ "$RUN_GITHUB" == "true" ]]; then
+    echo -e "\n================================================"
+    echo "PHASE $CURRENT_PHASE: GitHub Reset"
+    echo "================================================"
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        if bash "$GITHUB_SCRIPT" --dry-run; then
+            echo "GitHub reset preview completed successfully"
+        else
+            echo "ERROR: GitHub reset preview failed"
+            exit 1
+        fi
     else
-        echo "ERROR: GitHub reset preview failed"
-        exit 1
+        if bash "$GITHUB_SCRIPT"; then
+            echo "GitHub reset completed successfully"
+        else
+            echo "ERROR: GitHub reset failed"
+            exit 1
+        fi
     fi
-else
-    if bash "$GITHUB_SCRIPT"; then
-        echo "GitHub reset completed successfully"
-    else
-        echo "ERROR: GitHub reset failed"
-        exit 1
-    fi
+    ((CURRENT_PHASE++))
 fi
 
-# Step 2: Run JFrog reset
-echo -e "\n================================================"
-echo "PHASE 2: JFrog Reset"
-echo "================================================"
+# Run JFrog/Fly reset if selected
+if [[ "$RUN_JFROG" == "true" ]]; then
+    echo -e "\n================================================"
+    echo "PHASE $CURRENT_PHASE: Fly Reset"
+    echo "================================================"
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        if bash "$JFROG_SCRIPT" false; then
+            echo "Fly reset preview completed successfully"
+        else
+            echo "WARNING: Fly reset preview failed (this is expected if token is invalid)"
+            echo "Continuing with completion..."
+        fi
+    else
+        if bash "$JFROG_SCRIPT" true; then
+            echo "Fly reset completed successfully"
+        else
+            echo "WARNING: Fly reset failed (this is expected if token is invalid)"
+            echo "Continuing with completion..."
+        fi
+    fi
+    ((CURRENT_PHASE++))
+fi
 
-if [[ "$DRY_RUN" == "true" ]]; then
-    if bash "$JFROG_SCRIPT" false; then
-        echo "JFrog reset preview completed successfully"
+# Run Kubernetes revert if selected
+if [[ "$RUN_K8S" == "true" ]]; then
+    echo -e "\n================================================"
+    echo "PHASE $CURRENT_PHASE: Kubernetes Revert"
+    echo "================================================"
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        if bash "$K8S_SCRIPT" --dry-run; then
+            echo "Kubernetes revert preview completed successfully"
+        else
+            echo "ERROR: Kubernetes revert preview failed"
+            exit 1
+        fi
     else
-        echo "WARNING: JFrog reset preview failed (this is expected if token is invalid)"
-        echo "Continuing with completion..."
+        if bash "$K8S_SCRIPT"; then
+            echo "Kubernetes revert completed successfully"
+        else
+            echo "ERROR: Kubernetes revert failed"
+            exit 1
+        fi
     fi
-else
-    if bash "$JFROG_SCRIPT" true; then
-        echo "JFrog reset completed successfully"
-    else
-        echo "WARNING: JFrog reset failed (this is expected if token is invalid)"
-        echo "Continuing with completion..."
-    fi
+    ((CURRENT_PHASE++))
 fi
 
 # Final completion
@@ -121,30 +201,22 @@ if [[ "$DRY_RUN" == "true" ]]; then
     echo "RESET TO STATE ZERO PREVIEW COMPLETE"
     echo "================================================"
     echo ""
-    echo "The following operations would be performed:"
-    echo "  - Main branch reset to main-backup"
-    echo "  - Feature branches deleted"
-    echo "  - Release workflow runs cleaned (kept 3 oldest)"
-    echo "  - Artifactory artifacts cleaned"
-    echo ""
-    echo "To execute these changes, run: ./reset"
+    echo "Preview completed successfully!"
+    echo "To execute the changes, run ./reset and select execution mode."
 else
     echo "RESET TO STATE ZERO COMPLETE"
     echo "================================================"
     echo ""
-    echo "Repository has been reset to state zero:"
-    echo "  - Main branch reset to main-backup"
-    echo "  - Feature branches deleted"
-    echo "  - Release workflow runs cleaned (kept 3 oldest)"
-    echo "  - Artifactory artifacts cleaned"
-    echo ""
-    echo "Repository is ready for demo!"
+    echo "Selected components have been reset to state zero successfully!"
+    echo "Components are ready for demo!"
 fi
 
 # Final status
 echo -e "\nFinal Status:"
-echo "Current branch: $(git branch --show-current)"
-echo "Last commit: $(git log --oneline -1)"
+if [[ "$RUN_GITHUB" == "true" ]]; then
+    echo "Current branch: $(git branch --show-current)"
+    echo "Last commit: $(git log --oneline -1)"
+fi
 echo ""
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Reset to State Zero preview completed successfully!"

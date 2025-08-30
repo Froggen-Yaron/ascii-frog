@@ -198,6 +198,45 @@ else
     fi
 fi
 
+# Step 6: Ensure Perpetual Issue Exists
+echo -e "\nSTEP 6: Check and Recreate Perpetual Issue"
+echo "========================================="
+
+if [[ "$DRY_RUN" == "true" ]]; then
+    echo "Would check for perpetual issue..."
+else
+    echo "Checking for perpetual issue..."
+    
+    # Check if the perpetual issue exists
+    PERPETUAL_TITLE="Add Random Color to Frog Name Display"
+    EXISTING_ISSUE=$(gh issue list --search "in:title \"$PERPETUAL_TITLE\"" --state open --json number --jq '.[0].number // empty' 2>/dev/null || true)
+    
+    if [[ -z "$EXISTING_ISSUE" ]]; then
+        echo "🚨 Perpetual issue not found - recreating it..."
+        
+        # Find the most recently closed perpetual issue to copy its body
+        CLOSED_ISSUE=$(gh issue list --search "in:title \"$PERPETUAL_TITLE\"" --state closed --json number,body --jq '.[0] // empty' 2>/dev/null || true)
+        
+        if [[ -n "$CLOSED_ISSUE" ]]; then
+            ISSUE_NUMBER=$(echo "$CLOSED_ISSUE" | jq -r '.number')
+            ISSUE_BODY=$(echo "$CLOSED_ISSUE" | jq -r '.body')
+            echo "Found closed perpetual issue #$ISSUE_NUMBER - copying its content..."
+            
+            gh issue create \
+                --title "$PERPETUAL_TITLE" \
+                --body "$ISSUE_BODY" \
+                --label "enhancement" \
+                --assignee "@me" || echo "Failed to create issue (continuing...)"
+            
+            echo "✅ Perpetual issue recreated successfully!"
+        else
+            echo "No closed perpetual issue found - skipping recreation"
+        fi
+    else
+        echo "✅ Perpetual issue already exists (#$EXISTING_ISSUE)"
+    fi
+fi
+
 if [[ "$DRY_RUN" == "true" ]]; then
     echo -e "\nGitHub reset preview completed successfully!"
     echo "Current git status (unchanged):"
