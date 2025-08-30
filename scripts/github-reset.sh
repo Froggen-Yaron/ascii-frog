@@ -208,7 +208,7 @@ else
     echo "Checking for perpetual issue..."
     
     # Check if the perpetual issue exists
-    PERPETUAL_TITLE="Add Random Color to Frog Name Display"
+    PERPETUAL_TITLE="Add Random Color to The Frog Image Name"
     EXISTING_ISSUE=$(gh issue list --search "in:title \"$PERPETUAL_TITLE\"" --state open --json number --jq '.[0].number // empty' 2>/dev/null || true)
     
     if [[ -z "$EXISTING_ISSUE" ]]; then
