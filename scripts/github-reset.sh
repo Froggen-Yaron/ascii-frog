@@ -203,7 +203,7 @@ echo -e "\nSTEP 6: Check and Recreate Perpetual Issue"
 echo "========================================="
 
 if [[ "$DRY_RUN" == "true" ]]; then
-    echo "Would check for perpetual issue..."
+    echo "Would check for perpetual issue and recreate it..."
 else
     echo "Checking for perpetual issue..."
     
@@ -211,29 +211,34 @@ else
     PERPETUAL_TITLE="Add Random Color to The Frog Image Name"
     EXISTING_ISSUE=$(gh issue list --search "in:title \"$PERPETUAL_TITLE\"" --state open --json number --jq '.[0].number // empty' 2>/dev/null || true)
     
-    if [[ -z "$EXISTING_ISSUE" ]]; then
-        echo "🚨 Perpetual issue not found - recreating it..."
+    # First, find the most recently closed perpetual issue to copy its body (for both cases)
+    CLOSED_ISSUE=$(gh issue list --search "in:title \"$PERPETUAL_TITLE\"" --state closed --json number,body --jq '.[0] // empty' 2>/dev/null || true)
+    
+    if [[ -n "$EXISTING_ISSUE" ]]; then
+        echo "🚨 Perpetual issue exists (#$EXISTING_ISSUE) - removing and recreating..."
         
-        # Find the most recently closed perpetual issue to copy its body
-        CLOSED_ISSUE=$(gh issue list --search "in:title \"$PERPETUAL_TITLE\"" --state closed --json number,body --jq '.[0] // empty' 2>/dev/null || true)
-        
-        if [[ -n "$CLOSED_ISSUE" ]]; then
-            ISSUE_NUMBER=$(echo "$CLOSED_ISSUE" | jq -r '.number')
-            ISSUE_BODY=$(echo "$CLOSED_ISSUE" | jq -r '.body')
-            echo "Found closed perpetual issue #$ISSUE_NUMBER - copying its content..."
-            
-            gh issue create \
-                --title "$PERPETUAL_TITLE" \
-                --body "$ISSUE_BODY" \
-                --label "enhancement" \
-                --assignee "@me" || echo "Failed to create issue (continuing...)"
-            
-            echo "✅ Perpetual issue recreated successfully!"
-        else
-            echo "No closed perpetual issue found - skipping recreation"
-        fi
+        # Close the existing issue
+        gh issue close "$EXISTING_ISSUE" --comment "Closing to recreate issue during reset to state zero" || echo "WARNING: Failed to close existing issue (continuing...)"
+        echo "✅ Closed existing issue #$EXISTING_ISSUE"
     else
-        echo "✅ Perpetual issue already exists (#$EXISTING_ISSUE)"
+        echo "🚨 Perpetual issue not found - creating it..."
+    fi
+    
+    # Create the issue (either because it didn't exist, or we just removed it)
+    if [[ -n "$CLOSED_ISSUE" ]]; then
+        ISSUE_NUMBER=$(echo "$CLOSED_ISSUE" | jq -r '.number')
+        ISSUE_BODY=$(echo "$CLOSED_ISSUE" | jq -r '.body')
+        echo "Found closed perpetual issue #$ISSUE_NUMBER - copying its content..."
+        
+        gh issue create \
+            --title "$PERPETUAL_TITLE" \
+            --body "$ISSUE_BODY" \
+            --label "enhancement" \
+            --assignee "@me" || echo "Failed to create issue (continuing...)"
+        
+        echo "✅ Perpetual issue recreated successfully!"
+    else
+        echo "No closed perpetual issue found - skipping recreation"
     fi
 fi
 

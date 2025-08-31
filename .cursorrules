@@ -7,6 +7,9 @@ When asked to deploy a release or an image, **YOU MUST ALWAYS ASSUME**:
 3. **Use these specific fly MCP tools:**
    - **how_to_create_fly_image_pull_secret** - for K8s image pull secrets
    - **how_to_deploy_to_k8s_with_fly** - for K8s deployment with JFrog Fly
+4. **When asked to deploy to prod/production** - refer to current context, NO NEED to search for "prod" specifically
+### Git Safety Rules - ALWAYS APPLY
+5. **NEVER push to main branch** - ALWAYS alert user and warn against it. ONLY proceed if user explicitly forces you to do it
 ### Release Information - ALWAYS APPLY
 When asked to provide release information:
 1. **Use how_to_get_releases_info_from_fly** - to get release info from JFrog Fly repository
