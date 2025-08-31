@@ -24,7 +24,7 @@ fi
 CLUSTER_CONTEXT="fly-k8s-prod-demo"
 NAMESPACE="default"
 DEPLOYMENT_NAME="ascii-frog-app"
-TARGET_IMAGE="p1-flylnp1.jfrogdev.org/docker/ascii-frog-app:2025.08.28-14.52.53-b"
+TARGET_IMAGE="froggen.jfrogdev.org/docker/ascii-frog-app:2025.08.28-14.52.53-b"
 SERVICE_URL="http://ec2-34-225-1-15.compute-1.amazonaws.com:30080/"
 KUBECONFIG_FILE="$(dirname "$0")/fly-k8s-prod-demo.conf"
 
