@@ -81,5 +81,4 @@ jobs:
         
         echo "✅ Docker image pushed successfully"
         touch .fly-job-status
-
-
+        
