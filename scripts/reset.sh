@@ -157,15 +157,15 @@ if [[ "$RUN_JFROG" == "true" ]]; then
         if bash "$JFROG_SCRIPT" false; then
             echo "Fly reset preview completed successfully"
         else
-            echo "WARNING: Fly reset preview failed (this is expected if token is invalid)"
-            echo "Continuing with completion..."
+            echo "ERROR: Fly reset preview failed"
+            exit 1
         fi
     else
         if bash "$JFROG_SCRIPT" true; then
             echo "Fly reset completed successfully"
         else
-            echo "WARNING: Fly reset failed (this is expected if token is invalid)"
-            echo "Continuing with completion..."
+            echo "ERROR: Fly reset failed"
+            exit 1
         fi
     fi
     ((CURRENT_PHASE++))

@@ -67,10 +67,16 @@ else
     export KUBECONFIG="$KUBECONFIG_FILE"
     
     echo "Setting kubectl context to: $CLUSTER_CONTEXT"
-    kubectl config use-context "$CLUSTER_CONTEXT"
+    if ! kubectl config use-context "$CLUSTER_CONTEXT"; then
+        echo "❌ ERROR: Failed to set kubectl context to $CLUSTER_CONTEXT"
+        exit 1
+    fi
     
     echo "Setting namespace to: $NAMESPACE"
-    kubectl config set-context --current --namespace="$NAMESPACE"
+    if ! kubectl config set-context --current --namespace="$NAMESPACE"; then
+        echo "❌ ERROR: Failed to set namespace to $NAMESPACE"
+        exit 1
+    fi
     
     echo "Current context: $(kubectl config current-context)"
     echo "Current namespace: $(kubectl config view --minify -o jsonpath='{..namespace}')"
@@ -139,10 +145,16 @@ else
     export KUBECONFIG="$KUBECONFIG_FILE"
     
     echo "Executing image update..."
-    kubectl set image deployment/"$DEPLOYMENT_NAME" "$DEPLOYMENT_NAME"="$TARGET_IMAGE"
+    if ! kubectl set image deployment/"$DEPLOYMENT_NAME" "$DEPLOYMENT_NAME"="$TARGET_IMAGE"; then
+        echo "❌ ERROR: Failed to update deployment image"
+        exit 1
+    fi
     
     echo "Waiting for rollout to complete..."
-    kubectl rollout status deployment/"$DEPLOYMENT_NAME" --timeout=300s
+    if ! kubectl rollout status deployment/"$DEPLOYMENT_NAME" --timeout=300s; then
+        echo "❌ ERROR: Deployment rollout failed or timed out"
+        exit 1
+    fi
 fi
 
 # Step 4: Verify deployment

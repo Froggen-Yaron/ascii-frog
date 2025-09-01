@@ -102,11 +102,13 @@ echo "Ping response: $ping_response"
 if [[ "$ping_response" == *"HTTP:200"* ]]; then
     echo "Successfully connected to Artifactory"
 elif [[ "$ping_response" == *"HTTP:403"* ]]; then
-    echo "WARNING: Authentication issue (HTTP 403) - token may be expired"
-    echo "Cleanup may fail, but continuing..."
+    echo "❌ ERROR: Authentication issue (HTTP 403) - token may be expired"
+    echo "Please check your JFROG_TOKEN"
+    exit 1
 else
-    echo "WARNING: Cannot reach Artifactory ($ping_response)"
-    echo "Cleanup may fail, but continuing..."
+    echo "❌ ERROR: Cannot reach Artifactory ($ping_response)"
+    echo "Please check your network connection and ARTIFACTORY_URL"
+    exit 1
 fi
 
 # Step 1: Clean up build info first

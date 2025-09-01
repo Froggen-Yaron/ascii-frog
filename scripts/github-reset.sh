@@ -121,7 +121,7 @@ if [ -n "$REMOTE_BRANCHES" ]; then
         
         for branch in $REMOTE_BRANCHES; do
             echo "Deleting remote branch: $branch"
-            git push origin --delete "$branch" || echo "WARNING: Could not delete remote branch $branch"
+            git push origin --delete "$branch" || { echo "ERROR: Could not delete remote branch $branch"; exit 1; }
         done
     fi
 else
@@ -141,13 +141,13 @@ fi
 
 # Check if gh CLI is available and authenticated
 if ! command -v gh &> /dev/null; then
-    echo "WARNING: GitHub CLI (gh) is not installed"
+    echo "ERROR: GitHub CLI (gh) is not installed"
     echo "Install it with: brew install gh (on macOS) or visit https://cli.github.com/"
-    echo "Skipping workflow cleanup"
+    exit 1
 elif ! gh auth status &> /dev/null; then
-    echo "WARNING: GitHub CLI is not authenticated"
+    echo "ERROR: GitHub CLI is not authenticated"
     echo "Authenticate with: gh auth login"
-    echo "Skipping workflow cleanup"
+    exit 1
 else
     # Get workflow runs specifically for release.yml
     echo "Fetching release.yml workflow runs using GitHub CLI..."
@@ -184,7 +184,7 @@ else
                     # Get run details for display
                     run_info=$(echo "$RELEASE_RUNS" | jq -r ".[] | select(.databaseId == $run_id) | \"\(.createdAt) (\(.conclusion // \"unknown\"))\"" 2>/dev/null || echo "unknown")
                     echo "Deleting release.yml run: $run_id ($run_info)"
-                    gh run delete "$run_id" --repo "$REPO_NAME" || echo "WARNING: Could not delete run $run_id"
+                    gh run delete "$run_id" --repo "$REPO_NAME" || { echo "ERROR: Could not delete run $run_id"; exit 1; }
                     COUNT=$((COUNT + 1))
                 done
                 
@@ -218,7 +218,7 @@ else
         echo "🚨 Perpetual issue exists (#$EXISTING_ISSUE) - removing and recreating..."
         
         # Close the existing issue
-        gh issue close "$EXISTING_ISSUE" --comment "Closing to recreate issue during reset to state zero" || echo "WARNING: Failed to close existing issue (continuing...)"
+        gh issue close "$EXISTING_ISSUE" --comment "Closing to recreate issue during reset to state zero" || { echo "ERROR: Failed to close existing issue"; exit 1; }
         echo "✅ Closed existing issue #$EXISTING_ISSUE"
     else
         echo "🚨 Perpetual issue not found - creating it..."
@@ -234,7 +234,7 @@ else
             --title "$PERPETUAL_TITLE" \
             --body "$ISSUE_BODY" \
             --label "enhancement" \
-            --assignee "@me" || echo "Failed to create issue (continuing...)"
+            --assignee "@me" || { echo "ERROR: Failed to create issue"; exit 1; }
         
         echo "✅ Perpetual issue recreated successfully!"
     else
