@@ -1,46 +1,47 @@
-# Multi-stage build for ASCII Frog Generator
-FROM node:20-alpine AS frontend-builder
+# Multi-stage build for production optimization
+FROM maven:3.9-eclipse-temurin-17 as builder
 
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm install
-COPY frontend/ ./
-RUN npm run build
-
-FROM node:20-alpine AS backend-builder
-
-WORKDIR /app/backend
-COPY backend/package*.json ./
-RUN npm install --omit=dev
-COPY backend/ ./
-
-# Production image
-FROM node:20-alpine
-
+# Set working directory
 WORKDIR /app
 
-# Copy built frontend from builder stage
-COPY --from=frontend-builder /app/frontend/dist/ ./frontend/dist/
+# Copy Maven files
+COPY pom.xml .
 
-# Copy backend with dependencies from builder stage
-COPY --from=backend-builder /app/backend/ ./backend/
+# Download dependencies
+RUN mvn dependency:go-offline -B
 
-# Setup security: curl + non-root user
-RUN apk add --no-cache curl && \
-    addgroup -g 1001 -S nodejs && \
-    adduser -S froggen -u 1001 && \
-    chown -R froggen:nodejs /app
+# Copy source code
+COPY src src
 
+# Build the application
+RUN mvn clean package -DskipTests
+
+# Production stage
+FROM eclipse-temurin:17-jre
+
+# Create non-root user for security
+RUN groupadd -r froggen && useradd -r -g froggen froggen
+
+# Set working directory
+WORKDIR /app
+
+# Copy the built JAR from builder stage
+COPY --from=builder /app/target/photo-frog-*.jar app.jar
+
+# Create directories for logs and temp files
+RUN mkdir -p /app/logs /app/temp && \
+    chown -R froggen:froggen /app
+
+# Switch to non-root user
 USER froggen
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
-# Health check using proper endpoint  
+# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:8080/api/health || exit 1
 
-# Environment
-ENV NODE_ENV=production PORT=8000
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
 
-CMD ["node", "backend/server.js"]

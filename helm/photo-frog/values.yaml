@@ -1,0 +1,95 @@
+# Default values for photo-frog
+replicaCount: 2
+
+image:
+  repository: photo-frog
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: photo-frog.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: photo-frog-tls
+  #    hosts:
+  #      - photo-frog.local
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  - name: SPRING_PROFILES_ACTIVE
+    value: "production"
+  - name: JAVA_OPTS
+    value: "-Xmx512m -Xms256m"
+
+configMap:
+  enabled: true
+  data:
+    application.properties: |
+      server.port=8080
+      logging.level.com.froggen.photofrog=INFO
+      management.endpoints.web.exposure.include=health,info,metrics
+
+secret:
+  enabled: false
+  data: {}
+
+
+
+
+
+

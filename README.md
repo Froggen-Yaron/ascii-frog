@@ -1,229 +1,137 @@
-# 🐸 FrogGen - ASCII Frog Generator
-
-
-A fun web service that generates beautiful colored ASCII art frogs with a terminal-like interface.
-
-**Also check out our other cool apps: lineart-frog and photo-frog!**
+# Photo Frog Generator
+ 
+A Java-based web service that generates photo-realistic images of frogs with customizable features like size, style, and expressions.
 
 ## Features
-- 🎨 **Professional ASCII Art**: Templates from legendary ASCII artists like Joan Stark
-- 🐸 **6 Authentic Frog Designs**: Traditional, recognizable ASCII frog artwork
-- 🌈 **Clean Display**: Monochrome ASCII art with colorful frog names
-- 💻 **Terminal UI**: Embedded terminal-like display for an authentic CLI feel
-- 📋 **Copy to Clipboard**: Easy copying of generated ASCII art with frog names
-- 🎲 **Random Generation**: Get surprise professional frog combinations
-- 📱 **Responsive Design**: Works on desktop and mobile devices
 
-## Quick Start
-
-1. **Install workspace dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Start development servers:**
-   ```bash
-   npm run dev
-   ```
-   This will start both the frontend (Vite) and backend (Express) servers concurrently.
-
-3. **Development URLs:**
-   - **Frontend**: `http://localhost:8000` (Vite dev server)
-   - **Backend API**: `http://localhost:8001` (Express API server)
-
-4. **Alternative development modes:**
-   ```bash
-   npm run frontend:dev   # Frontend only
-   npm run backend:dev    # Backend only
-   npm run build         # Build frontend for production
-   npm start             # Start Docker container
-   ```
-
-## Project Structure
-
-This is a modern monorepo following industry best practices:
-
-```
-ascii-frog/
-├── frontend/             # Frontend web application (Vite + TypeScript)
-├── backend/              # Backend API server (Express + Node.js)
-├── Dockerfile            # Container build configuration
-├── docker-compose.yml    # Container orchestration
-└── package.json          # Workspace root
-```
-
-- **`frontend/`** - Frontend web application
-- **`backend/`** - Backend API server  
-- **`Dockerfile` & `docker-compose.yml`** - Container deployment
-
-## API Endpoints
-
-### Generate Frog
-```bash
-POST /api/generate-frog
-Content-Type: application/json
-
-{
-  "template": "medium",
-  "colorScheme": "classic"
-}
-```
-
-### Get Templates
-```bash
-GET /api/templates
-```
-
-### Get Color Schemes
-```bash
-GET /api/color-schemes
-```
-
-### Random Frog
-```bash
-GET /api/random-frog
-```
-
-## Available Templates
-
-- **Tiny Frog**: Minimalist 4-line design
-- **Classic Frog**: Traditional detailed design
-- **Happy Frog**: Cheerful expression with smile
-- **Sitting Frog**: Detailed relaxed pose
-- **Large Frog**: Elaborate multi-line design
-- **Simple Frog**: Clean traditional style
-
-## Available Color Schemes
-
-- **Classic**: Traditional green frog colors
-- **Tropical**: Bright cyan and magenta
-- **Fire**: Bold red and yellow
-- **Nature**: Natural green and blue
-- **Royal**: Elegant blue and gold
+- **Photo-realistic frog generation** with multiple templates
+- **Size customization** (small, medium, large, custom)
+- **Style variations** (different poses and expressions)
+- **Web interface** for easy interaction
+- **Download functionality** (JPEG, PNG formats)
+- **RESTful API** for programmatic access
 
 ## Technology Stack
 
-- **Backend**: Node.js, Express.js
-- **Frontend**: Vanilla JavaScript, Modern CSS
-- **Colors**: npm colors package for terminal output
-- **Styling**: Terminal-inspired UI with animations
+- **Backend**: Java 17 with Spring Boot 3.1.0
+- **Image Processing**: OpenCV 4.7.0
+- **Build Tool**: Maven
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
+- **Containerization**: Docker
+- **Orchestration**: Kubernetes with Helm
 
-## Project Structure
+## Quick Start
 
+### Prerequisites
+
+- Java 17 or higher
+- Maven 3.6 or higher
+
+### Running the Application
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-org/photo-frog.git
+   cd photo-frog
+   ```
+
+2. **Build the project**
+   ```bash
+   mvn clean install
+   ```
+
+3. **Run the application**
+   ```bash
+   mvn spring-boot:run
+   ```
+
+4. **Access the application**
+   - Web Interface: http://localhost:8080
+   - Health Check: http://localhost:8080/api/health
+   - API Documentation: http://localhost:8080/api/docs
+
+## API Endpoints
+
+### Health Check
+- `GET /api/health` - Application health status
+
+### Photo Generation
+- `POST /api/generate-photo` - Generate a new frog photo
+- `GET /api/templates` - List available frog templates
+- `GET /api/gallery` - View generated photos
+
+## Development
+
+### Project Structure
 ```
-ascii-frog/
-├── server.js                 # Main server file
-├── package.json             # Dependencies and scripts
-├── public/                  # Static frontend files
-│   ├── index.html          # Main webpage
-│   ├── css/styles.css      # Styling
-│   └── js/app.js           # Frontend JavaScript
-└── src/                    # Backend source code
-    ├── routes/api.js       # API routes
-    └── templates/          # ASCII art templates
-        └── frogTemplates.js
+photo-frog/
+├── src/
+│   ├── main/
+│   │   ├── java/com/froggen/photofrog/
+│   │   │   ├── PhotoFrogApplication.java
+│   │   │   ├── controller/
+│   │   │   ├── service/
+│   │   │   ├── model/
+│   │   │   ├── util/
+│   │   │   └── config/
+│   │   └── resources/
+│   │       ├── static/
+│   │       └── application.properties
+│   └── test/
+└── pom.xml
 ```
 
-## Scripts
-
-- `npm start`: Start production server
-- `npm run dev`: Start development with live reloading (recommended)
-- `npm run server`: Start backend server only (no live reload)
-- `npm run browser-sync`: Start browser-sync proxy only
-- `npm run build`: Build the project (no build step required)
-- `npm test`: Run health check tests
-- `npm run test:api`: Run API integration tests
-
-## 🚀 Deployment
-
-### Docker Deployment (Recommended)
-
-#### Quick Start with Docker Compose
+### Running Tests
 ```bash
-# Build and run the service
+mvn test
+```
+
+### Code Quality Checks
+```bash
+mvn checkstyle:check
+mvn spotbugs:check
+```
+
+## Docker Deployment
+
+### Build Docker Image
+```bash
+docker build -t photo-frog .
+```
+
+### Run with Docker
+```bash
+docker run -p 8080:8080 photo-frog
+```
+
+### Docker Compose
+```bash
 docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop the service
-docker-compose down
 ```
-
-#### Manual Docker Build
-```bash
-# Build the Docker image
-docker build -t ascii-frog .
-
-# Run the container
-docker run -p 8000:8000 ascii-frog
-```
-
-### 🔄 Simple CI/CD Pipeline
-
-The project includes a streamlined GitHub Actions workflow:
-
-1. **🧪 Tests**: Runs on Node.js 20
-   - Health checks
-   - API integration tests
-
-2. **🐳 Docker**: Simple build and push
-   - Builds and pushes to GitHub Container Registry
-   - Tags with latest and version numbers
-
-3. **🚀 Releases**: Automated for version tags
-   - Creates GitHub releases
-   - Publishes Docker images
-
-
-### 🌐 Simple Production Deployment
-
-#### Environment Variables
-```bash
-NODE_ENV=production
-PORT=8000
-```
-
-#### Health Checks
-The application includes built-in health checks:
-- **Docker**: `HEALTHCHECK` instruction
-- **API**: `/api/templates` endpoint  
-- **Tests**: `npm test` for validation
-
-### 🔒 Security Features
-
-- **Container Security**: Non-root user (froggen:nodejs)
-- **Health Monitoring**: Built-in health checks
-
-## Easter Egg
-
-Try entering the Konami Code on the webpage: ↑↑↓↓←→←→BA
-
-## Demo
-
-Visit the live demo at: `http://localhost:8000`
-
-## Screenshots
-
-The interface features:
-- Beautiful terminal like ASCII art display
-- Intuitive controls for template and color selection
-- Real-time generation and preview
-- Modern dark theme with syntax highlighting
 
 ## Contributing
 
-This is a demo project, but feel free to:
-- Add new frog templates
-- Create additional color schemes
-- Improve the terminal styling
-- Add new features
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT License - Feel free to use this code for your own ASCII art projects!
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## Acknowledgments
 
-Made with ❤️ for ASCII art enthusiasts
-# Testing credentials restored
+- Spring Boot team for the excellent framework
+- OpenCV community for image processing capabilities
+- All contributors and maintainers
+
+## PNG Support Enhancement
+Added PNG format support and improved image quality options.
+
+
+
+
+
+
