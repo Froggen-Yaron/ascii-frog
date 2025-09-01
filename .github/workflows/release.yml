@@ -24,7 +24,7 @@ jobs:
     #################### Injected By Fly ####################
 
     - name: 🐸 JFrog Fly - Set as Default Registry for All Package Managers
-      uses: Frog-Gen/fly-action@v1
+      uses: Frog-GenAI/fly-action@v1
       with:
         url: https://${{ vars.FLY_REGISTRY_DOMAIN }}
 
@@ -81,5 +81,3 @@ jobs:
         
         echo "✅ Docker image pushed successfully"
         touch .fly-job-status
-
-
