@@ -24,7 +24,12 @@ fi
 CLUSTER_CONTEXT="fly-k8s-prod-demo"
 NAMESPACE="default"
 DEPLOYMENT_NAME="ascii-frog-app"
-TARGET_IMAGE="froggen.jfrogdev.org/docker/ascii-frog-app:2025.08.28-14.52.53-b"
+
+# Use FLY_REGISTRY_DOMAIN environment variable with fallback
+FLY_REGISTRY_DOMAIN="${FLY_REGISTRY_DOMAIN:-froggen.jfrogdev.org}"
+TARGET_IMAGE="$FLY_REGISTRY_DOMAIN/docker/ascii-frog-app:2025.08.28-14.52.53-b"
+echo "🌐 Using registry: $FLY_REGISTRY_DOMAIN"
+
 SERVICE_URL="http://ec2-34-225-1-15.compute-1.amazonaws.com:30080/"
 KUBECONFIG_FILE="$(dirname "$0")/fly-k8s-prod-demo.conf"
 

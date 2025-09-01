@@ -20,8 +20,11 @@ else
 fi
 
 # Configuration (with fallbacks for backward compatibility)
+FLY_REGISTRY_DOMAIN="${FLY_REGISTRY_DOMAIN:-froggen.jfrogdev.org}"
 ARTIFACTORY_URL="${ARTIFACTORY_URL:-https://z0flylnp1.jfrogdev.org}"
 TOKEN="${JFROG_TOKEN:-$TOKEN}"
+
+echo "🌐 Using Fly registry: $FLY_REGISTRY_DOMAIN"
 
 # Check if token is available
 if [ -z "$TOKEN" ]; then
@@ -65,9 +68,9 @@ check_jfrog_creds() {
         exit 1
     fi
     
-    if [[ "$server_url" != *"froggen.jfrogdev.org"* ]]; then
-        echo "❌ ERROR: JFrog Fly credentials URL is not the expected froggen instance"
-        echo "Expected: URL containing 'froggen.jfrogdev.org'"
+    if [[ "$server_url" != *"$FLY_REGISTRY_DOMAIN"* ]]; then
+        echo "❌ ERROR: JFrog Fly credentials URL does not match expected registry"
+        echo "Expected: URL containing '$FLY_REGISTRY_DOMAIN'"
         echo "Found: $server_url"
         exit 1
     fi

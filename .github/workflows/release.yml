@@ -26,7 +26,7 @@ jobs:
     - name: 🐸 JFrog Fly - Set as Default Registry for All Package Managers
       uses: Frog-Gen/fly-action@v1
       with:
-        url: https://froggen.jfrogdev.org
+        url: https://${{ vars.FLY_REGISTRY_DOMAIN }}
 
     #################### Injected By Fly ####################
     #########################################################
@@ -71,10 +71,13 @@ jobs:
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
         echo "📦 Building Docker version: $VERSION"
-        docker build -t froggen.jfrogdev.org/docker/ascii-frog-app:$VERSION .
+        docker build \
+          --build-arg FLY_REGISTRY_DOMAIN=${{ vars.FLY_REGISTRY_DOMAIN }} \
+          -t ${{ vars.FLY_REGISTRY_DOMAIN }}/docker/ascii-frog-app:$VERSION \
+          .
         
         # Push
-        docker push froggen.jfrogdev.org/docker/ascii-frog-app:$VERSION
+        docker push ${{ vars.FLY_REGISTRY_DOMAIN }}/docker/ascii-frog-app:$VERSION
         
         echo "✅ Docker image pushed successfully"
         touch .fly-job-status
