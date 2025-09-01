@@ -1,5 +1,5 @@
 # Photo Frog Generator
-
+ 
 A Java-based web service that generates photo-realistic images of frogs with customizable features like size, style, and expressions.
 
 ## Features
