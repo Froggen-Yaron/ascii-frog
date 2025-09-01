@@ -9,59 +9,57 @@ export class TerminalManager {
 
     initialize() {
         this.container.innerHTML = '';
+        const screenHeight = window.innerHeight;
+        let fontSize;
+        if (screenHeight < 500) {
+            fontSize = '14px';
+        } else if (screenHeight < 600) {
+            fontSize = '15px';
+        } else {
+            fontSize = '16px';
+        }
+
         this.container.style.cssText = `
             background: #0d1117;
             color: #e6edf3;
             font-family: 'Fira Code', monospace;
-            font-size: 16px;
-            padding: 20px;
-            overflow: hidden;
+            font-size: ${fontSize};
+            padding: 16px;
+            overflow-y: auto;
+            overflow-x: hidden;
             white-space: pre-wrap;
-            line-height: 1.4;
-            text-align: left;
+            line-height: 1.3;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         `;
-        // Removed showWelcome() call
     }
 
     updateConfig(config) {
         this.config = config;
     }
 
-    showWelcome() {
-        // Welcome message removed - no longer displaying welcome text
-        // const welcome = this.config?.messages?.welcome || '🐸  Welcome to ascii-frog Terminal!';
-        // const prompt = this.config?.messages?.prompt || 'frog@terminal:~$ ';
-        // this.writeln(welcome);
-        // this.writeln('');
-        // this.writeln(prompt);
-        // this.writeln('');
-    }
-
     displayCompleteFrog(ascii, frogName) {
         this.clear();
-        // Removed showWelcome() call to not show welcome message
+        const contentWrapper = document.createElement('div');
+        contentWrapper.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            min-height: 100%;
+        `;
+        const originalContainer = this.container;
+        this.container = contentWrapper;
         this.displayAsciiWithFixedHeight(ascii);
         this.displayFrogName(frogName);
-    }
-
-    displayAsciiWithFixedHeight(ascii) {
-        const asciiLines = ascii.split('\n').filter(line => line.trim() !== '');
-        const minHeight = 12; // Fixed height for ASCII area (lines)
-
-        // Display the ASCII art
-        asciiLines.forEach(line => {
-            this.writeCenter(line);
-        });
-
-        // Add padding to reach minimum height
-        const linesUsed = asciiLines.length;
-        const paddingNeeded = Math.max(0, minHeight - linesUsed);
-
-        for (let i = 0; i < paddingNeeded; i++) {
-            this.writeln('');
-        }
-        // Add a separator line before frog name
-        this.writeln('');
+        this.container = originalContainer;
+        this.container.appendChild(contentWrapper);
     }
 
     displayFrogName(frogName) {
@@ -70,9 +68,25 @@ export class TerminalManager {
         //this.writeCenterLarge(randomColor(frogName));
     }
 
+    displayAsciiWithFixedHeight(ascii) {
+        const asciiLines = ascii.split('\n').filter(line => line.trim() !== '');
+        const screenHeight = window.innerHeight;
+        let maxLines = screenHeight < 550 ? 5 : screenHeight < 600 ? 6 : screenHeight < 650 ? 8 : screenHeight < 700 ? 10 : 12;
+        //this.writeCenterLarge(randomColor(frogName));
+        const linesToShow = asciiLines.slice(0, maxLines);
+        linesToShow.forEach(line => this.writeCenter(line));
+        if (screenHeight > 700) {
+            for (let i = 0; i < Math.max(0, Math.min(3, maxLines - linesToShow.length)); i++) this.writeln('');
+        }
+    }
 
     writeln(content) {
         const line = document.createElement('div');
+        line.style.cssText = `
+            text-align: center;
+            width: 100%;
+            margin: 0;
+        `;
         if (typeof content === 'string') {
             line.textContent = content || ' ';
         } else {
@@ -84,7 +98,11 @@ export class TerminalManager {
 
     writeCenter(content) {
         const div = document.createElement('div');
-        div.style.textAlign = 'center';
+        div.style.cssText = `
+            text-align: center;
+            width: 100%;
+            margin: 0;
+        `;
         if (typeof content === 'string') {
             div.textContent = content;
         } else {
@@ -96,11 +114,14 @@ export class TerminalManager {
 
     writeCenterLarge(content) {
         const div = document.createElement('div');
-        div.style.textAlign = 'center';
-        div.style.fontSize = '20px';
-        div.style.fontWeight = 'bold';
-        div.style.marginTop = '8px';
-        div.style.marginBottom = '8px';
+        div.style.cssText = `
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            width: 100%;
+        `;
         if (typeof content === 'string') {
             div.textContent = content;
         } else {

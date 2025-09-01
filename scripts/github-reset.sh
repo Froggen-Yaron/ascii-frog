@@ -55,6 +55,32 @@ else
     echo "Proceeding with reset to $TARGET_BRANCH and force push..."
 fi
 
+# Validate git configuration
+check_git_config() {
+    echo "🔍 Validating Git user configuration..."
+    local git_name git_email
+    git_name=$(git config --global user.name 2>/dev/null || echo "")
+    git_email=$(git config --global user.email 2>/dev/null || echo "")
+    
+    if [[ -z "$git_name" ]]; then
+        echo "❌ ERROR: Git user.name is not configured"
+        echo "Please run: git config --global user.name \"Your Name\""
+        exit 1
+    fi
+    
+    if [[ -z "$git_email" ]]; then
+        echo "❌ ERROR: Git user.email is not configured"  
+        echo "Please run: git config --global user.email \"your.email@example.com\""
+        exit 1
+    fi
+    
+    echo "✓ Git user configuration is complete"
+    echo "  Name: $git_name"
+    echo "  Email: $git_email"
+}
+
+check_git_config
+
 # Configure git (use existing config)
 echo "Using existing git configuration..."
 echo "Git user: $(git config user.name)"
@@ -242,11 +268,45 @@ else
     fi
 fi
 
+# Post-reset validation function
+validate_workflow_operations() {
+    echo -e "\n🔍 Validating workflow operations..."
+    
+    # Check if GitHub CLI is available and authenticated
+    if ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1; then
+        echo "⚠️  Cannot validate workflows - GitHub CLI not available or not authenticated"
+        return 0
+    fi
+    
+    # Check workflow runs count
+    local current_runs
+    current_runs=$(gh run list --repo "$REPO_NAME" --workflow "release.yml" --limit 5 --json number 2>/dev/null | jq -r 'length' 2>/dev/null || echo "0")
+    
+    if [[ "$current_runs" -le 3 ]]; then
+        echo "✓ Workflow cleanup validated: $current_runs release.yml runs remaining (≤3)"
+    else
+        echo "⚠️  Workflow cleanup may be incomplete: $current_runs release.yml runs found"
+    fi
+    
+    # Check perpetual issue
+    local issue_count
+    issue_count=$(gh issue list --search "in:title \"Add Random Color to The Frog Image Name\"" --state open --json number 2>/dev/null | jq -r 'length' 2>/dev/null || echo "0")
+    
+    if [[ "$issue_count" -eq 1 ]]; then
+        echo "✓ Perpetual issue validated: 1 open issue found"
+    elif [[ "$issue_count" -eq 0 ]]; then
+        echo "⚠️  Perpetual issue not found - may need manual creation"
+    else
+        echo "⚠️  Multiple perpetual issues found: $issue_count"
+    fi
+}
+
 if [[ "$DRY_RUN" == "true" ]]; then
     echo -e "\nGitHub reset preview completed successfully!"
     echo "Current git status (unchanged):"
 else
     echo -e "\nGitHub reset completed successfully!"
+    validate_workflow_operations
     echo "Final git status:"
 fi
 echo "Current branch: $(git branch --show-current)"

@@ -34,6 +34,60 @@ fi
 
 echo "✓ Using Artifactory URL: $ARTIFACTORY_URL"
 
+# Validate JFrog Fly credentials
+check_jfrog_creds() {
+    echo "🔍 Validating JFrog Fly credentials file..."
+    local creds_file="$HOME/.jfrog/fly_creds.json"
+    
+    if [[ ! -f "$creds_file" ]]; then
+        echo "❌ ERROR: JFrog Fly credentials file not found at $creds_file"
+        echo "Please run 'jf config add' to set up JFrog credentials"
+        exit 1
+    fi
+    
+    if ! jq . "$creds_file" >/dev/null 2>&1; then
+        echo "❌ ERROR: JFrog Fly credentials file is not valid JSON"
+        exit 1
+    fi
+    
+    local server_url username token
+    server_url=$(jq -r '.url // empty' "$creds_file")
+    username=$(jq -r '.username // empty' "$creds_file")
+    token=$(jq -r '.token // empty' "$creds_file")
+    
+    if [[ -z "$server_url" ]]; then
+        echo "❌ ERROR: JFrog Fly credentials missing server URL"
+        exit 1
+    fi
+    
+    if [[ -z "$token" ]]; then
+        echo "❌ ERROR: JFrog Fly credentials missing token"
+        exit 1
+    fi
+    
+    if [[ "$server_url" != *"froggen.jfrogdev.org"* ]]; then
+        echo "❌ ERROR: JFrog Fly credentials URL is not the expected froggen instance"
+        echo "Expected: URL containing 'froggen.jfrogdev.org'"
+        echo "Found: $server_url"
+        exit 1
+    fi
+    
+    # Validate expected username
+    if [[ "$username" != "yoav" ]]; then
+        echo "⚠️  WARNING: JFrog Fly credentials username is not the expected 'yoav'"
+        echo "Expected: yoav"
+        echo "Found: $username"
+        echo "Continuing anyway..."
+    fi
+    
+    echo "✓ JFrog Fly credentials validated successfully"
+    echo "  Server: $server_url"
+    echo "  Username: $username"
+    echo "  Token: [REDACTED - $(echo "$token" | cut -c1-10)...]"
+}
+
+check_jfrog_creds
+
 EXECUTE="${1:-false}"
 
 # Platform detection
