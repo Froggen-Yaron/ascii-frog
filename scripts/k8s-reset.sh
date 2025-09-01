@@ -54,8 +54,7 @@ confirm() {
 }
 
 # Step 1: Set kubectl context and namespace
-echo -e "\nSTEP 1: Configure kubectl context and namespace"
-echo "=============================================="
+echo -e "\n⚙️  Configuring kubectl"
 
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would configure kubectl:"
@@ -83,8 +82,7 @@ else
 fi
 
 # Step 2: Check current deployment status
-echo -e "\nSTEP 2: Check current deployment status"
-echo "======================================"
+echo -e "\n📊 Checking deployment status"
 
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would check deployment status for: $DEPLOYMENT_NAME"
@@ -128,8 +126,7 @@ else
 fi
 
 # Step 3: Update deployment image
-echo -e "\nSTEP 3: Reset deployment to previous image"
-echo "========================================="
+echo -e "\n🔄 Resetting deployment image"
 
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would update deployment:"
@@ -158,8 +155,7 @@ else
 fi
 
 # Step 4: Verify deployment
-echo -e "\nSTEP 4: Verify deployment"
-echo "========================"
+echo -e "\n✅ Verifying deployment"
 
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would verify deployment:"
@@ -171,12 +167,12 @@ else
     # Set kubeconfig
     export KUBECONFIG="$KUBECONFIG_FILE"
     
-    # Check pod status
-    echo "Pod status:"
-    kubectl get pods -l app="$DEPLOYMENT_NAME" --no-headers
+    # Check pod status (only running pods)
+    running_pods=$(kubectl get pods -l app="$DEPLOYMENT_NAME" --no-headers | grep -c "Running" || echo "0")
+    total_pods=$(kubectl get pods -l app="$DEPLOYMENT_NAME" --no-headers | wc -l)
+    echo "Pod status: $running_pods/$total_pods running"
     
     # Check deployment status
-    echo -e "\nDeployment status:"
     kubectl get deployment "$DEPLOYMENT_NAME"
     
     # Verify the image was updated
@@ -208,45 +204,4 @@ else
     fi
 fi
 
-# Final completion
-echo -e "\n================================================"
-if [[ "$DRY_RUN" == "true" ]]; then
-    echo "KUBERNETES RESET PREVIEW COMPLETE"
-    echo "================================================"
-    echo ""
-    echo "The following operations would be performed:"
-    echo "  - Set kubectl context to $CLUSTER_CONTEXT"
-    echo "  - Set namespace to $NAMESPACE"
-    echo "  - Update deployment '$DEPLOYMENT_NAME' to image:"
-    echo "    $TARGET_IMAGE"
-    echo "  - Verify deployment and service accessibility"
-    echo ""
-    echo "To execute these changes, run: ./scripts/k8s-reset.sh"
-else
-    echo "KUBERNETES RESET COMPLETE"
-    echo "================================================"
-    echo ""
-    echo "Deployment successfully reset:"
-    echo "  - Context: $CLUSTER_CONTEXT"
-    echo "  - Namespace: $NAMESPACE"
-    echo "  - Deployment: $DEPLOYMENT_NAME"
-    echo "  - Image: $TARGET_IMAGE"
-    echo "  - Service URL: $SERVICE_URL"
-    echo ""
-    echo "Deployment is ready for use!"
-fi
-
-# Final status
-echo -e "\nFinal Status:"
-if [[ "$DRY_RUN" == "false" ]]; then
-    export KUBECONFIG="$KUBECONFIG_FILE"
-    echo "Current context: $(kubectl config current-context)"
-    echo "Current namespace: $(kubectl config view --minify -o jsonpath='{..namespace}')"
-    echo "Deployment status: $(kubectl get deployment "$DEPLOYMENT_NAME" -o jsonpath='{.status.readyReplicas}')/$(kubectl get deployment "$DEPLOYMENT_NAME" -o jsonpath='{.spec.replicas}') replicas ready"
-fi
-echo ""
-if [[ "$DRY_RUN" == "true" ]]; then
-    echo "Kubernetes reset preview completed successfully!"
-else
-    echo "Kubernetes reset completed successfully!"
-fi
+echo -e "\n✅ Kubernetes reset completed successfully!"

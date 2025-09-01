@@ -43,8 +43,7 @@ confirm() {
 }
 
 # Step 1: Reset Repository to State Zero
-echo -e "\nSTEP 1: Reset Repository to State Zero"
-echo "======================================"
+echo -e "\n🔄 Resetting Repository to State Zero"
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would reset repository to state zero..."
     echo "Target branch: $TARGET_BRANCH"
@@ -116,8 +115,7 @@ fi
 echo "Repository reset to state zero complete"
 
 # Step 2: Delete add-random-color branches
-echo -e "\nSTEP 2: Delete add-random-color branches"
-echo "========================================"
+echo -e "\n🌿 Cleaning up branches"
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would delete branches with 'add-random-color' in name..."
 else
@@ -157,8 +155,7 @@ fi
 echo "Branch cleanup complete"
 
 # Step 3: Clean up workflow runs
-echo -e "\nSTEP 3: Clean up workflow runs"
-echo "=============================="
+echo -e "\n⚙️  Cleaning up workflow runs"
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would clean up old workflow runs..."
 else
@@ -225,8 +222,7 @@ else
 fi
 
 # Step 6: Ensure Perpetual Issue Exists
-echo -e "\nSTEP 6: Check and Recreate Perpetual Issue"
-echo "========================================="
+echo -e "\n🎯 Managing perpetual issue"
 
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would check for perpetual issue and recreate it..."
