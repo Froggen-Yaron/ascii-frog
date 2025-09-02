@@ -14,6 +14,20 @@ fi
 echo "Kubernetes Reset Script"
 echo "======================"
 
+# Load URLs from environment.conf
+SCRIPT_DIR="$(dirname "$0")"
+ENV_CONTEXT_FILE="$SCRIPT_DIR/../environment.conf"
+
+if [[ -f "$ENV_CONTEXT_FILE" ]]; then
+    source "$ENV_CONTEXT_FILE"
+    SERVICE_URL="$K8S_SERVICE_URL"
+    TARGET_IMAGE="$FLY_REGISTRY_DOMAIN/docker/$DOCKER_BASE_IMAGE_TAG"
+    echo "✓ Using $ENV_CONTEXT environment (URLs from environment.conf)"
+else
+    echo "❌ ERROR: environment.conf not found"
+    exit 1
+fi
+
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "🔍 DRY RUN MODE: Will show what would happen"
 else
@@ -25,12 +39,11 @@ CLUSTER_CONTEXT="fly-k8s-prod-demo"
 NAMESPACE="default"
 DEPLOYMENT_NAME="ascii-frog-app"
 
-# Use FLY_REGISTRY_DOMAIN environment variable with fallback
-FLY_REGISTRY_DOMAIN="${FLY_REGISTRY_DOMAIN:-froggen.jfrogdev.org}"
-TARGET_IMAGE="$FLY_REGISTRY_DOMAIN/docker/ascii-frog-app:2025.08.28-14.52.53-b"
+# TARGET_IMAGE is constructed from environment.conf values above
 echo "🌐 Using registry: $FLY_REGISTRY_DOMAIN"
+echo "🐳 Target image: $TARGET_IMAGE"
 
-SERVICE_URL="http://ec2-34-225-1-15.compute-1.amazonaws.com:30080/"
+# SERVICE_URL is set from K8S_SERVICE_URL in environment.conf
 KUBECONFIG_FILE="$(dirname "$0")/fly-k8s-prod-demo.conf"
 
 # Check if kubectl is installed

@@ -8,21 +8,28 @@ set -euo pipefail
 echo "JFrog Reset Script"
 echo "=================="
 
-# Load environment variables from .env file
-if [ -f "$(dirname "$0")/../.env" ]; then
-    source "$(dirname "$0")/../.env"
-    echo "✓ Loaded environment variables from .env file"
-elif [ -f ".env" ]; then
-    source ".env"
-    echo "✓ Loaded environment variables from .env file"
-else
-    echo "⚠️  Warning: .env file not found. Please create one with JFROG_TOKEN and ARTIFACTORY_URL"
-fi
+# Load URLs from environment.conf
+SCRIPT_DIR="$(dirname "$0")"
+ENV_CONTEXT_FILE="$SCRIPT_DIR/../environment.conf"
 
-# Configuration (with fallbacks for backward compatibility)
-FLY_REGISTRY_DOMAIN="${FLY_REGISTRY_DOMAIN:-froggen.jfrogdev.org}"
-ARTIFACTORY_URL="${ARTIFACTORY_URL:-https://z0flylnp1.jfrogdev.org}"
-TOKEN="${JFROG_TOKEN:-$TOKEN}"
+if [[ -f "$ENV_CONTEXT_FILE" ]]; then
+    source "$ENV_CONTEXT_FILE"
+    
+    # Select token based on context
+    if [[ "$ENV_CONTEXT" == "LNP" ]]; then
+        TOKEN="${LNP_JFROG_TOKEN}"
+        echo "✓ Using LNP environment (token from .env, URLs from environment.conf)"
+    elif [[ "$ENV_CONTEXT" == "PRODUCTION" ]]; then
+        TOKEN="${PRODUCTION_JFROG_TOKEN}"
+        echo "✓ Using PRODUCTION environment (token from .env, URLs from environment.conf)"
+    else
+        echo "❌ ERROR: Invalid ENV_CONTEXT '$ENV_CONTEXT'. Valid values: LNP, PRODUCTION"
+        exit 1
+    fi
+else
+    echo "❌ ERROR: environment.conf not found"
+    exit 1
+fi
 
 echo "🌐 Using Fly registry: $FLY_REGISTRY_DOMAIN"
 
