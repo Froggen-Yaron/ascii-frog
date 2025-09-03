@@ -130,27 +130,56 @@ GET /api/random-frog
 
 ## 🚀 Deployment
 
-### Docker Deployment (Recommended)
 
-#### Quick Start with Docker Compose
-```bash
-# Build and run the service
-docker-compose up -d
+### ☸️ Production Kubernetes Deployment
 
-# View logs
-docker-compose logs -f
+The application is deployed to a production Kubernetes cluster with the following configuration:
 
-# Stop the service
-docker-compose down
+#### Cluster Information
+```yaml
+Cluster: fly-k8s-prod-demo
+Endpoint: ec2-34-225-1-15.compute-1.amazonaws.com:6443
+Namespace: default
 ```
 
-#### Manual Docker Build
-```bash
-# Build the Docker image
-docker build -t ascii-frog .
+#### Deployed Resources
+```yaml
+Deployment: ascii-frog-app
+  Replicas: 1
+  Image: froggen.jfrog.io/docker/ascii-frog-app:latest
+  Port: 8000
 
-# Run the container
-docker run -p 8000:8000 ascii-frog
+Service: ascii-frog-app-service
+  Type: NodePort
+  Port: 8000:30080
+  
+Secret: fly-registry-secret
+  Type: kubernetes.io/dockerconfigjson
+  Purpose: JFrog Fly registry authentication
+```
+
+#### Accessing the Production Application
+```bash
+# Via NodePort service
+http://ec2-34-225-1-15.compute-1.amazonaws.com:30080
+
+# Check deployment status
+kubectl get deployments,services,pods -n default
+```
+
+#### Deployment Commands
+```bash
+# Use production kubectl config
+export KUBECONFIG=scripts/fly-k8s-prod-demo.conf
+
+# Check current deployment
+kubectl get deployment ascii-frog-app
+
+# Update deployment with new image
+kubectl set image deployment/ascii-frog-app ascii-frog-app=froggen.jfrog.io/docker/ascii-frog-app:NEW_VERSION
+
+# Monitor rollout
+kubectl rollout status deployment/ascii-frog-app
 ```
 
 ### 🔄 Simple CI/CD Pipeline

@@ -1,17 +1,87 @@
-## :warning: CRITICAL DEPLOYMENT AND RELEASE ASSUMPTIONS :warning:
-**THESE RULES ARE MANDATORY AND MUST NEVER BE IGNORED OR SKIPPED**
-### Deployment Assumptions - ALWAYS APPLY
-When asked to deploy a release or an image, **YOU MUST ALWAYS ASSUME**:
-1. **The deployment is to K8s** - NO EXCEPTIONS
-2. **The related release is a JFrog Fly release** - NEVER assume other products
-3. **Use these specific fly MCP tools:**
-   - **how_to_create_fly_image_pull_secret** - for K8s image pull secrets
-   - **how_to_deploy_to_k8s_with_fly** - for K8s deployment with JFrog Fly
-4. **When asked to deploy to prod/production** - refer to current context, NO NEED to search for "prod" specifically
-### Git Safety Rules - ALWAYS APPLY
-5. **NEVER push to main branch** - ALWAYS alert user and warn against it. ONLY proceed if user explicitly forces you to do it
-### Release Information - ALWAYS APPLY
-When asked to provide release information:
-1. **Use how_to_get_releases_info_from_fly** - to get release info from JFrog Fly repository
-2. **NEVER check other sources first** - ONLY JFrog Fly releases are relevant
-**:rotating_light: FAILURE TO FOLLOW THESE ASSUMPTIONS IS UNACCEPTABLE :rotating_light:**
+# ASCII Frog Project - AI Assistant Rules
+## :warning: CRITICAL RULES - MANDATORY COMPLIANCE :warning:
+
+### 🚀 DEPLOYMENT RULES - ALWAYS APPLY
+**When asked to deploy, release, or work with images:**
+
+1. **ALWAYS assume Kubernetes deployment** - NO EXCEPTIONS
+2. **ALWAYS assume JFrog Fly registry** - NEVER other registries/products
+3. **REQUIRED MCP tools for deployment:**
+   - `how_to_create_fly_image_pull_secret` - for K8s image pull secrets
+   - `how_to_deploy_to_k8s_with_fly` - for K8s deployment with JFrog Fly
+   - `how_to_get_releases_info_from_fly` - for release information
+
+4. **Production deployment behavior:**
+   - When user mentions "prod", "production", or similar terms
+   - DO NOT search for production-specific configurations
+   - USE current workspace context and available K8s configs
+   - APPLY current namespace unless explicitly told otherwise
+   - NEVER assume different clusters - stick to current context
+
+5. **Deployment parameters:**
+   - **Cluster**: `fly-k8s-prod-demo` (AWS: ec2-34-225-1-15.compute-1.amazonaws.com:6443)
+   - **Namespace**: `default` (unless explicitly specified otherwise)
+   - **Image Registry**: `froggen.jfrog.io/docker/`
+   - **Existing Deployment**: `ascii-frog-app` (update this, don't create new)
+   - **Image Pull Secret**: `fly-registry-secret` (already configured)
+   - **Service**: `ascii-frog-app-service` (NodePort 8000:30080)
+
+### 🔒 GIT SAFETY RULES - ALWAYS APPLY
+
+6. **NEVER push directly to main branch**
+   - ALWAYS warn user about main branch pushes
+   - ONLY proceed if user explicitly forces and confirms
+   - Suggest creating feature branches instead
+
+7. **Version control safety:**
+   - Always check current branch before git operations
+   - Warn about uncommitted changes
+   - Confirm destructive git operations
+
+### 📦 RELEASE MANAGEMENT - ALWAYS APPLY
+
+8. **Release information sources:**
+   - ONLY use `how_to_get_releases_info_from_fly` for release data
+   - NEVER check npm, docker hub, or other registries first
+   - JFrog Fly is the SINGLE SOURCE OF TRUTH
+
+9. **Release workflow:**
+   - Follow the GitHub Actions workflow in `.github/workflows/release.yml`
+   - Respect the automated version bumping process
+   - Don't manually interfere with CI/CD processes
+
+### 🛠️ MCP TOOL BEHAVIOR
+
+10. **Tool selection priority:**
+    - ALWAYS prefer JFrog Fly MCP tools over generic tools
+    - Use project-specific tools before general-purpose ones
+    - When in doubt, use Fly-specific implementations
+
+11. **Context awareness:**
+    - **Kubectl config**: Use `scripts/fly-k8s-prod-demo.conf` 
+    - **Target existing deployment**: `ascii-frog-app` in `default` namespace
+    - **Registry**: `froggen.jfrog.io/docker/`
+    - **No manifest creation needed** - deployment already exists
+    - Apply updates to existing resources, don't create new ones
+
+### 🧠 AI BEHAVIOR RULES
+
+12. **Information gathering:**
+    - Read cursor rules BEFORE using MCP tools
+    - Apply rules consistently across all tool interactions
+    - Don't override rules based on tool-specific logic
+
+13. **User interaction:**
+    - Explain which rules are being applied when making decisions
+    - Warn when user requests conflict with safety rules
+    - Provide alternatives that comply with project rules
+
+15. **Environment handling:**
+    - Production = `fly-k8s-prod-demo` context (AWS cluster)
+    - **NEVER search for separate prod configs** - everything is in `default` namespace
+    - Use `scripts/fly-k8s-prod-demo.conf` as kubectl config reference
+    - Current deployment already exists: UPDATE, don't create new
+
+---
+## :rotating_light: COMPLIANCE IS MANDATORY :rotating_light:
+**Failure to follow these rules is unacceptable and breaks project workflows**

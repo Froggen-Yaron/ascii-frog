@@ -22,7 +22,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git@github.com:FrogGen/ascii-frog.git"
+    "url": "git@github.com:FrogGenAI/ascii-frog.git"
   },
   "devDependencies": {
     "concurrently": "^9.2.0",

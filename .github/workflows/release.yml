@@ -24,7 +24,7 @@ jobs:
     #################### Injected By Fly ####################
 
     - name: 🐸 JFrog Fly - Set as Default Registry for All Package Managers
-      uses: Frog-GenAI/fly-action@v1
+      uses: Frog-Gen/fly-action@v1
       with:
         url: https://${{ vars.FLY_REGISTRY_DOMAIN }}
 
@@ -68,16 +68,25 @@ jobs:
         echo "🎉 Release complete with version bump committed!"
 
     - name: 🐳 Docker Build and Push - ascii-frog-app
+      shell: bash
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
+        REGISTRY="${{ vars.FLY_REGISTRY_DOMAIN }}"
+        IMAGE_NAME="$REGISTRY/docker/ascii-frog-app:$VERSION"
         echo "📦 Building Docker version: $VERSION"
+        echo "🌐 Using registry: $REGISTRY"
+        echo "🏷️ Image name: $IMAGE_NAME"
+        
+        # Build the Docker image
         docker build \
-          --build-arg FLY_REGISTRY_DOMAIN=${{ vars.FLY_REGISTRY_DOMAIN }} \
-          -t ${{ vars.FLY_REGISTRY_DOMAIN }}/docker/ascii-frog-app:$VERSION \
+          --build-arg FLY_REGISTRY_DOMAIN="$REGISTRY" \
+          -t "$IMAGE_NAME" \
           .
         
         # Push
-        docker push ${{ vars.FLY_REGISTRY_DOMAIN }}/docker/ascii-frog-app:$VERSION
+        docker push "$IMAGE_NAME"
         
         echo "✅ Docker image pushed successfully"
         touch .fly-job-status
+
+
