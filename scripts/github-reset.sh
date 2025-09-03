@@ -20,9 +20,20 @@ else
     echo "⚡ EXECUTION MODE: Will make actual changes"
 fi
 
+# Load configuration from environment.conf
+SCRIPT_DIR="$(dirname "$0")"
+ENV_CONTEXT_FILE="$SCRIPT_DIR/../environment.conf"
+
+if [[ -f "$ENV_CONTEXT_FILE" ]]; then
+    source "$ENV_CONTEXT_FILE"
+    echo "✓ Using $ENV_CONTEXT environment (config from environment.conf)"
+else
+    echo "❌ ERROR: environment.conf not found"
+    exit 1
+fi
+
 # Configuration
 TARGET_BRANCH="main-backup"
-REPO_NAME="Frog-Gen/ascii-frog"
 
 # Check if we're in the right directory
 if [[ ! -d ".git" ]]; then
