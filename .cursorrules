@@ -19,7 +19,7 @@
    - NEVER assume different clusters - stick to current context
 
 5. **Deployment parameters:**
-   - **Cluster**: `fly-k8s-prod-demo` (AWS: ec2-34-225-1-15.compute-1.amazonaws.com:6443)
+   - **Cluster**: `fly-k8s-prod-demo` (AWS: XXX)
    - **Namespace**: `default` (unless explicitly specified otherwise)
    - **Image Registry**: `froggen.jfrog.io/docker/`
    - **Existing Deployment**: `ascii-frog-app` (update this, don't create new)

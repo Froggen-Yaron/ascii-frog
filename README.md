@@ -138,7 +138,7 @@ The application is deployed to a production Kubernetes cluster with the followin
 #### Cluster Information
 ```yaml
 Cluster: fly-k8s-prod-demo
-Endpoint: ec2-34-225-1-15.compute-1.amazonaws.com:6443
+Endpoint: XXX
 Namespace: default
 ```
 
@@ -161,7 +161,7 @@ Secret: fly-registry-secret
 #### Accessing the Production Application
 ```bash
 # Via NodePort service
-http://ec2-34-225-1-15.compute-1.amazonaws.com:30080
+XXX
 
 # Check deployment status
 kubectl get deployments,services,pods -n default
