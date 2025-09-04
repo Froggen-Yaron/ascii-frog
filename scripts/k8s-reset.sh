@@ -28,6 +28,15 @@ else
     exit 1
 fi
 
+# Check if K8S_SERVICE_URL is placeholder value
+if [[ "$K8S_SERVICE_URL" == "XXX" ]]; then
+    echo "⚠️  WARNING: K8S_SERVICE_URL is set to placeholder value 'XXX'"
+    echo "❌ Cannot perform Kubernetes reset with placeholder configuration"
+    echo "💡 Please update K8S_SERVICE_URL in environment.conf with actual service URL"
+    echo "🚫 Skipping Kubernetes reset operations"
+    exit 0
+fi
+
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "🔍 DRY RUN MODE: Will show what would happen"
 else
