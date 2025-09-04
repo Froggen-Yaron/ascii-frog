@@ -39,7 +39,8 @@ jobs:
 
     - name: 📤 NPM Release - @ascii-frog/backend
       run: |
-        npm install has-flag@4.0.0 --verbose
+        npm install nodemon@3.1.10 --verbose
+        echo "✅✅✅"
         npm install --verbose
         cd backend
         npm install --verbose
