@@ -39,6 +39,7 @@ jobs:
 
     - name: 📤 NPM Release - @ascii-frog/backend
       run: |
+        npm install --verbose
         cd backend
         npm install --verbose
         npm version patch --no-git-tag-version
