@@ -37,6 +37,13 @@ jobs:
         git config --global user.email "npm-version-bump@users.noreply.github.com"
         echo "🔀 PR #${{ github.event.pull_request.number }} was merged - preparing release"
 
+    - name: 🧹 Clean NPM Cache and Dependencies
+      run: |
+        echo "🧹 Running comprehensive npm cache cleanup before release..."
+        chmod +x clean-npm.sh
+        ./clean-npm.sh
+        echo "✅ NPM cache cleanup completed"
+
     - name: 📤 NPM Release - @ascii-frog/backend
       run: |
         cd backend
