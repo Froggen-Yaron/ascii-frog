@@ -37,14 +37,19 @@ if [ -d "$HOME/.npm" ]; then
     rm -rf "$HOME/.npm" 2>/dev/null || true
 fi
 
+# Remove entire cacache directory
+echo "🗂️  Cleaning cacache directories..."
+NPM_CACHE_DIR=$(npm config get cache 2>/dev/null || echo "$HOME/.npm")
+if [ -d "$NPM_CACHE_DIR/_cacache" ]; then
+    echo "  Removing $NPM_CACHE_DIR/_cacache"
+    rm -rf "$NPM_CACHE_DIR/_cacache" 2>/dev/null || true
+fi
+
 # Remove npm temp directories
 echo "🗂️  Cleaning npm temp directories..."
 rm -rf /tmp/npm-* 2>/dev/null || true
 
-# Remove npm logs
-echo "📄 Cleaning npm logs..."
-find /tmp -name "npm-debug.log*" -type f -delete 2>/dev/null || true
-
 
 echo "🎉 Npm cache cleanup completed!"
 echo "💡 Run 'npm install' in each directory to reinstall dependencies"
+

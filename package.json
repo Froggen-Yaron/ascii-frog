@@ -3,11 +3,12 @@
   "description": "ASCII Frog Generator - Orchestrator package for frontend and backend",
   "type": "module",
   "scripts": {
-    "predev": "npm run clean && npm run install:root && npm run install:frontend && npm run install:backend",
+    "predev": "npm run clean:demo && npm run install:root && npm run install:frontend && npm run install:backend",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "clean": "./clean-npm.sh",
+    "clean:demo": "./clean-npm-demo.sh",
     "install:root": "npm install --loglevel=http",
     "install:frontend": "cd frontend && npm install --loglevel=http",
     "install:backend": "cd backend && npm install --loglevel=http"
@@ -28,5 +29,8 @@
     "concurrently": "^9.2.0",
     "npm-run-all": "^4.1.5"
   },
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "dependencies": {
+    "nodemon": "^3.1.10"
+  }
 }

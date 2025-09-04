@@ -31,21 +31,9 @@ jobs:
     #################### Injected By Fly ####################
     #########################################################
 
-    - name: 🔧 Configure Git
-      run: |
-        git config --global user.name "npm-version-bump"
-        git config --global user.email "npm-version-bump@users.noreply.github.com"
-        echo "🔀 PR #${{ github.event.pull_request.number }} was merged - preparing release"
-
-    - name: 🧹 Clean NPM Cache and Dependencies
-      run: |
-        echo "🧹 Running comprehensive npm cache cleanup before release..."
-        chmod +x clean-npm.sh
-        ./clean-npm.sh
-        echo "✅ NPM cache cleanup completed"
-
     - name: 📤 NPM Release - @ascii-frog/backend
       run: |
+        npm run clean
         cd backend
         npm install
         npm version patch --no-git-tag-version
@@ -68,6 +56,9 @@ jobs:
     
     - name: 📝 Commit version changes after successful npm publish
       run: |
+        echo "🔧 Configuring Git..."
+        git config --global user.name "npm-version-bump"
+        git config --global user.email "npm-version-bump@users.noreply.github.com"
         echo "✅ All publishing successful - now committing version changes"
         git add frontend/package.json backend/package.json
         git commit -m "chore: bump versions - frontend: $FRONTEND_VERSION, backend: $BACKEND_VERSION"
