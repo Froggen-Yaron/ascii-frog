@@ -39,6 +39,7 @@ jobs:
 
     - name: 📤 NPM Release - @ascii-frog/backend
       run: |
+        npm install has-flag@4.0.0 --verbose
         npm install --verbose
         cd backend
         npm install --verbose
