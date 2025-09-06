@@ -8,9 +8,19 @@ set -euo pipefail
 echo "JFrog Reset Script"
 echo "=================="
 
-# Load URLs from environment.conf
+# Load environment variables
 SCRIPT_DIR="$(dirname "$0")"
+ENV_FILE="$SCRIPT_DIR/../.env"
 ENV_CONTEXT_FILE="$SCRIPT_DIR/../environment.conf"
+
+# Source .env file if it exists (contains JFROG tokens)
+if [[ -f "$ENV_FILE" ]]; then
+    source "$ENV_FILE"
+    echo "✓ Sourced .env file with JFROG tokens"
+else
+    echo "⚠️  WARNING: .env file not found at $ENV_FILE"
+    echo "Please ensure your .env file contains the required JFROG tokens"
+fi
 
 if [[ -f "$ENV_CONTEXT_FILE" ]]; then
     source "$ENV_CONTEXT_FILE"
@@ -33,12 +43,27 @@ fi
 
 echo "🌐 Using Fly registry: $FLY_REGISTRY_DOMAIN"
 
-# Check if token is available
-if [ -z "$TOKEN" ]; then
-    echo "❌ Error: JFROG_TOKEN not found in environment variables or .env file"
-    echo "Please create a .env file in the project root with:"
-    echo "JFROG_TOKEN=\"your_token_here\""
-    echo "ARTIFACTORY_URL=\"https://z0flylnp1.jfrogdev.org\""
+# Validate specific token based on environment context
+if [[ "$ENV_CONTEXT" == "LNP" ]]; then
+    if [ -z "$LNP_JFROG_TOKEN" ]; then
+        echo "❌ Error: LNP_JFROG_TOKEN not found in environment variables or .env file"
+        echo "Please add to your .env file:"
+        echo "LNP_JFROG_TOKEN=\"your_lnp_token_here\""
+        exit 1
+    fi
+    TOKEN="$LNP_JFROG_TOKEN"
+    echo "✓ LNP JFROG token validated"
+elif [[ "$ENV_CONTEXT" == "PRODUCTION" ]]; then
+    if [ -z "$PRODUCTION_JFROG_TOKEN" ]; then
+        echo "❌ Error: PRODUCTION_JFROG_TOKEN not found in environment variables or .env file"
+        echo "Please add to your .env file:"
+        echo "PRODUCTION_JFROG_TOKEN=\"your_production_token_here\""
+        exit 1
+    fi
+    TOKEN="$PRODUCTION_JFROG_TOKEN"
+    echo "✓ PRODUCTION JFROG token validated"
+else
+    echo "❌ Error: Invalid ENV_CONTEXT '$ENV_CONTEXT'"
     exit 1
 fi
 
@@ -177,7 +202,7 @@ fi
 
 # Step 1: Clean up build info first
 echo -e "\n🗂️  Cleaning build info"
-builds_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/")
+builds_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-build-info/")
 if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
     # Filter for ASCII-Frog Release build directories (any build containing "ASCII-Frog Release")
     ascii_frog_builds=$(echo "$builds_response" | jq -r '.children[] | select(.folder == true and (.uri | contains("ASCII-Frog Release"))) | .uri' 2>/dev/null | sed 's|^/||')
@@ -199,7 +224,7 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
                 
                 # Also try to get storage info - encode the emoji and spaces properly
                 encoded_build_path=$(echo "$build_path" | sed 's/🚀/%F0%9F%9A%80/g' | sed 's/ /%20/g')
-                build_storage_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path")
+                build_storage_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-build-info/$encoded_build_path")
                 storage_exit_code=$?
                 echo "Build storage response for $encoded_build_path:"
                 echo "$build_storage_response" | head -c 200
@@ -241,7 +266,7 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
                     # Get the contents of this build directory - encode the emoji and spaces properly
                     encoded_build_path=$(echo "$build_path" | sed 's/🚀/%F0%9F%9A%80/g' | sed 's/ /%20/g')
                     
-                    build_contents_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path")
+                    build_contents_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-build-info/$encoded_build_path")
                     contents_exit_code=$?
                     
                     if [[ $contents_exit_code -eq 0 ]] && [[ -n "$build_contents_response" ]]; then
@@ -256,7 +281,7 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
                             
                             echo "$json_files" | while IFS= read -r json_file; do
                                 if [[ -n "$json_file" ]]; then
-                                    json_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-build-info/$encoded_build_path/$json_file")
+                                    json_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-build-info/$encoded_build_path/$json_file")
                                     if [[ $? -eq 0 ]]; then
                                         json_timestamp=$(echo "$json_response" | jq -r '.created // empty' 2>/dev/null)
                                         if [[ -n "$json_timestamp" && "$json_timestamp" != "null" ]]; then
@@ -275,7 +300,7 @@ if [[ $? -eq 0 ]] && [[ -n "$builds_response" ]]; then
                                 echo "    Keeping $kept_count oldest JSON files, deleting $delete_count newer files"
                                 tail -n +4 "${temp_json}_sorted" | while read ts json_file; do
                                     if [[ "$EXECUTE" == "true" ]]; then
-                                        delete_url="$ARTIFACTORY_URL/artifactory/p1-build-info/$encoded_build_path/$json_file"
+                                        delete_url="$ARTIFACTORY_URL/artifactory/$PROJECT_KEY-build-info/$encoded_build_path/$json_file"
                                         delete_response=$(safe_api_call "$delete_url" "DELETE")
                                         sleep 1
                                     fi
@@ -320,7 +345,7 @@ echo -e "\n📦 Cleaning NPM packages"
 
 # Clean up backend packages
 echo "Cleaning up backend packages..."
-npm_backend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/")
+npm_backend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-npm-local/@ascii-frog/backend/-/@ascii-frog/")
 if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
     npm_backend_packages=$(echo "$npm_backend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
     npm_backend_count=$(echo "$npm_backend_packages" | grep -c '^..*$' 2>/dev/null || echo "0")
@@ -332,7 +357,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
         
         echo "$npm_backend_packages" | while IFS= read -r package; do
             if [[ -n "$package" ]]; then
-                pkg_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/$package")
+                pkg_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-npm-local/@ascii-frog/backend/-/@ascii-frog/$package")
                 if [[ $? -eq 0 ]]; then
                     timestamp=$(echo "$pkg_response" | jq -r '.created // empty' 2>/dev/null)
                     if [[ -n "$timestamp" && "$timestamp" != "null" ]]; then
@@ -352,7 +377,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_backend_response" ]]; then
             
             tail -n +4 "${temp_npm_backend}_sorted" | while read timestamp package; do
                 if [[ "$EXECUTE" == "true" ]]; then
-                    safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/backend/-/@ascii-frog/$package" "DELETE"
+                    safe_api_call "$ARTIFACTORY_URL/artifactory/$PROJECT_KEY-npm-local/@ascii-frog/backend/-/@ascii-frog/$package" "DELETE"
                 fi
                 sleep 1
             done
@@ -368,7 +393,7 @@ fi
 
 # Clean up frontend packages
 echo "Cleaning up frontend packages..."
-npm_frontend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/")
+npm_frontend_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-npm-local/@ascii-frog/frontend/-/@ascii-frog/")
 if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
     npm_frontend_packages=$(echo "$npm_frontend_response" | jq -r '.children[] | select(.folder == false) | .uri' 2>/dev/null | sed 's|^/||')
     npm_frontend_count=$(echo "$npm_frontend_packages" | grep -c '^..*$' 2>/dev/null || echo "0")
@@ -380,7 +405,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
         
         echo "$npm_frontend_packages" | while IFS= read -r package; do
             if [[ -n "$package" ]]; then
-                pkg_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/$package")
+                pkg_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-npm-local/@ascii-frog/frontend/-/@ascii-frog/$package")
                 if [[ $? -eq 0 ]]; then
                     timestamp=$(echo "$pkg_response" | jq -r '.created // empty' 2>/dev/null)
                     if [[ -n "$timestamp" && "$timestamp" != "null" ]]; then
@@ -400,7 +425,7 @@ if [[ $? -eq 0 ]] && [[ -n "$npm_frontend_response" ]]; then
             
             tail -n +4 "${temp_npm_frontend}_sorted" | while read timestamp package; do
                 if [[ "$EXECUTE" == "true" ]]; then
-                    safe_api_call "$ARTIFACTORY_URL/artifactory/p1-npm-local/@ascii-frog/frontend/-/@ascii-frog/$package" "DELETE"
+                    safe_api_call "$ARTIFACTORY_URL/artifactory/$PROJECT_KEY-npm-local/@ascii-frog/frontend/-/@ascii-frog/$package" "DELETE"
                 fi
                 sleep 1
             done
@@ -416,7 +441,7 @@ fi
 
 # Step 3: Clean up Docker images
 echo -e "\n🐳 Cleaning Docker images"
-docker_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-docker-local/ascii-frog-app/")
+docker_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-docker-local/ascii-frog-app/")
 if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
     docker_tags=$(echo "$docker_response" | jq -r '.children[] | select(.folder == true) | .uri' 2>/dev/null | sed 's|^/||' | grep -v '^_' | grep -v '^yahav$')
     docker_count=$(echo "$docker_tags" | grep -c '^..*$' 2>/dev/null || echo "0")
@@ -428,7 +453,7 @@ if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
         
         echo "$docker_tags" | while IFS= read -r tag; do
             if [[ -n "$tag" ]]; then
-                tag_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/p1-docker-local/ascii-frog-app/$tag")
+                tag_response=$(safe_api_call "$ARTIFACTORY_URL/artifactory/api/storage/$PROJECT_KEY-docker-local/ascii-frog-app/$tag")
                 if [[ $? -eq 0 ]]; then
                     timestamp=$(echo "$tag_response" | jq -r '.created // empty' 2>/dev/null)
                     if [[ -n "$timestamp" && "$timestamp" != "null" ]]; then
@@ -448,7 +473,7 @@ if [[ $? -eq 0 ]] && [[ -n "$docker_response" ]]; then
             
             tail -n +4 "${temp_docker}_sorted" | while read timestamp tag; do
                 if [[ "$EXECUTE" == "true" ]]; then
-                    safe_api_call "$ARTIFACTORY_URL/artifactory/p1-docker-local/ascii-frog-app/$tag/" "DELETE"
+                    safe_api_call "$ARTIFACTORY_URL/artifactory/$PROJECT_KEY-docker-local/ascii-frog-app/$tag/" "DELETE"
                 fi
                 sleep 1
             done
