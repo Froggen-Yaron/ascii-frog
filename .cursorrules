@@ -19,7 +19,7 @@
    - NEVER assume different clusters - stick to current context
 
 5. **Deployment parameters:**
-   - **Cluster**: Configurable via CLUSTER_CONTEXT in environment.conf
+   - **Cluster**: Derived from KUBECONFIG_FILE in environment.conf (removes file extension)
    - **Namespace**: `default` (unless explicitly specified otherwise)
    - **Image Registry**: `froggen.jfrog.io/docker/`
    - **Existing Deployment**: `ascii-frog-app` (update this, don't create new)
@@ -77,9 +77,9 @@
     - Provide alternatives that comply with project rules
 
 15. **Environment handling:**
-    - Cluster context configurable via CLUSTER_CONTEXT in environment.conf
+    - Cluster context derived from KUBECONFIG_FILE in environment.conf
     - **NEVER search for separate prod configs** - everything is in `default` namespace
-    - Use `~/.kube/fly-k8s-testing.yaml` as kubectl config reference (configurable)
+    - Use `~/.kube/$KUBECONFIG_FILE` as kubectl config reference (configurable)
     - Current deployment already exists: UPDATE, don't create new
 
 ---

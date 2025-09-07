@@ -45,6 +45,9 @@ echo "🐳 Target image: $TARGET_IMAGE"
 # KUBECONFIG_FILE is set from environment.conf, construct full path
 KUBECONFIG_PATH="$HOME/.kube/$KUBECONFIG_FILE"
 
+# Derive CLUSTER_CONTEXT from KUBECONFIG_FILE (remove file extension)
+CLUSTER_CONTEXT="${KUBECONFIG_FILE%.*}"
+
 # Check if kubectl is installed
 if ! command -v kubectl &> /dev/null; then
     echo "❌ ERROR: kubectl is not installed"
