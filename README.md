@@ -169,8 +169,8 @@ kubectl get deployments,services,pods -n default
 
 #### Deployment Commands
 ```bash
-# Use production kubectl config
-export KUBECONFIG=scripts/fly-k8s-prod-demo.conf
+# Use production kubectl config (or configure via ~/.zshrc)
+export KUBECONFIG=$KUBECONFIG:~/.kube/fly-k8s-testing.conf
 
 # Check current deployment
 kubectl get deployment ascii-frog-app

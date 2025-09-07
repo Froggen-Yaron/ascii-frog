@@ -58,7 +58,7 @@
     - When in doubt, use Fly-specific implementations
 
 11. **Context awareness:**
-    - **Kubectl config**: Use `scripts/fly-k8s-prod-demo.conf` 
+    - **Kubectl config**: Use `~/.kube/fly-k8s-testing.conf` (configurable via KUBECONFIG_FILE in environment.conf)
     - **Target existing deployment**: `ascii-frog-app` in `default` namespace
     - **Registry**: `froggen.jfrog.io/docker/`
     - **No manifest creation needed** - deployment already exists
@@ -79,7 +79,7 @@
 15. **Environment handling:**
     - Production = `fly-k8s-prod-demo` context (AWS cluster)
     - **NEVER search for separate prod configs** - everything is in `default` namespace
-    - Use `scripts/fly-k8s-prod-demo.conf` as kubectl config reference
+    - Use `~/.kube/fly-k8s-testing.conf` as kubectl config reference (configurable)
     - Current deployment already exists: UPDATE, don't create new
 
 ---
