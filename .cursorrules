@@ -38,6 +38,16 @@
    - Warn about uncommitted changes
    - Confirm destructive git operations
 
+7.5 **Commit Message Guidelines:**
+   - Make commit messages concise and explain what functionality was added
+   - Focus on the user-facing benefit rather than technical implementation details
+   - Use present tense and start with action verb
+   - Examples:
+     - "Added random color styling to frog names" (not "fix: update frog name display logic...")
+     - "Implemented keyboard shortcuts for terminal navigation"
+     - "Enhanced error handling for network timeouts"
+     - "Added support for custom ASCII art templates"
+
 ### 📦 RELEASE MANAGEMENT - ALWAYS APPLY
 
 8. **Release information sources:**
