@@ -39,14 +39,42 @@
    - Confirm destructive git operations
 
 7.5 **Commit Message Guidelines:**
-   - Make commit messages concise and explain what functionality was added
-   - Focus on the user-facing benefit rather than technical implementation details
+   - Write comprehensive commit messages that can serve as PR titles and descriptions
+   - **Format:** First line = PR title (concise, <50 chars), subsequent lines = detailed description
+   - Focus on user-facing benefits and business value
+   - Include: what changed, why it changed, and any important considerations
    - Use present tense and start with action verb
-   - Examples:
-     - "Added random color styling to frog names" (not "fix: update frog name display logic...")
-     - "Implemented keyboard shortcuts for terminal navigation"
-     - "Enhanced error handling for network timeouts"
-     - "Added support for custom ASCII art templates"
+   - **Template:**
+     ```
+     Added random color styling to frog names
+
+     - Enhanced visual appeal of frog names in terminal display
+     - Implemented random color selection from predefined palette
+     - Updated TerminalManager.displayFrogName() method
+     - Maintains backward compatibility with existing color schemes
+     - Tested across different terminal environments
+     ```
+
+   - **Examples:**
+     ```
+     Implemented keyboard shortcuts for terminal navigation
+
+     - Added arrow key navigation for ASCII art gallery
+     - Introduced 'h' key for help menu display
+     - Enhanced user experience with intuitive controls
+     - Keyboard shortcuts work in both light and dark themes
+     - Follows accessibility guidelines for keyboard navigation
+     ```
+
+     ```
+     Enhanced error handling for network timeouts
+
+     - Added retry logic with exponential backoff for API calls
+     - Implemented user-friendly error messages for timeout scenarios
+     - Graceful degradation when network connectivity is lost
+     - Prevents application crashes during network interruptions
+     - Added comprehensive logging for debugging network issues
+     ```
 
 ### 📦 RELEASE MANAGEMENT - ALWAYS APPLY
 
