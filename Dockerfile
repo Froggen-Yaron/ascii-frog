@@ -1,12 +1,12 @@
 # Multi-stage build for ASCII Frog Generator
-ARG FLY_REGISTRY_DOMAIN
+ARG FLY_REGISTRY_DOMAIN=froggen.jfrog.io
 FROM ${FLY_REGISTRY_DOMAIN}/docker/node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 # Copy pre-built frontend (already built in CI)
 COPY frontend/ ./
 
-ARG FLY_REGISTRY_DOMAIN
+ARG FLY_REGISTRY_DOMAIN=froggen.jfrog.io
 FROM ${FLY_REGISTRY_DOMAIN}/docker/node:20-alpine AS backend-builder
 
 WORKDIR /app/backend
@@ -14,7 +14,7 @@ WORKDIR /app/backend
 COPY backend/ ./
 
 # Production image
-ARG FLY_REGISTRY_DOMAIN
+ARG FLY_REGISTRY_DOMAIN=froggen.jfrog.io
 FROM ${FLY_REGISTRY_DOMAIN}/docker/node:20-alpine
 
 WORKDIR /app
