@@ -35,7 +35,6 @@ else
 fi
 
 # Configuration
-CLUSTER_CONTEXT="fly-k8s-prod-demo"
 NAMESPACE="default"
 DEPLOYMENT_NAME="ascii-frog-app"
 
