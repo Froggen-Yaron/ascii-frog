@@ -43,7 +43,8 @@ DEPLOYMENT_NAME="ascii-frog-app"
 echo "🌐 Using registry: $FLY_REGISTRY_DOMAIN"
 echo "🐳 Target image: $TARGET_IMAGE"
 
-KUBECONFIG_FILE="$HOME/.kube/fly-k8s-prod-demo.conf"
+# KUBECONFIG_FILE is set from environment.conf, construct full path
+KUBECONFIG_PATH="$HOME/.kube/$KUBECONFIG_FILE"
 
 # Check if kubectl is installed
 if ! command -v kubectl &> /dev/null; then
@@ -53,10 +54,10 @@ if ! command -v kubectl &> /dev/null; then
 fi
 
 # Check if kubeconfig file exists
-if [[ ! -f "$KUBECONFIG_FILE" ]]; then
-    echo "❌ ERROR: Kubeconfig file not found: $KUBECONFIG_FILE"
-    echo "💡 Please ensure the kubeconfig file is located at: ~/.kube/fly-k8s-prod-demo.conf"
-    echo "   Or set up your kubeconfig with: export KUBECONFIG=\$KUBECONFIG:~/.kube/fly-k8s-prod-demo.conf"
+if [[ ! -f "$KUBECONFIG_PATH" ]]; then
+    echo "❌ ERROR: Kubeconfig file not found: $KUBECONFIG_PATH"
+    echo "💡 Please ensure the kubeconfig file is located at: ~/.kube/$KUBECONFIG_FILE"
+    echo "   Or set up your kubeconfig with: export KUBECONFIG=\$KUBECONFIG:~/.kube/$KUBECONFIG_FILE"
     exit 1
 fi
 
@@ -77,12 +78,12 @@ echo -e "\n⚙️  Configuring kubectl"
 
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would configure kubectl:"
-    echo "  - Set KUBECONFIG=$KUBECONFIG_FILE"
+    echo "  - Set KUBECONFIG=$KUBECONFIG_PATH"
     echo "  - Use context: $CLUSTER_CONTEXT"
     echo "  - Set namespace: $NAMESPACE"
 else
     echo "Configuring kubectl..."
-    export KUBECONFIG="$KUBECONFIG_FILE"
+    export KUBECONFIG="$KUBECONFIG_PATH"
     
     echo "Setting kubectl context to: $CLUSTER_CONTEXT"
     if ! kubectl config use-context "$CLUSTER_CONTEXT"; then
@@ -109,7 +110,7 @@ else
     echo "Checking current deployment status..."
     
     # Set kubeconfig for subsequent commands
-    export KUBECONFIG="$KUBECONFIG_FILE"
+    export KUBECONFIG="$KUBECONFIG_PATH"
     
     # First test cluster connectivity
     echo "Testing cluster connectivity..."
@@ -120,7 +121,7 @@ else
         echo "  2. Network connectivity issues"
         echo "  3. Invalid certificates or authentication"
         echo ""
-        echo "Please check your kubeconfig file: $KUBECONFIG_FILE"
+        echo "Please check your kubeconfig file: $KUBECONFIG_PATH"
         echo "Ensure the 'server' field contains a valid cluster endpoint URL"
         exit 1
     fi
@@ -158,7 +159,7 @@ else
     echo "Target image: $TARGET_IMAGE"
     
     # Set kubeconfig and update the image
-    export KUBECONFIG="$KUBECONFIG_FILE"
+    export KUBECONFIG="$KUBECONFIG_PATH"
     
     echo "Executing image update..."
     if ! kubectl set image deployment/"$DEPLOYMENT_NAME" "$DEPLOYMENT_NAME"="$TARGET_IMAGE"; then
@@ -183,7 +184,7 @@ else
     echo "Verifying deployment..."
     
     # Set kubeconfig
-    export KUBECONFIG="$KUBECONFIG_FILE"
+    export KUBECONFIG="$KUBECONFIG_PATH"
     
     # Check pod status (only running pods)
     running_pods=$(kubectl get pods -l app="$DEPLOYMENT_NAME" --no-headers | grep -c "Running" || echo "0")
