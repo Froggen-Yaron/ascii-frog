@@ -79,7 +79,7 @@
 15. **Environment handling:**
     - Cluster context derived from KUBECONFIG_FILE in environment.conf
     - **NEVER search for separate prod configs** - everything is in `default` namespace
-    - Use `~/.kube/$KUBECONFIG_FILE` as kubectl config reference (configurable)
+    - Use `~/.kube/fly-k8s-for-testing.yaml` as kubectl config reference (configurable)
     - Current deployment already exists: UPDATE, don't create new
 
 ---
