@@ -137,7 +137,7 @@ The application is deployed to a production Kubernetes cluster with the followin
 
 #### Cluster Information
 ```yaml
-Cluster: fly-k8s-prod-demo
+Cluster: fly-k8s-XXXX
 Endpoint: XXX
 Namespace: default
 ```
