@@ -20,7 +20,6 @@ ENV_CONTEXT_FILE="$SCRIPT_DIR/../environment.conf"
 
 if [[ -f "$ENV_CONTEXT_FILE" ]]; then
     source "$ENV_CONTEXT_FILE"
-    SERVICE_URL="$K8S_SERVICE_URL"
     TARGET_IMAGE="$FLY_REGISTRY_DOMAIN/docker/$DOCKER_BASE_IMAGE_TAG"
     echo "✓ Using $ENV_CONTEXT environment (URLs from environment.conf)"
 else
@@ -28,14 +27,6 @@ else
     exit 1
 fi
 
-# Check if K8S_SERVICE_URL is placeholder value
-if [[ "$K8S_SERVICE_URL" == "XXX" ]]; then
-    echo "⚠️  WARNING: K8S_SERVICE_URL is set to placeholder value 'XXX'"
-    echo "❌ Cannot perform Kubernetes reset with placeholder configuration"
-    echo "💡 Please update K8S_SERVICE_URL in environment.conf with actual service URL"
-    echo "🚫 Skipping Kubernetes reset operations"
-    exit 0
-fi
 
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "🔍 DRY RUN MODE: Will show what would happen"
@@ -52,8 +43,7 @@ DEPLOYMENT_NAME="ascii-frog-app"
 echo "🌐 Using registry: $FLY_REGISTRY_DOMAIN"
 echo "🐳 Target image: $TARGET_IMAGE"
 
-# SERVICE_URL is set from K8S_SERVICE_URL in environment.conf
-KUBECONFIG_FILE="$(dirname "$0")/fly-k8s-prod-demo.conf"
+KUBECONFIG_FILE="$HOME/.kube/fly-k8s-prod-demo.conf"
 
 # Check if kubectl is installed
 if ! command -v kubectl &> /dev/null; then
@@ -65,6 +55,8 @@ fi
 # Check if kubeconfig file exists
 if [[ ! -f "$KUBECONFIG_FILE" ]]; then
     echo "❌ ERROR: Kubeconfig file not found: $KUBECONFIG_FILE"
+    echo "💡 Please ensure the kubeconfig file is located at: ~/.kube/fly-k8s-prod-demo.conf"
+    echo "   Or set up your kubeconfig with: export KUBECONFIG=\$KUBECONFIG:~/.kube/fly-k8s-prod-demo.conf"
     exit 1
 fi
 
@@ -187,7 +179,6 @@ echo -e "\n✅ Verifying deployment"
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "Would verify deployment:"
     echo "  - Check pod status"
-    echo "  - Test service availability at: $SERVICE_URL"
 else
     echo "Verifying deployment..."
     
@@ -214,21 +205,6 @@ else
         echo "Actual: $UPDATED_IMAGE"
     fi
     
-    # Test service availability
-    echo -e "\nTesting service availability..."
-    echo "Service URL: $SERVICE_URL"
-    
-    if command -v curl &> /dev/null; then
-        echo "Testing HTTP connectivity..."
-        if curl -f -s --connect-timeout 10 "$SERVICE_URL" > /dev/null; then
-            echo "✓ Service is accessible at $SERVICE_URL"
-        else
-            echo "❌ WARNING: Service may not be accessible at $SERVICE_URL"
-            echo "Please check manually or wait for deployment to fully complete"
-        fi
-    else
-        echo "⚠️  curl not available - please manually verify at: $SERVICE_URL"
-    fi
 fi
 
 echo -e "\n✅ Kubernetes reset completed successfully!"
