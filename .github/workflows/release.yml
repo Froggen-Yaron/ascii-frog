@@ -10,7 +10,7 @@ permissions:
 jobs:
   release:
     name: Release
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
     - name: 📥 Checkout code
