@@ -12,7 +12,7 @@ A fun web service that generates beautiful colored ASCII art frogs with a termin
 - 💻 **Terminal UI**: Embedded terminal-like display for an authentic CLI feel
 - 📋 **Copy to Clipboard**: Easy copying of generated ASCII art with frog names
 - 🎲 **Random Generation**: Get surprise professional frog combinations
-- 📱 **Responsive Design**: Works on desktop and mobile devices
+- 📱 **Responsive Design**: Works on desktop and mobile devices always 
 
 ## Quick Start
 
