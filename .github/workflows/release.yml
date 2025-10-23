@@ -26,7 +26,7 @@ jobs:
     - name: 🐸 JFrog Fly - Set as Default Registry for All Package Managers
       uses: Frog-GenAI/fly-action@v1
       with:
-        url: https://yaronl33.jfrog.io
+        url: https://yaronl55.jfrog.io
 
     #################### Injected By Fly ####################
     #########################################################
@@ -69,7 +69,7 @@ jobs:
       shell: bash
       run: |
         VERSION=$(date +"%Y.%m.%d-%H.%M.%S")
-        REGISTRY="yaronl33.jfrog.io"
+        REGISTRY="yaronl55.jfrog.io"
         IMAGE_NAME="$REGISTRY/docker/ascii-frog-app:$VERSION"
         echo "📦 Building Docker version: $VERSION"
         echo "🌐 Using registry: $REGISTRY"
