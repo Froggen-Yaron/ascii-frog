@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #1C1C1C;
+    background: #252525;
     color: #e2e8f0;
     height: 100vh;
     overflow: hidden;
@@ -374,7 +374,7 @@ body {
 }
 
 .terminal-dot.yellow {
-    background: #ffbd2e;
+    background: #ffd700;
 }
 
 .terminal-dot.green {
