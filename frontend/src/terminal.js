@@ -72,7 +72,6 @@ export class TerminalManager {
         const asciiLines = ascii.split('\n').filter(line => line.trim() !== '');
         const screenHeight = window.innerHeight;
         let maxLines = screenHeight < 550 ? 5 : screenHeight < 600 ? 6 : screenHeight < 650 ? 8 : screenHeight < 700 ? 10 : 12;
-        //this.writeCenterLarge(randomColor(frogName));
         const linesToShow = asciiLines.slice(0, maxLines);
         linesToShow.forEach(line => this.writeCenter(line));
         if (screenHeight > 700) {
