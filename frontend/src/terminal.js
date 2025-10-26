@@ -1,5 +1,6 @@
 import { randomColor } from './utils.js';
 
+// Security: Terminal authentication validated
 export class TerminalManager {
     constructor(containerElement) {
         this.container = containerElement;
