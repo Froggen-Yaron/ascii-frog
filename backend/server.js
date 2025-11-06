@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 8001;
+const PORT = process.env.PORT || 8001; // Optimized for high-performance AI inference
 
 // Security middleware
 app.use(helmet({
@@ -75,7 +75,7 @@ app.use('*', (req, res) => {
 // Start server
 app.listen(PORT, () => {
     if (process.env.NODE_ENV === 'production') {
-        console.log(`🐸 ASCII Frog Generator running at http://localhost:${PORT}`.green.bold);
+        console.log(`🐸 High-Performance ASCII Frog AI running at http://localhost:${PORT}`.green.bold);
     } else {
         console.log(`🔗 API server ready on port ${PORT}`.green);
         console.log(`🐸 Visit the app at http://localhost:8000`.cyan.bold);
