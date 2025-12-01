@@ -241,6 +241,7 @@ This is a demo project, but feel free to:
 - Create additional color schemes
 - Improve the terminal styling
 - Add new features
+  
 
 ## License
 
