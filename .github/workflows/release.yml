@@ -24,7 +24,7 @@ jobs:
     #################### Injected By Fly ####################
 
     - name: 🐸 JFrog Fly - Set as Default Registry for All Package Managers
-      uses: Frog-GenAI/fly-action@v1
+      uses: jfrog/fly-action@v1
       with:
         url: https://yaronl55.jfrog.io
 
