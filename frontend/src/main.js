@@ -90,7 +90,7 @@ export class AsciiFrogGenerator {
 
             if (data.success) {
                 this.displayAscii(data.ascii, data.frogName);
-                console.log(`🤖 AI Generated ${data.frogName} frog!`);
+                console.log(`🤖 AI Recommended ${data.frogName} frog based on user preferences!`);
             } else {
                 throw new Error(data.error || 'Failed to generate frog');
             }
@@ -108,7 +108,7 @@ export class AsciiFrogGenerator {
                 this.displayAscii(data.ascii, data.frogName);
                 // Update the select dropdown to show which frog was randomly chosen
                 this.frogSelect.value = data.templateId;
-                console.log(`🎲 AI Generated random frog: ${data.frogName}!`);
+                console.log(`🎲 AI Recommended random frog: ${data.frogName} based on smart matching!`);
             } else {
                 throw new Error(data.error || 'Failed to generate random frog');
             }

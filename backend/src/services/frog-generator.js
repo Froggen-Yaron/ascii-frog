@@ -2,7 +2,7 @@
 import { generateFrog, getAvailableTemplates } from '../templates/templates.js';
 
 /**
- * Generate a frog with specified type/ID
+ * Generate a frog with specified type/ID using AI personality analysis
  * @param {string} frogId - The ID of the frog type to generate
  * @returns {Object} Generated frog data with ASCII art and name
  */
