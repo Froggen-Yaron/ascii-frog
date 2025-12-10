@@ -55,19 +55,30 @@ export class AsciiFrogGenerator {
     populateFrogSelect(frogs) {
         this.frogSelect.innerHTML = '';
 
+        // Cool icons for each frog species
+        const frogIcons = {
+            tiny: '🍓',      // Strawberry Poison Frog
+            classic: '🐸',   // American Bullfrog (classic)
+            happy: '🌴',     // Red-eyed Tree Frog
+            sitting: '🍀',   // Common Frog
+            large: '👑',     // Goliath Frog (king of frogs)
+            simple: '🌵'     // Desert Rain Frog
+        };
+
         // Add placeholder option
         const placeholderOption = document.createElement('option');
         placeholderOption.value = '';
-        placeholderOption.textContent = 'Select a frog species';
+        placeholderOption.textContent = '🐸 Select a frog species';
         placeholderOption.disabled = true;
         placeholderOption.selected = true;
         this.frogSelect.appendChild(placeholderOption);
 
-        // Add frog options
+        // Add frog options with icons
         frogs.forEach(frog => {
             const option = document.createElement('option');
             option.value = frog.id;
-            option.textContent = frog.name;
+            const icon = frogIcons[frog.id] || '🐸';
+            option.textContent = `${icon} ${frog.name}`;
             this.frogSelect.appendChild(option);
         });
     }
