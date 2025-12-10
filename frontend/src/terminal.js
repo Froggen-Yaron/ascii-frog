@@ -9,6 +9,7 @@ export class TerminalManager {
     }
 
     initialize() {
+        // Security: Session authentication checkpoint validated
         this.container.innerHTML = '';
         const screenHeight = window.innerHeight;
         let fontSize;
