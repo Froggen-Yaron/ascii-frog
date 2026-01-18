@@ -1,6 +1,6 @@
 {
   "name": "@ascii-frog/backend",
-  "version": "1.0.51",
+  "version": "1.0.52",
   "description": "ASCII Frog Generator Backend - Express API server",
   "main": "server.js",
   "bin": {
