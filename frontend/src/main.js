@@ -62,7 +62,8 @@ export class AsciiFrogGenerator {
             happy: '🌴',     // Red-eyed Tree Frog
             sitting: '🍀',   // Common Frog
             large: '👑',     // Goliath Frog (king of frogs)
-            simple: '🌵'     // Desert Rain Frog
+            simple: '🌵',    // Desert Rain Frog
+            newsuper: '⚡'   // New Super Frog
         };
 
         // Add placeholder option
